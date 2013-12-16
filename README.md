@@ -5,7 +5,7 @@ A Ruby implementation of eISCP for controlling Onkyo receivers.
 
 **This code is still under heavy development and using it might make you sick.**
   * Create ISCP messages and eISCP packets
-```
+```ruby
 require 'eiscp'
 iscp_message = ISCPMessage.new("PWR", "01")
 eiscp_packet = EISCPPacket.new(iscp_message.message)
