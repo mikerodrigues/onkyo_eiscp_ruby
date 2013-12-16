@@ -1,0 +1,14 @@
+#!/usr/bin/env ruby
+
+require 'eiscp'
+
+eiscp = EISCP.new(ARGV[0])
+
+puts "command:"
+@command = $stdin.gets.chomp
+
+puts "parameter:"
+@paramager = $stdin.gets.chomp
+
+eiscp.send(EISCPPacket.new(ISCPMessage.new(@command, @parameter).message).packet_string)
+
