@@ -1,6 +1,6 @@
 require 'socket'
-require './eiscp_packet.rb'
-require './iscp_message.rb'
+require 'eiscp/eiscp_packet.rb'
+require 'eiscp/iscp_message.rb'
 
 class EISCP
   ONKYO_PORT = 60128
@@ -10,32 +10,55 @@ class EISCP
     @host = host
   end
 
-  def discover
+  def self.discover
     sock = UDPSocket.new
     sock.setsockopt(Socket::SOL_SOCKET, Socket::SO_BROADCAST, true)
-    sock.send(ONKYO_MAGIC, 0, '<broadcast>', '60128')
-    5.times do 
-      data, client = sock.recvfrom(1024)
-      puts data
-      puts client
+    sock.send(ONKYO_MAGIC, 0, '<broadcast>', ONKYO_PORT)
+    data = []
+    while true
+      ready = IO.select([sock], nil, nil, 3)
+      readable = ready[0]
+
+      readable.each do |socket|
+        if socket == sock
+          buf = sock.recv_nonblock(1024)
+          if buf.length == 0
+            puts "The server connection is dead. Exiting."
+            exit
+          else 
+            puts buf
+          end
+        end
+      end
     end
   end
 
   def send(eiscp_packet)
-    sock = UDPSocket.new
-    sock.send(eiscp_packet, 0, @host, ONKYO_PORT)
-    data = sock.recvfrom(1024)
-    puts data
-  end
-
-  def connect
-    sock = TCPSocket.new @host, 60128
+    sock = TCPSocket.new @host, ONKYO_PORT
+    sock.puts eiscp_packet
     while line = sock.gets.chomp
-      puts line
-      puts line.length
-      puts '-------------------'
+      if line == nil
+        puts line
+        puts line.length
+        puts '---------------'
+      end
     end
   end
+
+  def recv
+  end
+
+
+  def connect
+    sock = TCPSocket.new @host, ONKYO_PORT
+    buffer = ""
+    while line = sock.gets.chomp
+      buffer += line
+      puts buffer.split "\r"
+
+    end
+  end
+
 
 end
 
