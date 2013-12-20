@@ -14,8 +14,21 @@ A Ruby implementation of eISCP for controlling Onkyo receivers.
 Usage
 ________________
 
+	# require the library
 
 	require 'eiscp'
+
+	
+	# Discover local receivers
+	EISCP.discover
+	
+	
+	# Open a TCP connection to monitor solicited updates
+	EISCP.new('10.0.0.1')
+	EISCP.connect
+
+	# Turn on the receiver
 	iscp_message = ISCPMessage.new("PWR", "01")
 	eiscp_packet = EISCPPacket.new(iscp_message.message)
+
 
