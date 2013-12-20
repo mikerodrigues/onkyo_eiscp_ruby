@@ -1,8 +1,0 @@
-*~
-*.swp
-*.swo
-*.gem
-.ruby-gemset
-Gemfile.lock
-.bundle
-Rakefile
