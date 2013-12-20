@@ -16,20 +16,24 @@ class EISCP
     sock.send(ONKYO_MAGIC, 0, '<broadcast>', ONKYO_PORT)
     data = []
     while true
-      ready = IO.select([sock], nil, nil, 3)
-      readable = ready[0]
+      ready = IO.select([sock], nil, nil, 0.5)
+      if ready != nil
+        then readable = ready[0]
+      else
+        return data
+      end
+
 
       readable.each do |socket|
-        if socket == sock
-          buf = sock.recv_nonblock(1024)
-          if buf.length == 0
-            puts "The server connection is dead. Exiting."
-            exit
-          else 
-            puts buf
+        begin
+          if socket == sock
+            data << sock.recv_nonblock(1024)
           end
+        rescue
+          retry
         end
       end
+
     end
   end
 
