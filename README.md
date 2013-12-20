@@ -24,11 +24,13 @@ ________________
 	
 	
 	# Open a TCP connection to monitor solicited updates
-	EISCP.new('10.0.0.1')
-	EISCP.connect
+	eiscp = EISCP.new('10.0.0.1')
+	eiscp.connect
 
 	# Turn on the receiver
 	iscp_message = ISCPMessage.new("PWR", "01")
 	eiscp_packet = EISCPPacket.new(iscp_message.message)
+	eiscp.send(eiscp_packet.packet_string)
+	
 
 
