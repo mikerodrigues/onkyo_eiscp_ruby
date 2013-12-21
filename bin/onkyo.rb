@@ -60,8 +60,9 @@ end
 
 
 #command = Command.parse(ARGV)
-eiscp = EISCP.new(EISCP.discover[0])
-eiscp.send(EISCPPacket.new(ISCPMessage.new(ARGV[0], ARGV[1]).message).packet_string)
+puts EISCP.discover
+eiscp = EISCP.new(EISCP.discover[0][1])
+eiscp.send_recv(EISCPPacket.new(ISCPMessage.new(ARGV[0], ARGV[1]).message).packet_string)
 
 
 
