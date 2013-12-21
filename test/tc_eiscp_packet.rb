@@ -11,7 +11,7 @@ class TestEISCPPacket < Test::Unit::TestCase
   end
 
   def test_parse_discovery_packet_string
-    assert_equal(EISCPPacket.parse(DISCOVERY_STRING), DISCOVERY_PACKET)
+    assert_equal(EISCPPacket.parse(DISCOVERY_STRING).packet_string, DISCOVERY_PACKET.packet_string)
   end
 
 end

@@ -44,10 +44,10 @@ class EISCP
     sock.close
   end
 
-  def recv(sock)
+  def recv(sock, timeout = nil)
     data = []
     while true
-      ready = IO.select([sock], nil, nil, 0.5)
+      ready = IO.select([sock], nil, nil, timeout)
       if ready != nil
         then readable = ready[0]
       else
@@ -58,8 +58,7 @@ class EISCP
       readable.each do |socket|
         begin
           if socket == sock
-            msg, addr = sock.recv_nonblock(1024)
-            data << msg
+            data << sock.recv_nonblock(1024)
           end
         rescue IO::WaitReadable
           retry
@@ -73,7 +72,7 @@ class EISCP
   def send_recv(eiscp_packet)
     sock = TCPSocket.new @host, ONKYO_PORT
     sock.puts eiscp_packet
-    puts recv(sock)
+    recv(sock)
   end
 
 
@@ -82,8 +81,11 @@ class EISCP
     buffer = ""
     while line = sock.gets.chomp
       buffer += line
-      puts buffer.split "\r"
-
+      unless buffer.split("\r") == nil
+        command, buffer = buffer.split("\r", 2)
+        puts command
+        puts "Buffer: #{buffer}"
+      end
     end
   end
 

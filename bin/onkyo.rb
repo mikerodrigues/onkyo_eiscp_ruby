@@ -35,6 +35,10 @@ class Options
         @options.list_all = l
       end
 
+      opts.on '-c', '--connect', 'Connect to the first discovered reciever and show updates' do |c|
+        @options.connect = c
+      end
+
     end
 
     options.parse!(args)
@@ -51,16 +55,18 @@ class Options
       exit 0 
     end
 
+    if @options.connect
+      eiscp = EISCP.new(EISCP.discover[0][1])
+      eiscp.connect
+    end
   end
 
 end
 
+
 @options = Options.parse(ARGV)
 
 
-
-#command = Command.parse(ARGV)
-puts EISCP.discover
 eiscp = EISCP.new(EISCP.discover[0][1])
 eiscp.send_recv(EISCPPacket.new(ISCPMessage.new(ARGV[0], ARGV[1]).message).packet_string)
 
