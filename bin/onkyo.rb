@@ -56,11 +56,12 @@ class Options
 end
 
 @options = Options.parse(ARGV)
-puts ARGV
+
 
 
 #command = Command.parse(ARGV)
-#eiscp = EISCP.new(EISCP.discover[0])
+eiscp = EISCP.new(EISCP.discover[0])
+eiscp.send(EISCPPacket.new(ISCPMessage.new(ARGV[0], ARGV[1]).message).packet_string)
 
 
 
