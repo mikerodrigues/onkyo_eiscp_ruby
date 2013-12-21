@@ -72,7 +72,7 @@ class EISCP
   def send_recv(eiscp_packet)
     sock = TCPSocket.new @host, ONKYO_PORT
     sock.puts eiscp_packet
-    recv(sock)
+    puts recv(sock, 0.5)
   end
 
 
