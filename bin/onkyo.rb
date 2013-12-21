@@ -2,6 +2,7 @@
 
 require 'eiscp'
 require 'optparse'
+require 'ostruct'
 
 class Options
   DEFAULT_OPTIONS = { verbose: true, all: false }
@@ -40,7 +41,7 @@ class Options
 
     if @options.discover
       EISCP.discover.each do |receiver|
-        puts  EISCPPacket.parse(receiver).message
+        puts  EISCPPacket.parse(receiver).packet_string
       end
       exit 0
     end
@@ -52,10 +53,10 @@ class Options
 
   end
 
-  puts ARGV #this will contain zone, command, parameter for iscp message
-
 end
 
+@options = Options.parse(ARGV)
+puts ARGV
 
 
 #command = Command.parse(ARGV)
