@@ -26,9 +26,17 @@ class Options
         @options.help = h
       end
 
+      opts.on '-l', '--list', 'List commands compatible for each discovered model' do |l|
+        @options.list = l
+      end
+
+      opts.on '-L', '--list-all', 'List all commands regardless of model compatibility' do |l|
+        @options.list_all = l
+      end
+
     end
 
-    opts.parse!(args)
+    options.parse!(args)
 
     if @options.discover
       EISCP.discover.each do |receiver|
@@ -50,14 +58,9 @@ end
 
 
 
-
-command = Commands.parse(ARGV)
-eiscp = EISCP.new(EISCP.discover[0])
-
+#command = Command.parse(ARGV)
+#eiscp = EISCP.new(EISCP.discover[0])
 
 
 
-@paramager = $stdin.gets.chomp
-
-eiscp.send(EISCPPacket.new(ISCPMessage.new(@command, @parameter).message).packet_string)
 

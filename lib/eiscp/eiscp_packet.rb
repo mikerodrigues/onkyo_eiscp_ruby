@@ -12,7 +12,7 @@ class EISCPPacket
   end
 
   def self.parse(eiscp_message_string)
-    eiscp_message_string.unpack("A4NNAA3A*")
+    EISCPPacket.new(eiscp_message_string.unpack("A4NNAA3A*")[5])
   end
 
 end

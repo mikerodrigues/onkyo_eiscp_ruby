@@ -1,3 +1,5 @@
+require 'yaml'
+
 module Command
   @@yaml_file_path = File.join(File.expand_path(File.dirname(__FILE__)), '../../eiscp-commands.yaml')
   @@commands = YAML.load(File.read(@@yaml_file_path))
