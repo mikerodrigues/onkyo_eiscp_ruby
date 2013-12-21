@@ -6,4 +6,4 @@ end
 require 'eiscp/eiscp'
 require 'eiscp/eiscp_packet'
 require 'eiscp/iscp_message'
-require 'esicp/command'
+require 'eiscp/command'
