@@ -45,7 +45,7 @@ class Options
 
     if @options.discover
       EISCP.discover.each do |receiver|
-        puts  EISCPPacket.parse(receiver).packet_string
+        puts  EISCPPacket.parse(receiver[0]).packet_string
       end
       exit 0
     end

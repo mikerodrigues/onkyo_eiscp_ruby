@@ -4,7 +4,7 @@ Gem::Specification.new do |s|
   s.platform     = Gem::Platform::RUBY
   s.summary      = 'Manipulate Onkyo stereos with the eISCP protocol'
   s.files        = Dir.glob('{bin,config,lib,test,doc}/**/*') +
-    ["VERSION", "Gemfile", "onkyo_eiscp_ruby.gemspec", "eiscp-commands.yaml"]
+    ["VERSION", "onkyo_eiscp_ruby.gemspec", "eiscp-commands.yaml"]
   s.extra_rdoc_files = ["README.md"]
   s.require_path = 'lib'
 

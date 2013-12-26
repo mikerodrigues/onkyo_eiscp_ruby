@@ -65,6 +65,8 @@ class EISCP
         end
       end
 
+
+
     end
 
   end
@@ -72,20 +74,41 @@ class EISCP
   def send_recv(eiscp_packet)
     sock = TCPSocket.new @host, ONKYO_PORT
     sock.puts eiscp_packet
-    puts recv(sock, 0.5)
+    puts recv(sock, 1)
+    puts recv(sock, 1)
   end
 
 
   def connect
     sock = TCPSocket.new @host, ONKYO_PORT
     buffer = ""
-    while line = sock.gets.chomp
-      buffer += line
-      unless buffer.split("\r") == nil
-        command, buffer = buffer.split("\r", 2)
-        puts command
-        puts "Buffer: #{buffer}"
+    while true
+      ready = IO.select([sock], nil, nil, nil)
+      if ready != nil
+        then readable = ready[0]
+      else
+        break
       end
+
+      readable.each do |socket|
+        begin
+          if socket == sock
+            buffer += sock.recv_nonblock(1024)
+          end
+        rescue IO::WaitReadable
+          retry
+        end
+      end
+
+      messages = buffer.split("\r")
+      unless messages.count > 1
+        continue
+      else
+        puts messages.shift
+        buffer = messages[0]
+      end
+
+      
     end
   end
 
