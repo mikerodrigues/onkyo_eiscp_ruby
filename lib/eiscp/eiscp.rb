@@ -11,7 +11,7 @@ class EISCP
   end
 
 
-  def self.recv(sock, timeout = nil)
+  def self.recv(sock, timeout = 0.5)
     data = []
     while true
       ready = IO.select([sock], nil, nil, timeout)
@@ -39,7 +39,28 @@ class EISCP
     sock = UDPSocket.new
     sock.setsockopt(Socket::SOL_SOCKET, Socket::SO_BROADCAST, true)
     sock.send(ONKYO_MAGIC, 0, '<broadcast>', ONKYO_PORT)
-    self.recv(sock, 0.5)
+    data = []
+    while true
+      ready = IO.select([sock], nil, nil, 0.5)
+      if ready != nil
+        then readable = ready[0]
+      else
+        return data
+      end
+
+
+      readable.each do |socket|
+        begin
+          if socket == sock
+            msg, addr = sock.recvfrom_nonblock(1024)
+            data << [msg, addr[2]]
+          end
+        rescue IO::WaitReadable
+          retry
+        end
+      end
+
+    end
   end
 
   def send(eiscp_packet)
@@ -51,18 +72,42 @@ class EISCP
   def send_recv(eiscp_packet)
     sock = TCPSocket.new @host, ONKYO_PORT
     sock.puts eiscp_packet
-    self.recv(sock, 0.5)
+    puts EISCP.recv(sock, 0.5)
   end
 
 
   def connect
     sock = TCPSocket.new @host, ONKYO_PORT
-    self.recv(sock, nil)
+    while true
+      ready = IO.select([sock], nil, nil, nil)
+      if ready != nil
+        then readable = ready[0]
+      else
+        return
+      end
+
+      readable.each do |socket|
+        begin
+          if socket == sock
+            data = sock.recv_nonblock(1024).chomp
+            if block_given?
+              yield
+            else
+              puts data
+            end
+          end
+        rescue IO::WaitReadable
+          retry
+        end
+      end
+
+    end
   end
 
-
-
 end
+
+
+
 
 
 
