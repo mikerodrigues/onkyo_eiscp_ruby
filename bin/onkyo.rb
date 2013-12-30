@@ -43,6 +43,10 @@ class Options
 
     options.parse!(args)
 
+    if @options == nil && ARGV == []
+      puts options
+    end
+
     if @options.discover
       EISCP.discover.each do |receiver|
         puts  EISCPPacket.parse(receiver[0]).packet_string
@@ -58,6 +62,11 @@ class Options
     if @options.connect
       eiscp = EISCP.new(EISCP.discover[0][1])
       eiscp.connect
+    end
+
+    if ARGV == []
+      puts options
+      exit 0
     end
   end
 

@@ -76,7 +76,7 @@ class EISCP
   end
 
 
-  def connect
+  def connect(&block)
     sock = TCPSocket.new @host, ONKYO_PORT
     while true
       ready = IO.select([sock], nil, nil, nil)
@@ -91,7 +91,7 @@ class EISCP
           if socket == sock
             data = sock.recv_nonblock(1024).chomp
             if block_given?
-              yield
+              yield data
             else
               puts data
             end
