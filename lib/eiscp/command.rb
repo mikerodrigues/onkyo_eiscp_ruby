@@ -1,16 +1,41 @@
 require 'yaml'
+require 'eiscp/eiscp'
 
 module Command
+
   @@yaml_file_path = File.join(File.expand_path(File.dirname(__FILE__)), '../../eiscp-commands.yaml')
-  @@commands = YAML.load(File.read(@@yaml_file_path))
-  @@modelsets = @@commands["modelsets"]
-  @@commands.delete("modelsets")
-  @@zones = @@commands.map{|k, v| k}
+  @@yaml_object = YAML.load(File.read(@@yaml_file_path))
+  @@modelsets = @@yaml_object["modelsets"]
+  @@yaml_object.delete("modelsets")
+  @@zones = @@yaml_object.map{|k, v| k}
   @@zones.each {|zone| class_variable_set("@@#{zone}", nil) }
+  @@main = @@yaml_object['main']
 
 
 
+  def self.command_to_name(command)
+    return @@main[command]['name']
+  end
 
+  def self.name_to_command(name)
+    @@main.each_pair do |command, attrs|
+      if attrs['name'] == name
+        return command
+      end
+    end
+  end
 
+  def self.list_all_commands
+    @@main.each_pair do |command, attrs|
+      puts "#{command} - #{attrs['name']}: #{attrs['description']}"
+      attrs['values'].each_pair do |k, v|
+        puts "--#{k}:#{v}"
+      end
+    end
+  end
 
+  def self.list_compatible_commands
+
+  end
 end
+
