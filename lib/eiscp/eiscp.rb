@@ -4,7 +4,7 @@ require 'eiscp/iscp_message.rb'
 
 class EISCP
   ONKYO_PORT = 60128
-  ONKYO_MAGIC = EISCPPacket.new("!xECNQSTN").packet_string
+  ONKYO_MAGIC = EISCPPacket.new("ECN", "QSTN", "x").to_s
 
   def initialize(host)
     @host = host

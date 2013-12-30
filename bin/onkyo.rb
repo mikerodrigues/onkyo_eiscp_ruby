@@ -49,7 +49,7 @@ class Options
 
     if @options.discover
       EISCP.discover.each do |receiver|
-        puts  EISCPPacket.parse(receiver[0]).packet_string
+        puts  EISCPPacket.parse(receiver[0]).to_s
       end
       exit 0
     end
@@ -77,7 +77,7 @@ end
 
 
 eiscp = EISCP.new(EISCP.discover[0][1])
-eiscp.send_recv(EISCPPacket.new(ISCPMessage.new(ARGV[0], ARGV[1]).message).packet_string)
+eiscp.send_recv(EISCPPacket.new(ISCPMessage.new(ARGV[0], ARGV[1]).message).to_s)
 
 
 
