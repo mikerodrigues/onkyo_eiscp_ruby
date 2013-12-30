@@ -25,6 +25,26 @@ module Command
     end
   end
 
+  def self.description_from_name(name)
+    @@main.each_pair do |command, attrs|
+      if attrs['name'] == name
+        return command['description']
+      end
+    end
+  end
+
+  def self.description_from_command(command)
+    return @@main[command]['description']
+  end
+
+  def self.description_from_command_value(command, value)
+    return @@main[command]['values'].select do |k, v| 
+      if k == value
+        return v['description']
+      end
+    end
+  end
+
   def self.list_all_commands
     @@main.each_pair do |command, attrs|
       puts "#{command} - #{attrs['name']}: #{attrs['description']}"
