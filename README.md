@@ -27,10 +27,14 @@ ________________
 	eiscp = EISCP.new('10.0.0.1')
 	eiscp.connect
 
+	# You can also pass a block and operate on received packet strings:
+	eiscp.connect do |data|
+	  puts EISCPPacket.parse(data).iscp_message
+	end
+
 	# Turn on the receiver
 	iscp_message = ISCPMessage.new("PWR", "01")
 	eiscp_packet = EISCPPacket.new(iscp_message.message)
 	eiscp.send(eiscp_packet.packet_string)
 	
-
 
