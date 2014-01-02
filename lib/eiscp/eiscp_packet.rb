@@ -15,8 +15,8 @@ class EISCPPacket
   attr_reader :iscp_message
 
   # Create a new EISCPPacket object with a given command and parameter
-  # +command+ - an ISCP command like "PWR" for "system-power"
-  # +parameter+ - an ISCP command parameter like "01" for "on" for 
+  # -+command+ - an ISCP command like "PWR" for "system-power"
+  # -+parameter+ - an ISCP command parameter like "01" for "on" for 
   # "system-power"
   
   def initialize(command, parameter, unit_type = "1", start = "!")

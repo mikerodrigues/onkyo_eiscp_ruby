@@ -1,5 +1,6 @@
 require 'socket'
-require 'eiscp'
+require 'eiscp/eiscp_packet'
+require 'eiscp/eiscp'
 
 # Mock server that only responds to ECNQSTN.
 
@@ -10,12 +11,11 @@ class EISCPServer
   # Create/start the server object.
 
   def initialize
-    Socket.udp_server_loop("255.255.255.255", 60128) do |msg, msg_src|
-      msg_src.reply ONKYO_DISCOVERY_RESPONSE
+    Socket.udp_server_loop("255.255.255.255", EISCP::ONKYO_PORT) do |msg, msg_src|
+      msg_src.reply ONKYO_DISCOVERY_RESPONSE.to_s
       puts msg
     end
   end
-end
 
-EISCPServer.new
+end
 

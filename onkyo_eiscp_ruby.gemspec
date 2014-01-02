@@ -20,6 +20,7 @@ Gem::Specification.new do |s|
   s.test_files = Dir[ 'test/tc*.rb' ]
   s.executables = %w(
     onkyo.rb
+    onkyo-server.rb
   )
 
 end

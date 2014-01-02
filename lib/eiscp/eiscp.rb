@@ -6,10 +6,13 @@ class EISCP
   ONKYO_PORT = 60128
   ONKYO_MAGIC = EISCPPacket.new("ECN", "QSTN", "x").to_s
 
+  # Create a new EISCP object to communicate with a receiver.
+
   def initialize(host)
     @host = host
   end
 
+  # Internal method for receiving data with a timeout
 
   def self.recv(sock, timeout = 0.5)
     data = []
@@ -34,6 +37,9 @@ class EISCP
 
     end
   end
+  
+  # Returns an array of arrays consisting of a discovery response packet string
+  # and the source ip address of the reciever.
 
   def self.discover
     sock = UDPSocket.new
@@ -62,6 +68,8 @@ class EISCP
 
     end
   end
+  
+  # Sends a packet string on the network
 
   def send(eiscp_packet)
     sock = TCPSocket.new @host, ONKYO_PORT
@@ -69,12 +77,16 @@ class EISCP
     sock.close
   end
 
+  # Send a packet string and return recieved data string.
+  
   def send_recv(eiscp_packet)
     sock = TCPSocket.new @host, ONKYO_PORT
     sock.puts eiscp_packet
     puts EISCP.recv(sock, 0.5)
   end
 
+  # Open a TCP connection to the host and print all received messages until
+  # killed.
 
   def connect(&block)
     sock = TCPSocket.new @host, ONKYO_PORT
