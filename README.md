@@ -5,7 +5,8 @@ A Ruby implementation of eISCP for controlling Onkyo receivers.
 
 **This code is still under heavy development and using it might make you sick.**
 * Create ISCP messages and eISCP packets
-* Send/Recieve UDP eISCP messages
+* Automatically discover receiver's in the broadcast domain
+* Send/Recieve eISCP messages
 * Open a TCP socket to send commands and receive solicited and non-solicited status updates.
 * Mock reciever (currently only responds to discovery)
 
@@ -35,6 +36,6 @@ ________________
 	# Turn on the receiver
 	iscp_message = ISCPMessage.new("PWR", "01")
 	eiscp_packet = EISCPPacket.new(iscp_message.message)
-	eiscp.send(eiscp_packet.packet_string)
+	eiscp.send(eiscp_packet.to_s)
 	
 
