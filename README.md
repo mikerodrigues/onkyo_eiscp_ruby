@@ -18,7 +18,6 @@ ________________
 	# require the library
 
 	require 'eiscp'
-
 	
 	# Discover local receivers
 	EISCP.discover
@@ -30,12 +29,22 @@ ________________
 
 	# You can also pass a block and operate on received packet strings:
 	eiscp.connect do |data|
-	  puts EISCPPacket.parse(data).iscp_message
+	  puts ISCPMessage.parse(data).iscp_message
 	end
 
 	# Turn on the receiver
 	iscp_message = ISCPMessage.new("PWR", "01")
-	eiscp_packet = EISCPPacket.new(iscp_message.message)
-	eiscp.send(eiscp_packet.to_s)
+	eiscp.send(iscp_message.to_eiscp)
+
+	# New 'parse' method makes creating ISCPMessage objects more flexible
+	# This parses messages from command line or raw eiscp data from the socket
 	
+	# Various command line styles:
+        iscp_message = ISCPMessage.parse "PWR01"
+	iscp_message = ISCPMessage.parse "PWR 01"
+	iscp_message = ISCPMessage.parse "!1PWR01"
+	iscp_message = ISCPMessage.parse "!1PWR 01"
+
+	# Parsing raw socket data
+	iscp_message_from_raw_eiscp = ISCPMessage.parse iscp_message.to_eiscp
 
