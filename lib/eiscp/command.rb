@@ -1,5 +1,5 @@
 require 'yaml'
-require 'eiscp/eiscp'
+require 'eiscp/receiver'
 require 'ostruct'
 
 module Command

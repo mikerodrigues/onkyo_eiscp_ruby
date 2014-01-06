@@ -4,6 +4,6 @@ class EISCP
   VERSION = '0.0.2'
 end
 
-require 'eiscp/eiscp'
+require 'eiscp/receiver'
 require 'eiscp/iscp_message'
 require 'eiscp/command'
