@@ -1,4 +1,4 @@
-require_relative "../lib/eiscp/iscp_message.rb"
+require_relative "../lib/eiscp/eiscp"
 require "test/unit"
 
 class TestEISCP <  Test::Unit::TestCase
