@@ -49,7 +49,7 @@ class Options
 
     if @options.discover
       EISCP.discover.each do |receiver|
-        puts  EISCPPacket.parse(receiver[0]).to_s
+        puts  ISCPMessage.parse(receiver[0]).to_iscp
       end
       exit 0
     end
@@ -61,7 +61,9 @@ class Options
 
     if @options.connect
       eiscp = EISCP.new(EISCP.discover[0][1])
-      eiscp.connect
+      eiscp.connect do |data|
+        puts msg = ISCPMessage.parse(data).to_iscp
+      end
     end
 
     if ARGV == []
@@ -77,7 +79,8 @@ end
 
 
 eiscp = EISCP.new(EISCP.discover[0][1])
-eiscp.send_recv(EISCPPacket.new(ISCPMessage.new(ARGV[0], ARGV[1]).message).to_s)
+message = (ISCPMessage.parse(ARGV.join(" ")).to_eiscp)
+eiscp.send_recv message
 
 
 

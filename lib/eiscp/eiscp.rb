@@ -3,7 +3,7 @@ require 'eiscp/iscp_message.rb'
 
 class EISCP
   ONKYO_PORT = 60128
-  ONKYO_MAGIC = ISCPMessage.new("ECN", "QSTN", "x").to_s
+  @onkyo_magic = ISCPMessage.new("ECN", "QSTN", "x").to_eiscp
 
   # Create a new EISCP object to communicate with a receiver.
 
@@ -43,7 +43,7 @@ class EISCP
   def self.discover
     sock = UDPSocket.new
     sock.setsockopt(Socket::SOL_SOCKET, Socket::SO_BROADCAST, true)
-    sock.send(ONKYO_MAGIC, 0, '<broadcast>', ONKYO_PORT)
+    sock.send(@onkyo_magic, 0, '<broadcast>', ONKYO_PORT)
     data = []
     while true
       ready = IO.select([sock], nil, nil, 0.5)

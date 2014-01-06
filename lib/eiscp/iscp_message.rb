@@ -66,7 +66,7 @@ class ISCPMessage
 
   #ISCP Message string parser
   def self.parse_iscp_message(msg_string)
-    match = msg_string.match(/(?<start>!)?(?<unit_type>\w)?(?<command>[A-Z]{3})(?<parameter>\S+)/)
+    match = msg_string.match(REGEX)
     ISCPMessage.new(match[:command], match[:parameter], match[:unit_type], match[:start])
   end
 
