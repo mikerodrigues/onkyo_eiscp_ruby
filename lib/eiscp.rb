@@ -5,5 +5,5 @@ class EISCP
 end
 
 require 'eiscp/receiver'
-require 'eiscp/iscp_message'
+require 'eiscp/eiscp'
 require 'eiscp/command'
