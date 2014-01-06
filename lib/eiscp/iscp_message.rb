@@ -73,7 +73,7 @@ class ISCPMessage
 
   # Return ISCP Message string
   def to_iscp
-    return "#{@start + @unit_type + @command + @parameter}\r"
+    return "#{@start + @unit_type + @command + @parameter}"
   end
 
   # Return EISCP Message string

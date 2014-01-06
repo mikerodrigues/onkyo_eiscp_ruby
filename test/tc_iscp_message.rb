@@ -3,9 +3,9 @@ require "test/unit"
 
 class TestISCPMessage <  Test::Unit::TestCase
 
-  DISCOVERY_STRING = "ISCP\x00\x00\x00\x10\x00\x00\x00\n\x01\x00\x00\x00!xECNQSTN"
-  DISCOVERY_PACKET = EISCPPacket.new('ECN', 'QSTN', 'x', '!')
-
+  
+  DISCOVERY_PACKET = ISCPMessage.new('ECN', 'QSTN', 'x', '!')
+  DISCOVERY_STRING = DISCOVERY_PACKET.to_eiscp
 
 
   def test_create_discovery_iscp_message
