@@ -9,7 +9,7 @@ class Receiver
   attr_accessor :area
   attr_accessor :mac_address
 
-  @onkyo_magic = ISCPMessage.new("ECN", "QSTN", "x").to_eiscp
+  @onkyo_magic = EISCP.new("ECN", "QSTN", "x").to_eiscp
   @onkyo_port = 60128
   # Create a new EISCP object to communicate with a receiver.
 

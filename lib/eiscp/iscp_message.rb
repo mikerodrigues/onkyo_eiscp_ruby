@@ -1,4 +1,4 @@
-class ISCPMessage
+class EISCP
 
   # EISCP header
   attr_accessor :header
@@ -67,7 +67,7 @@ class ISCPMessage
   #ISCP Message string parser
   def self.parse_iscp_message(msg_string)
     match = msg_string.match(REGEX)
-    ISCPMessage.new(match[:command], match[:parameter], match[:unit_type], match[:start])
+    EISCP.new(match[:command], match[:parameter], match[:unit_type], match[:start])
   end
 
 
@@ -84,8 +84,8 @@ class ISCPMessage
   #parse eiscp_message string 
   def self.parse_eiscp_string(eiscp_message_string)
     array = eiscp_message_string.unpack("A4NNAa3A*")
-    iscp_message = ISCPMessage.parse_iscp_message(array[5])
-    packet = ISCPMessage.new(iscp_message.command, iscp_message.parameter, iscp_message.unit_type, iscp_message.start)
+    iscp_message = EISCP.parse_iscp_message(array[5])
+    packet = EISCP.new(iscp_message.command, iscp_message.parameter, iscp_message.unit_type, iscp_message.start)
     packet.header = { 
       :magic => array[0],
       :header_size => array[1],

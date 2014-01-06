@@ -6,7 +6,7 @@ require 'eiscp/iscp_message'
 
 class EISCPServer
 
-  ONKYO_DISCOVERY_RESPONSE =  ISCPMessage.new("ECN", "TX-NR609/60128/DX/001122334455")
+  ONKYO_DISCOVERY_RESPONSE =  EISCP.new("ECN", "TX-NR609/60128/DX/001122334455")
 
   # Create/start the server object.
 
