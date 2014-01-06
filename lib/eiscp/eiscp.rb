@@ -1,10 +1,9 @@
 require 'socket'
-require 'eiscp/eiscp_packet.rb'
 require 'eiscp/iscp_message.rb'
 
 class EISCP
   ONKYO_PORT = 60128
-  ONKYO_MAGIC = EISCPPacket.new("ECN", "QSTN", "x").to_s
+  ONKYO_MAGIC = ISCPMessage.new("ECN", "QSTN", "x").to_s
 
   # Create a new EISCP object to communicate with a receiver.
 
