@@ -1,4 +1,4 @@
-# Create and send EISCP messages to control Onkyo receivers.
+# Library for controlling Onkyo receivers over TCP/IP.
 
 module EISCP
   VERSION = '0.0.2'

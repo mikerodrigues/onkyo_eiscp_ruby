@@ -18,7 +18,7 @@ module EISCP
 
 
     # REGEX
-    REGEX = /(?<start>!)?(?<unit_type>\d)?(?<command>[A-Z]{3})\s?(?<parameter>\S+)/
+    REGEX = /(?<start>!)?(?<unit_type>\w)?(?<command>[A-Z]{3})\s?(?<parameter>\S+)/
 
     def initialize(command, parameter, unit_type = "1", start = "!")
       if unit_type == nil
@@ -42,7 +42,11 @@ module EISCP
       }
     end
 
-    def self.identify(string)
+
+    # Identifies message format, calls appropriate parse function
+    # returns Message object.
+
+    def self.parse(string)
       case string
       when /^ISCP/
         parse_eiscp_string(string)
@@ -53,33 +57,13 @@ module EISCP
       end
     end
 
-    def self.parse(string)
-
-      identify string
-
-      # figure out whether you're parsing
-      # - iscp msg string '!1PWR01'
-      # - eiscp msg string 'ISCP  1!PWR01'
-      # - raw command/value 'PWR', '01
-
-    end
 
 
-    #ISCP Message string parser
+    # ISCP Message string parser
+
     def self.parse_iscp_message(msg_string)
       match = msg_string.match(REGEX)
       Message.new(match[:command], match[:parameter], match[:unit_type], match[:start])
-    end
-
-
-    # Return ISCP Message string
-    def to_iscp
-      return "#{@start + @unit_type + @command + @parameter}"
-    end
-
-    # Return EISCP Message string
-    def to_eiscp
-      return [ @header[:magic], @header[:header_size], @header[:data_size], @header[:version], @header[:reserved], @iscp_message.to_s ].pack("A4NNAa3A*")
     end
 
     #parse eiscp_message string 
@@ -95,7 +79,17 @@ module EISCP
         :reserved => array[4]
       }   
       return packet
-    end 
+    end
+
+    # Return ISCP Message string
+    def to_iscp
+      return "#{@start + @unit_type + @command + @parameter}"
+    end
+
+    # Return EISCP Message string
+    def to_eiscp
+      return [ @header[:magic], @header[:header_size], @header[:data_size], @header[:version], @header[:reserved], @iscp_message.to_s ].pack("A4NNAa3A*")
+    end
 
   end
 end

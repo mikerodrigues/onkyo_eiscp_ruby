@@ -1,4 +1,4 @@
-require_relative "../lib/eiscp/eiscp.rb"
+require_relative "../lib/eiscp/receiver"
 require "test/unit"
 
 class TestEISCP
