@@ -1,124 +1,99 @@
-require 'socket'
-require 'eiscp/eiscp'
-
 class EISCP
-  ONKYO_PORT = 60128
-  @onkyo_magic = EISCP.new("ECN", "QSTN", "x").to_eiscp
 
-  # Create a new EISCP object to communicate with a receiver.
+  # EISCP header
+  attr_accessor :header
+  MAGIC = "ISCP"
+  HEADER_SIZE = 16
+  VERSION = "\x01"
+  RESERVED = "\x00\x00\x00"
 
-  def initialize(host)
-    @host = host
+
+  # ISCP attrs
+  attr_accessor :start
+  attr_accessor :unit_type
+  attr_accessor :command
+  attr_accessor :parameter
+  attr_reader   :iscp_message
+
+
+  # REGEX
+  REGEX = /(?<start>!)?(?<unit_type>\d)?(?<command>[A-Z]{3})\s?(?<parameter>\S+)/
+
+  def initialize(command, parameter, unit_type = "1", start = "!")
+    if unit_type == nil
+      @unit_type = "1"
+    else
+      @unit_type = unit_type
+    end
+    if start == nil
+      @start = "!"
+    else
+      @start = start
+    end
+    @command = command
+    @parameter = parameter
+    @iscp_message = [ @start, @unit_type, @command, @parameter ].inject(:+)
+    @header = { :magic => MAGIC, 
+                :header_size => HEADER_SIZE, 
+                :data_size => @iscp_message.length,
+                :version => VERSION, 
+                :reserved => RESERVED 
+    }
   end
 
-  # Internal method for receiving data with a timeout
-
-  def self.recv(sock, timeout = 0.5)
-    data = []
-    while true
-      ready = IO.select([sock], nil, nil, timeout)
-      if ready != nil
-        then readable = ready[0]
-      else
-        return data
-      end
-
-
-      readable.each do |socket|
-        begin
-          if socket == sock
-            data << sock.recv_nonblock(1024).chomp
-          end
-        rescue IO::WaitReadable
-          retry
-        end
-      end
-
+  def self.identify(string)
+    case string
+    when /^ISCP/
+      parse_eiscp_string(string)
+    when REGEX
+      parse_iscp_message(string)
+    else
+      puts "Not a valid ISCP or EISCP message."
     end
   end
-  
-  # Returns an array of arrays consisting of a discovery response packet string
-  # and the source ip address of the reciever.
 
-  def self.discover
-    sock = UDPSocket.new
-    sock.setsockopt(Socket::SOL_SOCKET, Socket::SO_BROADCAST, true)
-    sock.send(@onkyo_magic, 0, '<broadcast>', ONKYO_PORT)
-    data = []
-    while true
-      ready = IO.select([sock], nil, nil, 0.5)
-      if ready != nil
-        then readable = ready[0]
-      else
-        return data
-      end
+  def self.parse(string)
 
+    identify string
 
-      readable.each do |socket|
-        begin
-          if socket == sock
-            msg, addr = sock.recvfrom_nonblock(1024)
-            data << [msg, addr[2]]
-          end
-        rescue IO::WaitReadable
-          retry
-        end
-      end
+    # figure out whether you're parsing
+    # - iscp msg string '!1PWR01'
+    # - eiscp msg string 'ISCP  1!PWR01'
+    # - raw command/value 'PWR', '01
 
-    end
-  end
-  
-  # Sends a packet string on the network
-
-  def send(eiscp_packet)
-    sock = TCPSocket.new @host, ONKYO_PORT
-    sock.puts eiscp_packet
-    sock.close
   end
 
-  # Send a packet string and return recieved data string.
-  
-  def send_recv(eiscp_packet)
-    sock = TCPSocket.new @host, ONKYO_PORT
-    sock.puts eiscp_packet
-    puts EISCP.recv(sock, 0.5)
+
+  #ISCP Message string parser
+  def self.parse_iscp_message(msg_string)
+    match = msg_string.match(REGEX)
+    EISCP.new(match[:command], match[:parameter], match[:unit_type], match[:start])
   end
 
-  # Open a TCP connection to the host and print all received messages until
-  # killed.
 
-  def connect(&block)
-    sock = TCPSocket.new @host, ONKYO_PORT
-    while true
-      ready = IO.select([sock], nil, nil, nil)
-      if ready != nil
-        then readable = ready[0]
-      else
-        return
-      end
-
-      readable.each do |socket|
-        begin
-          if socket == sock
-            data = sock.recv_nonblock(1024).chomp
-            if block_given?
-              yield data
-            else
-              puts data
-            end
-          end
-        rescue IO::WaitReadable
-          retry
-        end
-      end
-
-    end
+  # Return ISCP Message string
+  def to_iscp
+    return "#{@start + @unit_type + @command + @parameter}"
   end
+
+  # Return EISCP Message string
+  def to_eiscp
+    return [ @header[:magic], @header[:header_size], @header[:data_size], @header[:version], @header[:reserved], @iscp_message.to_s ].pack("A4NNAa3A*")
+  end
+
+  #parse eiscp_message string 
+  def self.parse_eiscp_string(eiscp_message_string)
+    array = eiscp_message_string.unpack("A4NNAa3A*")
+    iscp_message = EISCP.parse_iscp_message(array[5])
+    packet = EISCP.new(iscp_message.command, iscp_message.parameter, iscp_message.unit_type, iscp_message.start)
+    packet.header = { 
+      :magic => array[0],
+      :header_size => array[1],
+      :data_size => array[2],
+      :version => array[3],
+      :reserved => array[4]
+    }   
+    return packet
+  end 
 
 end
-
-
-
-
-
-
