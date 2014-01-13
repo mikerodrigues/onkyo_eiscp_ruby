@@ -11,13 +11,6 @@ module Command
   @@zones = @@yaml_object.map{|k, v| k}
   @@zones.each {|zone| class_variable_set("@@#{zone}", nil) }
   @@main = @@yaml_object['main']
-  
-
-  @@zones.each do |zone|
-    Command.class_variable_set("@@#{zone}", "[]")
-  end
-
-
 
   def self.command_to_name(command)
     return @@main[command]['name']
