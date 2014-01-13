@@ -1,10 +1,8 @@
-# Create and send EISCP messages to control Onkyo receivers.
+# Library for controlling Onkyo receivers over TCP/IP.
 
-class EISCP
+module EISCP
   VERSION = '0.0.3'
 end
 
-require 'eiscp/eiscp'
-require 'eiscp/eiscp_packet'
-require 'eiscp/iscp_message'
-require 'eiscp/command'
+require 'eiscp/receiver'
+require 'eiscp/message'

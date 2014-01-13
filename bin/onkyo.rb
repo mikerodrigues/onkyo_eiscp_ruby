@@ -3,7 +3,6 @@
 require 'eiscp'
 require 'optparse'
 require 'ostruct'
-
 class Options
   DEFAULT_OPTIONS = { verbose: true, all: false }
   USAGE = ' Usage: onkyo_rb [options]'
@@ -48,8 +47,8 @@ class Options
     end
 
     if @options.discover
-      EISCP.discover.each do |receiver|
-        puts  EISCPPacket.parse(receiver[0]).to_s
+      EISCP::Receiver.discover.each do |receiver|
+        puts  EISCP::Message.parse(receiver[0]).to_iscp
       end
       exit 0
     end
@@ -60,8 +59,10 @@ class Options
     end
 
     if @options.connect
-      eiscp = EISCP.new(EISCP.discover[0][1])
-      eiscp.connect
+      eiscp = EISCP::Receiver.new(EISCP::Receiver.discover[0][1])
+      eiscp.connect do |data|
+        puts msg = EISCP::Receiver.parse(data).to_iscp
+      end
     end
 
     if ARGV == []
@@ -76,8 +77,9 @@ end
 @options = Options.parse(ARGV)
 
 
-eiscp = EISCP.new(EISCP.discover[0][1])
-eiscp.send_recv(EISCPPacket.new(ISCPMessage.new(ARGV[0], ARGV[1]).message).to_s)
+receiver = EISCP::Receiver.new(EISCP::Receiver.discover[0][1])
+message = (EISCP::Message.parse(ARGV.join(" ")).to_eiscp)
+receiver.send_recv message
 
 
 
