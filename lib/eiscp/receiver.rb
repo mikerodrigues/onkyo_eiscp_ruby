@@ -18,18 +18,26 @@ module EISCP
       @host = host
       @port = port
     end
-
+    
+    # Populates @model, @port, @area, @mac_address
+    # Uses #get_ecn to get parsed ECNQSTN response
+    # Returns self with updated attrs
+    
     def get_info
-      if array = self.get_ecn
+      if array = self.get_ecn_array
         @model = array[0]
-        @port = array[1]
+        @port = array[1].to_i
         @area = array[2]
         @mac_address = array[3]
         return self
       end 
     end
+    
+    # Gets the ECNQSTN response of self using @host
+    # then parses it with parse_ecn, returning an array
+    # with receiver info
 
-    def get_ecn
+    def get_ecn_array
       self.class.discover.each do |entry|
         if @host == entry[1]
           array = self.class.parse_ecn(entry[0])
@@ -38,11 +46,14 @@ module EISCP
       end
     end
 
+    # Returns array containing @model, @port, @area, and @mac_address
+    # from ECNQSTN response
 
     def self.parse_ecn(ecn_string)
       message = EISCP::Message.parse(ecn_string)
       message_array = message.parameter.split("/")
     end
+
     # Internal method for receiving data with a timeout
 
     def self.recv(sock, timeout = 0.5)
@@ -113,7 +124,7 @@ module EISCP
     def send_recv(eiscp_packet)
       sock = TCPSocket.new @host, @port
       sock.puts eiscp_packet
-      puts Receiver.recv(sock, 0.5)
+      return Receiver.recv(sock, 0.5)
     end
 
     # Open a TCP connection to the host and print all received messages until
