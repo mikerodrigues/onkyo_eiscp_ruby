@@ -19,6 +19,30 @@ module EISCP
       @port = port
     end
 
+    def get_info
+      if array = self.get_ecn
+        @model = array[0]
+        @port = array[1]
+        @area = array[2]
+        @mac_address = array[3]
+        return self
+      end 
+    end
+
+    def get_ecn
+      self.class.discover.each do |entry|
+        if @host == entry[1]
+          array = self.class.parse_ecn(entry[0])
+        end
+        return array
+      end
+    end
+
+
+    def self.parse_ecn(ecn_string)
+      message = EISCP::Message.parse(ecn_string)
+      message_array = message.parameter.split("/")
+    end
     # Internal method for receiving data with a timeout
 
     def self.recv(sock, timeout = 0.5)
