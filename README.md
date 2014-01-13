@@ -12,6 +12,8 @@ A Ruby implementation of eISCP for controlling Onkyo receivers.
 
 **Inspired by https://github.com/miracle2k/onkyo-eiscp
 
+**Protocol information from http://michael.elsdoerfer.name/onkyo/ISCP-V1.21_2011.xls
+
 Usage
 ________________
 
