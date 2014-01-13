@@ -1,7 +1,7 @@
 # Create and send EISCP messages to control Onkyo receivers.
 
 class EISCP
-  VERSION = '0.0.2'
+  VERSION = '0.0.3'
 end
 
 require 'eiscp/eiscp'
