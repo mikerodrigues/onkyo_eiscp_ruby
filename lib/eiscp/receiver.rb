@@ -10,13 +10,13 @@ module EISCP
     attr_accessor :area
     attr_accessor :mac_address
 
-    @onkyo_magic = Message.new("ECN", "QSTN", "x").to_eiscp
-    @onkyo_port = 60128
+    ONKYO_MAGIC = Message.new("ECN", "QSTN", "x").to_eiscp
+    ONKYO_PORT = 60128
     # Create a new EISCP object to communicate with a receiver.
 
-    def initialize(host)
+    def initialize(host, port = ONKYO_PORT)
       @host = host
-      @port = @onkyo_port
+      @port = port
     end
 
     # Internal method for receiving data with a timeout
@@ -51,7 +51,7 @@ module EISCP
     def self.discover
       sock = UDPSocket.new
       sock.setsockopt(Socket::SOL_SOCKET, Socket::SO_BROADCAST, true)
-      sock.send(@onkyo_magic, 0, '<broadcast>', @onkyo_port)
+      sock.send(ONKYO_MAGIC, 0, '<broadcast>', ONKYO_PORT)
       data = []
       while true
         ready = IO.select([sock], nil, nil, 0.5)
@@ -79,7 +79,7 @@ module EISCP
     # Sends a packet string on the network
 
     def send(eiscp_packet)
-      sock = TCPSocket.new @host, @onkyo_port
+      sock = TCPSocket.new @host, @port
       sock.puts eiscp_packet
       sock.close
     end
@@ -87,7 +87,7 @@ module EISCP
     # Send a packet string and return recieved data string.
 
     def send_recv(eiscp_packet)
-      sock = TCPSocket.new @host, @onkyo_port
+      sock = TCPSocket.new @host, @port
       sock.puts eiscp_packet
       puts Receiver.recv(sock, 0.5)
     end
@@ -96,7 +96,7 @@ module EISCP
     # killed.
 
     def connect(&block)
-      sock = TCPSocket.new @host, @onkyo_port
+      sock = TCPSocket.new @host, @port
       while true
         ready = IO.select([sock], nil, nil, nil)
         if ready != nil
