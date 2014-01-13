@@ -1,5 +1,6 @@
 require 'socket'
 require 'eiscp/message'
+require 'resolv'
 
 module EISCP
   class Receiver
@@ -15,7 +16,7 @@ module EISCP
     # Create a new EISCP object to communicate with a receiver.
 
     def initialize(host, port = ONKYO_PORT)
-      @host = host
+      @host = Resolv.getaddress host
       @port = port
     end
     
