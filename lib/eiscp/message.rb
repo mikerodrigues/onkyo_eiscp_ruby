@@ -18,7 +18,7 @@ module EISCP
 
 
     # REGEX
-    REGEX = /(?<start>!)?(?<unit_type>(\d|x))?(?<command>[A-Z]{3})\s?(?<parameter>.*)(?<end>(\x0D|\x0A|\x1A|\x19))?/
+    REGEX = /(?<start>!)?(?<unit_type>(\d|x))?(?<command>[A-Z]{3})\s?(?<parameter>.*)(?<end>\x1A)?/
 
     def initialize(command, parameter, unit_type = "1", start = "!")
       if unit_type == nil

@@ -29,7 +29,7 @@ module EISCP
         @model = array[0]
         @port = array[1].to_i
         @area = array[2]
-        @mac_address = array[3]
+        @mac_address = array[3].split("\x19")[0]
         return self
       end 
     end
