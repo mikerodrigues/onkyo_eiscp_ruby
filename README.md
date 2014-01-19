@@ -1,5 +1,6 @@
 onkyo_eiscp_ruby
 ================
+[![Gem Version](https://badge.fury.io/rb/onkyo_eiscp_ruby.png)](http://badge.fury.io/rb/onkyo_eiscp_ruby)
 
 A Ruby implementation of eISCP for controlling Onkyo receivers.
 
@@ -13,6 +14,7 @@ Mock reciever (currently only responds to discovery)
 **Inspired by https://github.com/miracle2k/onkyo-eiscp
 
 **Protocol information from http://michael.elsdoerfer.name/onkyo/ISCP-V1.21_2011.xls
+
 
 
 Using the Library
