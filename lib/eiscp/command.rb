@@ -66,8 +66,34 @@ module Command
     end
   end
 
-  def self.list_compatible_commands
-
+  def self.list_compatible_commands(modelstring)
+    sets = [] 
+    @@modelsets.each_pair do |set, array|
+      if array.include? modelstring
+        sets << set
+      end
+    end
+    return sets
   end
+
+  def self.parse(string)
+    array = string.split(" ")
+    zone = 'main'
+    command_name = ''
+    parameter_name = ''
+    if array.count == 3
+      zone = array.shift
+      command_name = array.shift
+      parameter_name = array.shift
+    elsif array.count == 2
+      command_name = array.shift
+      parameter_name = array.shift
+    end
+    command = Command.command_name_to_command(command_name) 
+    parameter = Command.command_value_name_to_value(command, parameter_name)
+    return EISCP::Message.new(command, parameter)
+  end
+
 end
+
 

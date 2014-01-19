@@ -43,6 +43,10 @@ module EISCP
     end
 
 
+    # Check if two messages send the same command
+    def ==(message_object)
+      self.iscp_message == message_object.iscp_message ? true : false
+    end
     # Identifies message format, calls appropriate parse function
     # returns Message object.
 

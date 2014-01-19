@@ -1,4 +1,5 @@
 require_relative "../lib/eiscp/command.rb"
+require_relative "../lib/eiscp/message.rb"
 require "test/unit"
 
 class TestCommand < Test::Unit::TestCase
@@ -25,6 +26,10 @@ class TestCommand < Test::Unit::TestCase
 
   def test_description_from_command
     assert_equal(Command.description_from_command("PWR"), "System Power Command")
+  end
+
+  def test_parse_system_power
+    assert_equal(Command.parse('system-power on'), EISCP::Message.parse('PWR01'))
   end
 
 end
