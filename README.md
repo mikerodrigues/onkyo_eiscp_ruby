@@ -19,55 +19,55 @@ Using the Library
 -----------------
 * require the library
 
-	require 'eiscp'
-	
+		require 'eiscp'
+
 * Discover local receivers
 
-	EISCP::Receiver.discover
+		EISCP::Receiver.discover
 
 * Create Receiver object from first discovered
 
-	Receiver.new
-	
+		Receiver.new
+
 * Open a TCP connection to monitor solicited updates
 
-	receiver = Receiver.new('10.0.0.1')
-	receiver.connect
+		receiver = Receiver.new('10.0.0.1')
+		receiver.connect
 
 * You can also pass a block and operate on received packet strings:
 
-	receiver.connect do |data|
-	  puts EISCP::Receiver.parse(data).iscp_message
-	end
+		receiver.connect do |data|
+		  puts EISCP::Receiver.parse(data).iscp_message
+		end
 
 * Turn on the receiver
 
-	message = EISCP::Message.parse("PWR", "01")
-	message.send(message.to_eiscp)
+		message = EISCP::Message.parse("PWR", "01")
+		message.send(message.to_eiscp)
 
 * New 'parse' method makes creating EISCP objects more flexible.
 This parses messages from command line or raw eiscp data from the socket
         
-	iscp_message = EISCP::Message.parse "PWR01"
-	iscp_message = EISCP::Message.parse "PWR 01"
-	iscp_message = EISCP::Message.parse "!1PWR01"
-	iscp_message = EISCP::Message.parse "!1PWR 01"
+		iscp_message = EISCP::Message.parse "PWR01"
+		iscp_message = EISCP::Message.parse "PWR 01"
+		iscp_message = EISCP::Message.parse "!1PWR01"
+		iscp_message = EISCP::Message.parse "!1PWR 01"
 
 * Parsing raw socket data
 
-	iscp_message_from_raw_eiscp = EISCP::Message.parse iscp_message.to_eiscp
+		iscp_message_from_raw_eiscp = EISCP::Message.parse iscp_message.to_eiscp
 
 Using the Binaries
 ------------------
 
 * Discover local receivers
 
-	$ onkyo.rb -d
+		$ onkyo.rb -d
 
 * Connect to the first discovered receiver to see status updates
 
-	$ onkyo.rb -c
+		$ onkyo.rb -c
 
 * Start the mock server (only responds to 'ECNQSTN')
 
-	$ onkyo-server.rb
+		$ onkyo-server.rb
