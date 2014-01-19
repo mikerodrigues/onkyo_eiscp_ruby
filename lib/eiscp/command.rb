@@ -16,7 +16,7 @@ module Command
     return @@main[command]['name']
   end
 
-  def self.name_to_command(name)
+  def self.command_name_to_command(name)
     @@main.each_pair do |command, attrs|
       if attrs['name'] == name
         return command
@@ -37,10 +37,10 @@ module Command
   end
 
 
-  def self.description_from_name(name)
+  def self.description_from_command_name(name)
     @@main.each_pair do |command, attrs|
       if attrs['name'] == name
-        return command['description']
+        return @@main[command]['description']
       end
     end
   end

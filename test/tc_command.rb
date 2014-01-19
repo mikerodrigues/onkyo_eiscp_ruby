@@ -7,8 +7,8 @@ class TestCommand < Test::Unit::TestCase
     assert_equal(Command.command_to_name("PWR"), "system-power")
   end
 
-  def test_name_to_command
-    assert_equal(Command.name_to_command("system-power"), "PWR")
+  def test_command_name_to_command
+    assert_equal(Command.command_name_to_command("system-power"), "PWR")
   end
 
   def test_command_value_to_value_name
@@ -19,8 +19,8 @@ class TestCommand < Test::Unit::TestCase
     assert_equal(Command.command_value_name_to_value("PWR", "on"), "01")
   end
 
-  def test_description_from_name
-    assert_equal(Command.description_from_name("system-power"), "System Power Command")
+  def test_description_from_command_name
+    assert_equal(Command.description_from_command_name("system-power"), "System Power Command")
   end
 
   def test_description_from_command
