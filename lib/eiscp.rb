@@ -6,3 +6,4 @@ end
 
 require 'eiscp/receiver'
 require 'eiscp/message'
+require 'eiscp/command'
