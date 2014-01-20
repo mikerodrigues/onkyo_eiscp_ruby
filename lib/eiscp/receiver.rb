@@ -69,7 +69,7 @@ module EISCP
 
     def self.parse_ecn(ecn_string)
       message = EISCP::Message.parse(ecn_string)
-      message_array = message.parameter.split("/")
+      message.parameter.split("/")
     end
 
     # Internal method for receiving data with a timeout
