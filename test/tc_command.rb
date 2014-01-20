@@ -32,4 +32,12 @@ class TestCommand < Test::Unit::TestCase
     assert_equal(Command.parse('system-power on'), EISCP::Message.parse('PWR01'))
   end
 
+  def test_parse_zone2_system_power
+    assert_equal(Command.parse('zone2 power on'), EISCP::Message.parse('ZPW01'))
+  end
+
+  def test_parse_volume_as_integer
+    assert_equal(Command.parse('main-volume 25'), EISCP::Message.parse('MVL19'))
+  end
+
 end
