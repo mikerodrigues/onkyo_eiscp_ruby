@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
-require 'eiscp/eiscp_server'
+require 'eiscp/mock_receiver'
 
 puts "Starting server on 60128..."
 
-EISCPServer.new
+EISCP::MockReceiver.new
