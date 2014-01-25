@@ -12,7 +12,7 @@ Automatically discover receivers in the broadcast domain
 
 Send/Receive eISCP messages to control receivers
 
-Open a TCP socket to send commands and receive solicited and non-solicited status updates.
+Open a TCP socket to receive solicited and non-solicited status updates.
 
 Mock reciever (currently only responds to discovery)
 
