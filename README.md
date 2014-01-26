@@ -1,14 +1,19 @@
 onkyo_eiscp_ruby
 ================
 [![Gem Version](https://badge.fury.io/rb/onkyo_eiscp_ruby.png)](http://badge.fury.io/rb/onkyo_eiscp_ruby)
+[![GitHub version](https://badge.fury.io/gh/mikerodrigues%2Fonkyo_eiscp_ruby.png)](http://badge.fury.io/gh/mikerodrigues%2Fonkyo_eiscp_ruby)
 
 A Ruby implementation of eISCP for controlling Onkyo receivers.
 
 **This code is still under heavy development and using it might make you sick.**
-Create ISCP messages and eISCP packets
-Automatically discover receiver's in the broadcast domain
-Send/Recieve eISCP messages
-Open a TCP socket to send commands and receive solicited and non-solicited status updates.
+
+
+Automatically discover receivers in the broadcast domain
+
+Send/Receive eISCP messages to control receivers
+
+Open a TCP socket to receive solicited and non-solicited status updates.
+
 Mock reciever (currently only responds to discovery)
 
 **Inspired by https://github.com/miracle2k/onkyo-eiscp
@@ -65,6 +70,10 @@ Using the Binaries
 * Discover local receivers
 
 		$ onkyo.rb -d
+		
+* Send a raw command
+ 		
+		$ onkyo.rb PWR01 # or any string accepted by EISCP::Message.parse
 
 * Connect to the first discovered receiver to see status updates
 
