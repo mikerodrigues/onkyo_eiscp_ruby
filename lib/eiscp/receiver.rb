@@ -131,9 +131,13 @@ module EISCP
 
     # Sends a packet string on the network
 
-    def send(eiscp_packet)
+    def send(eiscp)
       sock = TCPSocket.new @host, @port
-      sock.puts eiscp_packet
+      if eiscp.is_a? EISCP::Message
+        sock.puts eiscp.to_eiscp
+      elsif eiscp.is_a? String
+        sock.puts eiscp
+      end
       sock.close
     end
 

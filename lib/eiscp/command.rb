@@ -11,6 +11,16 @@ module Command
   @@zones = @@yaml_object.map{|k, v| k}
   @@zones.each {|zone| class_variable_set("@@#{zone}", nil) }
   @@main = @@yaml_object['main']
+  @@zone_modules = {}
+  
+  def zone_module(name, options={}, &block)
+    @@zone_modules[name] = Class.new(options[:base] || EISCP::Zone, &block)
+  end
+
+
+
+
+
 
   def self.command_to_name(command)
     return @@main[command]['name']
