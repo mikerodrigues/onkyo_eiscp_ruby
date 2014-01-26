@@ -20,6 +20,11 @@ Mock reciever (currently only responds to discovery)
 
 **Protocol information from http://michael.elsdoerfer.name/onkyo/ISCP-V1.21_2011.xls
 
+What's missing?
+---------------
+* Command validation
+
+* Parsing of all human readable commands (run the tests to see some commands that aren't parsable in human readable form yet.
 
 
 Using the Library
