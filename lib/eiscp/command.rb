@@ -99,8 +99,8 @@ module Command
       command_name = array.shift
       parameter_name = array.shift
     end
-    command = Command.command_name_to_command(command_name)
-    parameter = Command.command_value_name_to_value(command, parameter_name)
+    command = command_name_to_command(command_name)
+    parameter = command_value_name_to_value(command, parameter_name)
     return EISCP::Message.new(command, parameter)
   end
 
