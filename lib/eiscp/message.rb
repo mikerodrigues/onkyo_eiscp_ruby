@@ -67,14 +67,14 @@ module EISCP
 
     def self.parse_iscp_message(msg_string)
       match = msg_string.match(REGEX)
-      Message.new(match[:command], match[:parameter], match[:unit_type], match[:start])
+      new(match[:command], match[:parameter], match[:unit_type], match[:start])
     end
 
     #parse eiscp_message string 
     def self.parse_eiscp_string(eiscp_message_string)
       array = eiscp_message_string.unpack("A4NNAa3A*")
-      iscp_message = Message.parse_iscp_message(array[5])
-      packet = Message.new(iscp_message.command, iscp_message.parameter, iscp_message.unit_type, iscp_message.start)
+      iscp_message = parse_iscp_message(array[5])
+      packet = new(iscp_message.command, iscp_message.parameter, iscp_message.unit_type, iscp_message.start)
       packet.header = { 
         :magic => array[0],
         :header_size => array[1],
