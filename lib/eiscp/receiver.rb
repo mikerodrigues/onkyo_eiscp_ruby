@@ -1,7 +1,7 @@
 require 'socket'
 require 'eiscp/message'
 require 'resolv'
-
+require 'pry'
 module EISCP
   class Receiver
 
@@ -20,20 +20,31 @@ module EISCP
 
     def initialize(host = nil, port = ONKYO_PORT)
       if host == nil
-        if first_rec = self.class.discover[0]
-          host = first_rec[1]
-          set_info first_rec[0]
+        if first_discovered = self.class.discover[0]
+          host = first_discovered[1]
+          set_info first_discovered[0]
         else
-          raise Exception
+          raise Exception "No receivers discovered."
         end
       end
+
+      # if host given, create object and get info
       @host = Resolv.getaddress host
       @port = port
+
+      # use autodiscovery to get information about receiver unless it was
+      # created by discovery above
       unless @model
-        set_info get_ecn
+        begin
+          set_info get_ecn
+        rescue
+          warn "WARNING: Receiver at #{host}:#{port} isn't responding to ECNQSTN discovery."
+        end
       end
     end
 
+    # Populates attrs with info from ECNQSTN response
+    #
     def set_info(ecn_string)
       array = self.class.parse_ecn(ecn_string)
       @model = array.shift
@@ -42,6 +53,8 @@ module EISCP
       @mac_address = array.shift.split("\x19")[0]
       return self
     end
+
+    # Broadcasts ECNQSTN to get info for the receiver object
 
     def get_ecn
       self.class.discover.each do |entry|
@@ -72,18 +85,6 @@ module EISCP
       message.parameter.split("/")
     end
 
-    # Internal method for receiving data with a timeout
-
-    def self.recv(sock, timeout = 0.5)
-      begin
-        data = sock.recv_nonblock(1024).chomp
-      rescue IO::WaitReadable
-        IO.select([sock], nil, nil, timeout)
-        retry
-      end
-      return data
-    end
-
     # Returns an array of arrays consisting of a discovery response packet string
     # and the source ip address of the reciever.
 
@@ -102,23 +103,35 @@ module EISCP
       return data
     end
 
-    # Sends a packet string on the network
+
+    # Internal method for receiving data with a timeout
+
+    def recv(timeout = 0.5)
+      begin
+        data = sock.recv_nonblock(1024).chomp
+      rescue IO::WaitReadable
+        IO.select([sock], nil, nil, timeout)
+        retry
+      end
+      return data
+    end
+
+    # Sends an EISCP::Message object or string on the network
 
     def send(eiscp)
       sock = TCPSocket.new @host, @port
       if eiscp.is_a? EISCP::Message
-        sock.puts eiscp.to_eiscp
+        sock.puts(eiscp.to_eiscp)
       elsif eiscp.is_a? String
         sock.puts eiscp
       end
       sock.close
     end
 
-    # Send a packet string and return recieved data string.
+    # Sends an EISCP::Message object or string on the network and returns recieved data string.
 
-    def send_recv(eiscp_packet)
-      sock = TCPSocket.new @host, @port
-      sock.puts eiscp_packet
+    def send_recv(eiscp)
+      send(eiscp)
       return self.class.recv(sock, 0.5)
     end
 
@@ -134,12 +147,11 @@ module EISCP
         else
           return data
         end
+      rescue IO::WaitReadable
+        IO.select([sock], nil, nil, nil)
+        retry
       end
-    rescue IO::WaitReadable
-      IO.select([sock], nil, nil, nil)
-      retry
-    end
 
+    end
   end
-end
 
