@@ -75,27 +75,13 @@ module EISCP
     # Internal method for receiving data with a timeout
 
     def self.recv(sock, timeout = 0.5)
-      data = []
-      while true
-        ready = IO.select([sock], nil, nil, timeout)
-        if ready != nil
-          then readable = ready[0]
-        else
-          return data
-        end
-
-
-        readable.each do |socket|
-          begin
-            if socket == sock
-              data << sock.recv_nonblock(1024).chomp
-            end
-          rescue IO::WaitReadable
-            retry
-          end
-        end
-
+      begin
+        data = sock.recv_nonblock(1024).chomp
+      rescue IO::WaitReadable
+        IO.select([sock], nil, nil, timeout)
+        retry
       end
+      return data
     end
 
     # Returns an array of arrays consisting of a discovery response packet string
@@ -106,27 +92,14 @@ module EISCP
       sock.setsockopt(Socket::SOL_SOCKET, Socket::SO_BROADCAST, true)
       sock.send(ONKYO_MAGIC, 0, '<broadcast>', ONKYO_PORT)
       data = []
-      while true
-        ready = IO.select([sock], nil, nil, 0.5)
-        if ready != nil
-          then readable = ready[0]
-        else
-          return data
-        end
-
-
-        readable.each do |socket|
-          begin
-            if socket == sock
-              msg, addr = sock.recvfrom_nonblock(1024)
-              data << [msg, addr[2]]
-            end
-          rescue IO::WaitReadable
-            retry
-          end
-        end
-
+      begin
+        msg, addr = sock.recvfrom_nonblock(1024)
+        data << [msg, addr[2]]
+      rescue IO::WaitReadable
+        IO.select([sock], nil, nil, 0.5)
+        retry
       end
+      return data
     end
 
     # Sends a packet string on the network
@@ -154,31 +127,19 @@ module EISCP
 
     def connect(&block)
       sock = TCPSocket.new @host, @port
-      while true
-        ready = IO.select([sock], nil, nil, nil)
-        if ready != nil
-          then readable = ready[0]
+      begin
+        data = sock.recv_nonblock(1024).chomp
+        if block_given?
+          yield data
         else
-          return
+          return data
         end
-
-        readable.each do |socket|
-          begin
-            if socket == sock
-              data = sock.recv_nonblock(1024).chomp
-              if block_given?
-                yield data
-              else
-                puts data
-              end
-            end
-          rescue IO::WaitReadable
-            retry
-          end
-        end
-
       end
+    rescue IO::WaitReadable
+      IO.select([sock], nil, nil, nil)
+      retry
     end
 
   end
 end
+
