@@ -1,7 +1,7 @@
 require 'socket'
 require 'eiscp/message'
 require 'resolv'
-require 'pry'
+
 module EISCP
   class Receiver
 
