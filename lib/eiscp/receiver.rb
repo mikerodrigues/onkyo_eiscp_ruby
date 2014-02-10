@@ -107,68 +107,68 @@ module EISCP
     # Internal method for receiving data with a timeout
 
     def recv(timeout = 0.5)
-      sock = TCPSocket.new @host, @port
-      begin
-        data = sock.recv_nonblock(1024).chomp
-      rescue IO::WaitReadable
-        IO.select([sock], nil, nil, timeout)
-        retry
+      TCPSocket.open(@host, @port) do |sock|
+        begin
+          data = sock.recv_nonblock(1024).chomp
+        rescue IO::WaitReadable
+          IO.select([sock], nil, nil, timeout)
+          retry
+        end
+        return data
       end
-      return data
-      sock.close
     end
 
     # Sends an EISCP::Message object or string on the network
 
     def send(eiscp, timeout = 0.5)
-      sock = TCPSocket.new @host, @port
-      if eiscp.is_a? EISCP::Message
-        sock.puts(eiscp.to_eiscp)
-      elsif eiscp.is_a? String
-        sock.puts eiscp
+      TCPSocket.open(@host, @port) do |sock|
+        if eiscp.is_a? EISCP::Message
+          sock.puts(eiscp.to_eiscp)
+        elsif eiscp.is_a? String
+          sock.puts eiscp
+        end
       end
-      sock.close
     end
 
     # Sends an EISCP::Message object or string on the network and returns recieved data string.
 
     def send_recv(eiscp, timeout = 0.5)
-      sock = TCPSocket.new @host, @port
-      if eiscp.is_a? EISCP::Message
-        sock.puts(eiscp.to_eiscp)
-      elsif eiscp.is_a? String
-        sock.puts(eiscp)
-      end
+      TCPSocket.open(@host, @port) do |sock|
+        if eiscp.is_a? EISCP::Message
+          sock.puts(eiscp.to_eiscp)
+        elsif eiscp.is_a? String
+          sock.puts(eiscp)
+        end
 
-      begin
-        data = sock.recv_nonblock(1024).chomp
-      rescue IO::WaitReadable
-        IO.select([sock], nil, nil, timeout)
-        retry
+        begin
+          data = sock.recv_nonblock(1024).chomp
+        rescue IO::WaitReadable
+          IO.select([sock], nil, nil, timeout)
+          retry
+        end
+        return data
       end
-      return data
-      sock.close
     end
 
     # Open a TCP connection to the host and print all received messages until
     # killed.
 
     def connect(&block)
-      sock = TCPSocket.new @host, @port
-      loop do
-        begin
-          data = sock.recv_nonblock(1024).chomp
-          if block_given?
-            yield data
-          else
-            puts data
+      TCPSocket.open(@host, @port) do |sock|
+        loop do
+          begin
+            data = sock.recv_nonblock(1024).chomp
+            if block_given?
+              yield data
+            else
+              puts data
+            end
+          rescue IO::WaitReadable
+            IO.select([sock], nil, nil, nil)
+            retry
           end
-        rescue IO::WaitReadable
-          IO.select([sock], nil, nil, nil)
-          retry
         end
       end
-
     end
 
   end
