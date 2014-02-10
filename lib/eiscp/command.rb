@@ -1,5 +1,5 @@
 require 'yaml'
-require 'eiscp/receiver'
+require_relative './receiver'
 require 'ostruct'
 
 module Command

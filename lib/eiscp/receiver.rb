@@ -1,5 +1,5 @@
 require 'socket'
-require 'eiscp/message'
+require_relative './message'
 require 'resolv'
 
 module EISCP
@@ -153,5 +153,6 @@ module EISCP
       end
 
     end
-  end
 
+  end
+end

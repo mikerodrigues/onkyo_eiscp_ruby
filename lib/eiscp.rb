@@ -4,6 +4,6 @@ module EISCP
   VERSION = '0.0.3'
 end
 
-require 'eiscp/receiver'
-require 'eiscp/message'
-require 'eiscp/command'
+require_relative './eiscp/receiver'
+require_relative './eiscp/message'
+require_relative './eiscp/command'
