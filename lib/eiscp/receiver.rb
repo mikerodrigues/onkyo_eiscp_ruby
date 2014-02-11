@@ -3,28 +3,34 @@ require_relative './message'
 require 'resolv'
 
 module EISCP
+  # The EISCP::Receiver class is used to communicate with one or more
+  # receivers the network. A Receiver can be instantiated automatically
+  # using discovery, or by hostname and port.
+  #
+  #   receiver = EISCP::Receiver.new # find first receiver on LAN
+  #   receiver = EISCP::Receiver.new('192.168.1.12') # default port
+  #   receiver = EISCP::Receiver.new('192.168.1.12', 60129) # non standard port
   class Receiver
-
     attr_accessor :host
     attr_accessor :model
     attr_accessor :port
     attr_accessor :area
     attr_accessor :mac_address
 
-    ONKYO_MAGIC = Message.new("ECN", "QSTN", "x").to_eiscp
-    ONKYO_PORT = 60128
+    ONKYO_MAGIC = Message.new('ECN', 'QSTN', 'x').to_eiscp
+    ONKYO_PORT = 60_128
 
     # Create a new EISCP object to communicate with a receiver.
     # If no host is given, use auto discovery and create a
     # receiver object using the first host to respond.
 
     def initialize(host = nil, port = ONKYO_PORT)
-      if host == nil
-        if first_discovered = self.class.discover[0]
+      if host.nil?
+        if first_discovered == self.class.discover[0]
           host = first_discovered[1]
           set_info first_discovered[0]
         else
-          raise Exception "No receivers discovered."
+          fail Exception 'No receivers discovered.'
         end
       end
 
@@ -38,7 +44,7 @@ module EISCP
         begin
           set_info get_ecn
         rescue
-          warn "WARNING: Receiver at #{host}:#{port} isn't responding to ECNQSTN discovery."
+          warn "WARNING: No receiver at #{host}:#{port}."
         end
       end
     end
@@ -82,11 +88,11 @@ module EISCP
 
     def self.parse_ecn(ecn_string)
       message = EISCP::Message.parse(ecn_string)
-      message.parameter.split("/")
+      message.parameter.split('/')
     end
 
-    # Returns an array of arrays consisting of a discovery response packet string
-    # and the source ip address of the reciever.
+    # Returns an array of arrays consisting of a discovery response packet
+    # string and the source ip address of the reciever.
 
     def self.discover
       sock = UDPSocket.new
@@ -102,7 +108,6 @@ module EISCP
       end
       return data
     end
-
 
     # Internal method for receiving data with a timeout
 
@@ -170,6 +175,5 @@ module EISCP
         end
       end
     end
-
   end
 end

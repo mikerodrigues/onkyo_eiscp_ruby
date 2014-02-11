@@ -61,7 +61,7 @@ class Options
     if @options.connect
       eiscp = EISCP::Receiver.new(EISCP::Receiver.discover[0][1])
       eiscp.connect do |data|
-        puts msg = EISCP::Message.parse(data).to_iscp
+        puts EISCP::Message.parse(data).to_iscp
       end
     end
 
