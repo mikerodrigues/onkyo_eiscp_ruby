@@ -16,19 +16,19 @@ module EISCP
     ISCP_VERSION = "\x01"
     RESERVED = "\x00\x00\x00"
 
-    # ISCP attrs
+    # ISCP attributes
     attr_accessor :start
     attr_accessor :unit_type
     attr_accessor :command
     attr_accessor :parameter
     attr_reader   :iscp_message
 
-    # REGEX
+    # Regexp for parsing messages
     REGEX =
-      /(?<start>!)? # zero or one start character, '!'
-      (?<unit_type>(\d|x))? # zero or one unit_type character, '1', or 'x'
-      (?<command>[A-Z]{3})\s? # zero or one command
-      (?<parameter>.*) # a command parameter
+      /(?<start>!)?
+      (?<unit_type>(\d|x))?
+      (?<command>[A-Z]{3})\s?
+      (?<parameter>.*)
     (?<end>\x1A)?/x
 
     def initialize(command, parameter, unit_type = '1', start = '!')
@@ -53,13 +53,15 @@ module EISCP
       }
     end
 
-    # Check if two messages send the same command
+    # Check if two messages have the same ISCP message.
+    #
     def ==(other)
       iscp_message == other.iscp_message ? true : false
     end
+
     # Identifies message format, calls appropriate parse function
     # returns Message object.
-
+    #
     def self.parse(string)
       case string
       when /^ISCP/
@@ -72,13 +74,14 @@ module EISCP
     end
 
     # ISCP Message string parser
-
+    #
     def self.parse_iscp_message(msg_string)
       match = msg_string.match(REGEX)
       new(match[:command], match[:parameter], match[:unit_type], match[:start])
     end
 
     # Parse eiscp_message string
+    #
     def self.parse_eiscp_string(eiscp_message_string)
       array = eiscp_message_string.unpack('A4NNAa3A*')
       msg = parse_iscp_message(array[5])
@@ -94,11 +97,13 @@ module EISCP
     end
 
     # Return ISCP Message string
+    #
     def to_iscp
       "#{@start + @unit_type + @command + @parameter}"
     end
 
     # Return EISCP Message string
+    #
     def to_eiscp
       [
         @header[:magic],

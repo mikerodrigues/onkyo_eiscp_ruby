@@ -10,6 +10,7 @@ module EISCP
   #   receiver = EISCP::Receiver.new # find first receiver on LAN
   #   receiver = EISCP::Receiver.new('192.168.1.12') # default port
   #   receiver = EISCP::Receiver.new('192.168.1.12', 60129) # non standard port
+  #
   class Receiver
     attr_accessor :host
     attr_accessor :model
@@ -23,7 +24,7 @@ module EISCP
     # Create a new EISCP object to communicate with a receiver.
     # If no host is given, use auto discovery and create a
     # receiver object using the first host to respond.
-
+    #
     def initialize(host = nil, port = ONKYO_PORT)
       if host.nil?
         if first_discovered == self.class.discover[0]
@@ -61,19 +62,17 @@ module EISCP
     end
 
     # Broadcasts ECNQSTN to get info for the receiver object
-
+    #
     def get_ecn
       self.class.discover.each do |entry|
-        if @host == entry[1]
-          return entry[0]
-        end
+        return entry[0] if @host == entry[1]
       end
     end
 
     # Gets the ECNQSTN response of self using @host
     # then parses it with parse_ecn, returning an array
     # with receiver info
-
+    #
     def get_ecn_array
       self.class.discover.each do |entry|
         if @host == entry[1]
@@ -85,7 +84,7 @@ module EISCP
 
     # Returns array containing @model, @port, @area, and @mac_address
     # from ECNQSTN response
-
+    #
     def self.parse_ecn(ecn_string)
       message = EISCP::Message.parse(ecn_string)
       message.parameter.split('/')
@@ -93,7 +92,7 @@ module EISCP
 
     # Returns an array of arrays consisting of a discovery response packet
     # string and the source ip address of the reciever.
-
+    #
     def self.discover
       sock = UDPSocket.new
       sock.setsockopt(Socket::SOL_SOCKET, Socket::SO_BROADCAST, true)
@@ -110,7 +109,7 @@ module EISCP
     end
 
     # Internal method for receiving data with a timeout
-
+    #
     def recv(timeout = 0.5)
       TCPSocket.open(@host, @port) do |sock|
         begin
@@ -124,7 +123,7 @@ module EISCP
     end
 
     # Sends an EISCP::Message object or string on the network
-
+    #
     def send(eiscp, timeout = 0.5)
       TCPSocket.open(@host, @port) do |sock|
         if eiscp.is_a? EISCP::Message
@@ -136,7 +135,7 @@ module EISCP
     end
 
     # Sends an EISCP::Message object or string on the network and returns recieved data string.
-
+    #
     def send_recv(eiscp, timeout = 0.5)
       TCPSocket.open(@host, @port) do |sock|
         if eiscp.is_a? EISCP::Message
@@ -157,7 +156,7 @@ module EISCP
 
     # Open a TCP connection to the host and print all received messages until
     # killed.
-
+    #
     def connect(&block)
       TCPSocket.open(@host, @port) do |sock|
         loop do
