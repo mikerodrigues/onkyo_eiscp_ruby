@@ -1,5 +1,6 @@
 require 'socket'
 require_relative './message'
+require_relative './command'
 require 'resolv'
 
 module EISCP
@@ -173,6 +174,12 @@ module EISCP
           end
         end
       end
+    end
+
+    def method_missing(sym, *args, &block)
+      command_name = :sym.to_s
+      value_name = args[0]
+      send_recv EISCP::Command.parse(command_name + value_name)
     end
   end
 end
