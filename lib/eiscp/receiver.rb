@@ -28,7 +28,7 @@ module EISCP
     #
     def initialize(host = nil, port = ONKYO_PORT)
       if host.nil?
-        if first_discovered == self.class.discover[0]
+        if first_discovered = self.class.discover[0]
           host = first_discovered[1]
           set_info first_discovered[0]
         else
