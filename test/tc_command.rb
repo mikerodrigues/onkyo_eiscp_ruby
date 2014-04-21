@@ -21,11 +21,11 @@ class TestCommand < Test::Unit::TestCase
   end
 
   def test_description_from_command_name
-    assert_equal(EISCP::Command.description_from_command_name("system-power"), "System Power EISCP::Command")
+    assert_equal(EISCP::Command.description_from_command_name("system-power"), "System Power Command")
   end
 
   def test_description_from_command
-    assert_equal(EISCP::Command.description_from_command("PWR"), "System Power EISCP::Command")
+    assert_equal(EISCP::Command.description_from_command("PWR"), "System Power Command")
   end
 
   def test_parse_system_power
