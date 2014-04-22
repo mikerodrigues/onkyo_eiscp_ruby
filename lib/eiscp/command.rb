@@ -91,18 +91,18 @@ module EISCP
       array = string.split(" ")
       zone = 'main'
       command_name = ''
-      parameter_name = ''
+      value_name = ''
       if array.count == 3
         zone = array.shift
         command_name = array.shift
-        parameter_name = array.shift
+        value_name = array.shift
       elsif array.count == 2
         command_name = array.shift
-        parameter_name = array.shift
+        value_name = array.shift
       end
       command = command_name_to_command(command_name)
-      parameter = command_value_name_to_value(command, parameter_name)
-      return EISCP::Message.new(command, parameter)
+      value = command_value_name_to_value(command, value_name)
+      return EISCP::Message.new(command, value)
     end
   end
 end

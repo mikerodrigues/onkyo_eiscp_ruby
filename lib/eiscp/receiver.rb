@@ -88,7 +88,7 @@ module EISCP
     #
     def self.parse_ecn(ecn_string)
       message = EISCP::Message.parse(ecn_string)
-      message.parameter.split('/')
+      message.value.split('/')
     end
 
     # Returns an array of arrays consisting of a discovery response packet

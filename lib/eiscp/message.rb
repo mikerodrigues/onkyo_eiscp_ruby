@@ -2,7 +2,7 @@
 module EISCP
   # The EISCP::Message class is used to handle commands and responses.
   #
-  # Messages can be parsed directly from raw data or created with parameters:
+  # Messages can be parsed directly from raw data or created with values:
   #   receiver = Receiver.new
   #
   #   command = EISCP::Message.new('PWR', 'QSTN')
@@ -20,7 +20,7 @@ module EISCP
     attr_accessor :start
     attr_accessor :unit_type
     attr_accessor :command
-    attr_accessor :parameter
+    attr_accessor :value
     attr_reader   :iscp_message
 
     # Regexp for parsing messages
@@ -28,10 +28,10 @@ module EISCP
       /(?<start>!)?
       (?<unit_type>(\d|x))?
       (?<command>[A-Z]{3})\s?
-      (?<parameter>.*)
+      (?<value>.*)
     (?<end>\x1A)?/x
 
-    def initialize(command, parameter, unit_type = '1', start = '!')
+    def initialize(command, value, unit_type = '1', start = '!')
       if unit_type.nil?
         @unit_type = '1'
       else
@@ -43,8 +43,8 @@ module EISCP
         @start = start
       end
       @command = command
-      @parameter = parameter
-      @iscp_message = [@start, @unit_type, @command, @parameter].inject(:+)
+      @value = value
+      @iscp_message = [@start, @unit_type, @command, @value].inject(:+)
       @header = { magic: MAGIC,
                   header_size:  HEADER_SIZE,
                   data_size: @iscp_message.length,
@@ -77,7 +77,7 @@ module EISCP
     #
     def self.parse_iscp_message(msg_string)
       match = msg_string.match(REGEX)
-      new(match[:command], match[:parameter], match[:unit_type], match[:start])
+      new(match[:command], match[:value], match[:unit_type], match[:start])
     end
 
     # Parse eiscp_message string
@@ -85,7 +85,7 @@ module EISCP
     def self.parse_eiscp_string(eiscp_message_string)
       array = eiscp_message_string.unpack('A4NNAa3A*')
       msg = parse_iscp_message(array[5])
-      packet = new(msg.command, msg.parameter, msg.unit_type, msg.start)
+      packet = new(msg.command, msg.value, msg.unit_type, msg.start)
       packet.header = {
         magic: array[0],
         header_size: array[1],
@@ -99,7 +99,7 @@ module EISCP
     # Return ISCP Message string
     #
     def to_iscp
-      "#{@start + @unit_type + @command + @parameter}"
+      "#{@start + @unit_type + @command + @value}"
     end
 
     # Return EISCP Message string
