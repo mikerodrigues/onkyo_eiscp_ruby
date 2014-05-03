@@ -1,6 +1,7 @@
 require 'yaml'
 require_relative './receiver'
 require 'ostruct'
+require 'pry'
 
 module EISCP
   module Command
@@ -15,41 +16,30 @@ module EISCP
     @@main = @@yaml_object['main']
     @@zone_modules = {}
 
-
-    @@yaml_object.each_key do |zone|
-      @@yaml_object[zone].each do |command|
-        @@yaml_object[zone][command]['values'].each do |value|
-       
-          if value.is_a? Array
-            create_range_commands(zone, command, value)
-          elsif value.match(/(B|T){xx}/)
-            create_treble_bass_commands(zone, command, value)
-          elsif value.match(/{xx}/)
-            create_balance_commands(zone, command, value)
-          end
-        end
-      end
-    end
-
-    def create_range_commands(zone, command, value)
+    def self.create_range_commands(zone, command, value)
       case value.count
       when 3
         range = Range.new(value[0], value[2])
       when 2
         range = Range.new(*value)
       end
-      range.each do |value|
-        @@yaml_object[zone][command]['values'][value.to_s(16).upcase] = {
-          "name" => value.to_s,
-          "description" => @@yaml_object[zone][command]['values'][value.to_s]['description'],
-          "models" => @@yaml_object[zone][command]['values'][value.to_s]['models'],
+      range.each do |number|
+        begin
+        @@yaml_update[zone][command]['values'][number.to_s(16).upcase] = {
+          "name" => number.to_s,
+          "description" => @@yaml_object[zone][command]['values'][value]['description'],
+          "models" => @@yaml_object[zone][command]['values'][value]['models'],
         }
+        rescue
+          #binding.pry
+        end
+
       end
     end
 
-    def create_treble_bass_commands(zone, command, value)
+    def self.create_treble_bass_commands(zone, command, value)
       ['-A', '-8', '-6', '-4', '-2', '00', '+2', '+4', '+6', '+8', '+A'].each do |v|
-        @@yaml_object[zone][command]['values'][value[0] + v] = {
+        @@yaml_update[zone][command]['values'][value[0] + v] = {
           "name" => @@yaml_object[zone][command]['values'][value[0] + '{xx}']['name'],
           "description" => @@yaml_object[zone][command]['values'][value[0] + '{xx}']['description'],
           "models" => @@yaml_object[zone][command]['values'][value[0] + '{xx}']['models']
@@ -60,6 +50,26 @@ module EISCP
     def create_balance_commands(zone, command, value)
 
     end
+
+    @@yaml_update = @@yaml_object.clone
+    @@yaml_object.each_key do |zone|
+      @@yaml_object[zone].each do |command|
+        command = command[0]
+        @@yaml_object[zone][command]['values'].each do |value|
+          value = value[0]
+          if value.is_a? Array
+            create_range_commands(zone, command, value)
+          elsif value.match(/(B|T){xx}/)
+            create_treble_bass_commands(zone, command, value)
+          elsif value.match(/{xx}/)
+            create_balance_commands(zone, command, value)
+          else
+           next
+          end
+        end
+      end
+    end
+    @@yaml_object = @@yaml_update
 
 
     def zone_module(name, options={}, &block)

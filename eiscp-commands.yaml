@@ -119,11 +119,11 @@ main:
     values:
       ? - 0
         - 100
-      : description: "Volume Level 0 \u2013 100 ( In hexadecimal representation)"
+      : description: "Volume Level 0 - 100 ( In hexadecimal representation)"
         models: set9
       ? - 0
         - 80
-      : description: "Volume Level 0 \u2013 80 ( In hexadecimal representation)"
+      : description: "Volume Level 0 - 80 ( In hexadecimal representation)"
         models: set10
       UP:
         name: level-up
@@ -398,7 +398,7 @@ main:
         models: set15
       DOWN:
         name: down
-        description: "LEVEL \u2013 KEY"
+        description: "LEVEL - KEY"
         models: set15
   SWL:
     name: subwoofer-temporary-level
@@ -416,7 +416,7 @@ main:
         models: set16
       DOWN:
         name: down
-        description: "LEVEL \u2013 KEY"
+        description: "LEVEL - KEY"
         models: set16
       QSTN:
         name: query
@@ -438,7 +438,7 @@ main:
         models: set17
       DOWN:
         name: down
-        description: "LEVEL \u2013 KEY"
+        description: "LEVEL - KEY"
         models: set17
       QSTN:
         name: query
@@ -3642,11 +3642,11 @@ zone2:
     values:
       ? - 0
         - 100
-      : description: "Volume Level 0 \u2013 100 ( In hexadecimal representation)"
+      : description: "Volume Level 0 - 100 ( In hexadecimal representation)"
         models: set142
       ? - 0
         - 80
-      : description: "Volume Level 0 \u2013 80 ( In hexadecimal representation)"
+      : description: "Volume Level 0 - 80 ( In hexadecimal representation)"
         models: set143
       UP:
         name: level-up
@@ -4213,11 +4213,11 @@ zone3:
     values:
       ? - 0
         - 100
-      : description: "Volume Level 0 \u2013 100 ( In hexadecimal representation)"
+      : description: "Volume Level 0 - 100 ( In hexadecimal representation)"
         models: set170
       ? - 0
         - 80
-      : description: "Volume Level 0 \u2013 80 ( In hexadecimal representation)"
+      : description: "Volume Level 0 - 80 ( In hexadecimal representation)"
         models: set170
       UP:
         name: level-up
@@ -4702,11 +4702,11 @@ zone4:
     values:
       ? - 0
         - 100
-      : description: "Volume Level 0 \u2013 100 ( In hexadecimal representation)"
+      : description: "Volume Level 0 - 100 ( In hexadecimal representation)"
         models: set185
       ? - 0
         - 80
-      : description: "Volume Level 0 \u2013 80 ( In hexadecimal representation)"
+      : description: "Volume Level 0 - 80 ( In hexadecimal representation)"
         models: set185
       UP:
         name: level-up
