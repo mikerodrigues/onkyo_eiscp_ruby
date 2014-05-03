@@ -78,8 +78,8 @@ end
 
 
 receiver = EISCP::Receiver.new(EISCP::Receiver.discover[0][1])
-command = (EISCP::Command.parse(ARGV.join(" "))
-puts receiver.send_recv message
+command = EISCP::Command.parse(ARGV.join(" "))
+puts receiver.send_recv command
 
 
 

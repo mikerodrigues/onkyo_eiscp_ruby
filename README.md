@@ -10,11 +10,13 @@ A Ruby implementation of eISCP for controlling Onkyo receivers.
 
 Automatically discover receivers in the broadcast domain
 
-Send/Receive eISCP messages to control receivers
+Send commands to receivers and parse returned messages
 
 Open a TCP socket to receive solicited and non-solicited status updates.
 
 Mock reciever (currently only responds to discovery)
+
+Human-readable commands
 
 **Inspired by https://github.com/miracle2k/onkyo-eiscp
 
@@ -39,11 +41,14 @@ Using the Library
 
 * Create Receiver object from first discovered
 
-		Receiver.new
+		receiver = EISCP::Receiver.new
+
+* Or create one manually by IP address or hostname
+
+		receiver = EISCP::Receiver.new('10.0.0.132')
 
 * Open a TCP connection to monitor solicited updates
 
-		receiver = Receiver.new('10.0.0.1')
 		receiver.connect
 
 * You can also pass a block and operate on received packet strings:
@@ -57,8 +62,7 @@ Using the Library
 		message = EISCP::Message.parse("PWR", "01")
 		message.send(message.to_eiscp)
 
-* New 'parse' method makes creating EISCP objects more flexible.
-This parses messages from command line or raw eiscp data from the socket
+* Parse incoming messages and the following formats:
         
 		iscp_message = EISCP::Message.parse "PWR01"
 		iscp_message = EISCP::Message.parse "PWR 01"
@@ -69,6 +73,12 @@ This parses messages from command line or raw eiscp data from the socket
 
 		iscp_message_from_raw_eiscp = EISCP::Message.parse iscp_message.to_eiscp
 
+* Human-readable commands
+
+		EISCP::Command.parse("main-volume 34")
+
+
+
 Using the Binaries
 ------------------
 
@@ -78,7 +88,7 @@ Using the Binaries
 		
 * Send a raw command
  		
-		$ onkyo.rb PWR01 # or any string accepted by EISCP::Message.parse
+		$ onkyo.rb PWR01 # or any string accepted by EISCP::Command.parse
 
 * Connect to the first discovered receiver to see status updates
 
@@ -87,3 +97,16 @@ Using the Binaries
 * Start the mock server (only responds to 'ECNQSTN')
 
 		$ onkyo-server.rb
+
+* Turn off the first receiver discovered:
+
+		$ onkyo.rb system-power off
+
+
+Contributing
+------------
+
+* Open an issue describing bug or feature
+* Fork repo
+* Create a branch
+* Send pull request
