@@ -36,7 +36,7 @@ module EISCP
       tmp = {}
       ['-A', '-8', '-6', '-4', '-2', '00', '+2', '+4', '+6', '+8', '+A'].each do |v|
         tmp.merge!({ (value[0] + v.to_s) => {
-          "name" => @yaml_object[zone][command]['values'][value[0] + '{xx}']['name'],
+          "name" => value[0].downcase + v,
           "description" => @yaml_object[zone][command]['values'][value[0] + '{xx}']['description'],
           "models" => @yaml_object[zone][command]['values'][value[0] + '{xx}']['models']
         }})
@@ -48,7 +48,7 @@ module EISCP
       tmp = {}
       ['-A', '-8', '-6', '-4', '-2', '00', '+2', '+4', '+6', '+8', '+A'].each do |v|
         tmp.merge!({ v.to_s => {
-          "name" => @yaml_object[zone][command]['values']['{xx}']['name'],
+          "name" => v.downcase,
           "description" => @yaml_object[zone][command]['values']['{xx}']['description'],
           "models" => @yaml_object[zone][command]['values']['{xx}']['models']
         }})
@@ -103,9 +103,9 @@ module EISCP
       return @yaml_object[zone][command]['values'][value]['name'] 
     end
 
-    def self.command_value_name_to_value(command, name, zone = DEFAULT_ZONE)
-      @yaml_object[zone][command]['values'].each do |k, v|
-        if v['name'] == name.to_s
+    def self.command_value_name_to_value(command, value_name, zone = DEFAULT_ZONE)
+      @yaml_object[zone][command]['values'].each_pair do |k, v|
+        if v['name'] == value_name.to_s
           return k
         end
       end
@@ -166,8 +166,8 @@ module EISCP
         command_name = array.shift
         value_name = array.shift
       end
-      command = command_name_to_command(command_name)
-      value = command_value_name_to_value(command, value_name)
+      command = command_name_to_command(command_name, zone)
+      value = command_value_name_to_value(command, value_name, zone)
       return EISCP::Message.new(command, value)
     end
   end

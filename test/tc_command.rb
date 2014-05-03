@@ -37,7 +37,7 @@ class TestCommand < Test::Unit::TestCase
   end
 
   def test_parse_volume_as_integer
-    assert_equal(EISCP::Command.parse('main-volume 25'), EISCP::Message.parse('MVL19'))
+    assert_equal(EISCP::Command.parse('master-volume 25'), EISCP::Message.parse('MVL19'))
   end
 
 end
