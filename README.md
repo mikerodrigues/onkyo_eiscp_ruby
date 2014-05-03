@@ -28,6 +28,17 @@ What's missing?
 
 * Parsing of all human readable commands (run the tests to see some commands that aren't parsable in human readable form yet.
 
+* Reasonable variants for human-readable commands (ex. "main-volume" or "volume"
+  as opposed to "master-volume".
+
+* Model compatability checking
+
+* Logging
+
+* Exhaustive testing and documentation
+
+
+
 
 Using the Library
 -----------------
@@ -71,11 +82,16 @@ Using the Library
 
 * Parsing raw socket data
 
-		iscp_message_from_raw_eiscp = EISCP::Message.parse iscp_message.to_eiscp
+		iscp_message = EISCP::Message.parse iscp_message.to_eiscp
 
 * Human-readable commands
 
 		EISCP::Command.parse("main-volume 34")
+
+* Human-readable methods and parameters ( you can use "_" in place of "-" in
+  methods or parameters
+
+		receiver.master_volume("level-up")
 
 
 
