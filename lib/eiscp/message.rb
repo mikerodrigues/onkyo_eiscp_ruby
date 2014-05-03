@@ -16,11 +16,15 @@ module EISCP
     ISCP_VERSION = "\x01"
     RESERVED = "\x00\x00\x00"
 
-    # ISCP attributes
+    # ISCP Start character, usually "!"
     attr_accessor :start
+    # ISCP Unit Type character, usually "1"
     attr_accessor :unit_type
+    # ISCP Command
     attr_accessor :command
+    # ISCP Command Value
     attr_accessor :value
+    # Full ISCP Message
     attr_reader   :iscp_message
 
     # Regexp for parsing messages
@@ -31,6 +35,11 @@ module EISCP
       (?<value>.*)
     (?<end>\x1A)?/x
 
+    # Create an ISCP message
+    # @param [String] three-character length ISCP command
+    # @param [String] variable length ISCP command value
+    # @param [String] override default unit type character, optional
+    # @param [String] override default start character, optional
     def initialize(command, value, unit_type = '1', start = '!')
       if unit_type.nil?
         @unit_type = '1'
@@ -53,7 +62,7 @@ module EISCP
       }
     end
 
-    # Check if two messages have the same ISCP message.
+    # Check if two messages are equivalent comparing their ISCP messages.
     #
     def ==(other)
       iscp_message == other.iscp_message ? true : false

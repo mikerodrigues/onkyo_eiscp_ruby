@@ -177,12 +177,12 @@ module EISCP
     end
 
     def method_missing(sym, *args, &block)
-      command_name = sym.to_s.gsub(/-/, "_")
-      value_name = args[0]
+      command_name = sym.to_s.gsub(/_/, "-")
+      value_name = args[0].to_s.gsub(/_/, "-")
       begin
-        send_recv EISCP::Command.parse(command_name + value_name)
+        send_recv EISCP::Command.parse(command_name + " " + value_name)
       rescue
-        puts "Could not find a command: #{sym} with args #{args} and block #{block}"
+        puts "Could not find a command: #{command_name} with args #{value_name} and block #{block}"
       end
     end
   end
