@@ -5,6 +5,7 @@ onkyo_eiscp_ruby
 A Ruby implementation of eISCP for controlling Onkyo receivers.
 
 **This code is still under heavy development and using it might make you sick.**
+***See the 'development' branch for the latest useable changes***
 Create ISCP messages and eISCP packets
 Automatically discover receiver's in the broadcast domain
 Send/Recieve eISCP messages
