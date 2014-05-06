@@ -12,7 +12,7 @@ module EISCP
     # Create/start the server object.
 
     def initialize
-      Socket.udp_server_loop("255.255.255.255", EISCP::ONKYO_PORT) do |msg, msg_src|
+      Socket.udp_server_loop("255.255.255.255", EISCP::Receiver::ONKYO_PORT) do |msg, msg_src|
         msg_src.reply ONKYO_DISCOVERY_RESPONSE.to_eiscp
         puts msg
       end

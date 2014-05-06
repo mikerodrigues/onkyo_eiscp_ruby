@@ -9,7 +9,7 @@ class TestCommand < Test::Unit::TestCase
   end
 
   def test_command_name_to_command
-    assert_equal(EISCP::Command.command_name_to_command("system-power"), "PWR")
+    assert_equal(EISCP::Command.command_name_to_command("system-power", "main"), "PWR")
   end
 
   def test_command_value_to_value_name
@@ -21,7 +21,7 @@ class TestCommand < Test::Unit::TestCase
   end
 
   def test_description_from_command_name
-    assert_equal(EISCP::Command.description_from_command_name("system-power"), "System Power Command")
+    assert_equal(EISCP::Command.description_from_command_name("system-power", "main"), "System Power Command")
   end
 
   def test_description_from_command

@@ -1,4 +1,5 @@
 # encoding: utf-8
+require_relative './command'
 module EISCP
   # The EISCP::Message class is used to handle commands and responses.
   #
@@ -17,22 +18,34 @@ module EISCP
     RESERVED = "\x00\x00\x00"
 
     # ISCP Start character, usually "!"
-    attr_accessor :start
+    attr_reader :start
     # ISCP Unit Type character, usually "1"
-    attr_accessor :unit_type
+    attr_reader :unit_type
     # ISCP Command
-    attr_accessor :command
+    attr_reader :command
+    # Human readable command name
+    attr_reader :command_name
+    # Command description
+    attr_reader :command_description
     # ISCP Command Value
-    attr_accessor :value
+    attr_reader :value
+    # Human readable value name
+    attr_reader :value_name
+    # Value description
+    attr_reader :value_description
     # Full ISCP Message
-    attr_reader   :iscp_message
+    attr_reader :iscp_message
+    # ISCP Zone
+    attr_reader :zone
+    # Differentiates parsed messages from command messages
+    attr_reader :parsed
 
     # Regexp for parsing messages
     REGEX =
       /(?<start>!)?
       (?<unit_type>(\d|x))?
       (?<command>[A-Z]{3})\s?
-      (?<value>.*)
+    (?<value>.*)
     (?<end>\x1A)?/x
 
     # Create an ISCP message
@@ -60,6 +73,7 @@ module EISCP
                   version: ISCP_VERSION,
                   reserved: RESERVED
       }
+      get_human_readable_attrs
     end
 
     # Check if two messages are equivalent comparing their ISCP messages.
@@ -72,6 +86,7 @@ module EISCP
     # returns Message object.
     #
     def self.parse(string)
+      @parsed == true
       case string
       when /^ISCP/
         parse_eiscp_string(string)
@@ -122,6 +137,26 @@ module EISCP
         @header[:reserved],
         @iscp_message.to_s
       ].pack('A4NNAa3A*')
+    end
+
+    # Return human readable description.
+    #
+    def to_s
+      puts "#{@zone} - #{@command_name}:#{@value_name}"
+    end 
+
+    private
+    # Retrieves human readable attributes from the yaml file via Command
+    def get_human_readable_attrs
+      begin
+        @zone = Command.zone_from_command(@command)
+        @command_name = Command.command_to_name(@command)
+        @command_description = Command.description_from_command(@command)
+        @value_name = Command.command_value_to_value_name(@command, @value)
+        @value_description = Command.description_from_command_value(@command, @value)
+      rescue
+        # "Error getting human readable attrs for #{@zone} - #{@command}:#{@value}"
+      end
     end
   end
 end

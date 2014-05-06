@@ -47,8 +47,8 @@ class Options
     end
 
     if @options.discover
-      EISCP::Receiver.discover.each do |receiver|
-        puts  EISCP::Message.parse(receiver[0]).to_iscp
+      EISCP::Receiver.discover.each do |rec|
+        puts "#{rec.host}:#{rec.port} - #{rec.model} - #{rec.mac_address}"
       end
       exit 0
     end
@@ -60,9 +60,7 @@ class Options
 
     if @options.connect
       eiscp = EISCP::Receiver.new(EISCP::Receiver.discover[0][1])
-      eiscp.connect do |data|
-        puts EISCP::Message.parse(data).to_iscp
-      end
+      eiscp.connect
     end
 
     if ARGV == []

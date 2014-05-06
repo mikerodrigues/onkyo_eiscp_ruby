@@ -1,7 +1,6 @@
 require 'yaml'
 require_relative './receiver'
 require 'ostruct'
-require 'pry'
 
 module EISCP
   module Command
@@ -13,6 +12,106 @@ module EISCP
     @yaml_object.delete("modelsets")
     @zones = @yaml_object.map{|k, v| k}
 
+    def self.zone_from_command(command)
+      @zones.each do |zone|
+         @yaml_object[zone].each_pair do |k, v|
+          if command == k
+            return zone
+          end
+        end
+      end
+      return nil
+    end
+
+    def self.command_to_name(command)
+      zone = zone_from_command(command)
+      return @yaml_object[zone][command]['name']
+    end
+
+    def self.command_name_to_command(name, zone)
+      @yaml_object[zone].each_pair do |command, attrs|
+        if attrs['name'] == name
+          return command
+        end
+      end
+    end
+
+    def self.command_value_to_value_name(command, value)
+      zone = zone_from_command(command)
+      return @yaml_object[zone][command]['values'][value]['name'] 
+    end
+
+    def self.command_value_name_to_value(command, value_name)
+      zone = zone_from_command(command)
+      @yaml_object[zone][command]['values'].each_pair do |k, v|
+        if v['name'] == value_name.to_s
+          return k
+        end
+      end
+    end
+
+
+    def self.description_from_command_name(name, zone)
+      @yaml_object[zone].each_pair do |command, attrs|
+        if attrs['name'] == name
+          return @yaml_object[zone][command]['description']
+        end
+      end
+    end
+
+    def self.description_from_command(command)
+      zone = zone_from_command(command)
+      return @yaml_object[zone][command]['description']
+    end
+
+    def self.description_from_command_value(command, value)
+      zone = zone_from_command(command)
+      return @yaml_object[zone][command]['values'].select do |k, v| 
+        if k == value
+          return v['description']
+        end
+      end
+    end
+
+    def self.list_all_commands
+      @yaml_object.each do |zone|
+        @yaml_object[zone].each_pair do |command, attrs|
+          puts "#{command} - #{attrs['name']}: #{attrs['description']}"
+          attrs['values'].each_pair do |k, v|
+            puts "--#{k}:#{v}"
+          end
+        end
+      end
+    end
+
+    def self.list_compatible_commands(modelstring)
+      sets = [] 
+      @modelsets.each_pair do |set, array|
+        if array.include? modelstring
+          sets << set
+        end
+      end
+      return sets
+    end
+
+    def self.parse(string)
+      array = string.split(" ")
+      zone = DEFAULT_ZONE
+      command_name = ''
+      value_name = ''
+      if array.count == 3
+        zone = array.shift
+        command_name = array.shift
+        value_name = array.shift
+      elsif array.count == 2
+        command_name = array.shift
+        value_name = array.shift
+      end
+      command = command_name_to_command(command_name, zone)
+      value = command_value_name_to_value(command, value_name)
+      return EISCP::Message.new(command, value)
+    end
+    
     def self.create_range_commands(zone, command, value)
       case value.count
       when 3
@@ -56,6 +155,10 @@ module EISCP
       return tmp
     end
 
+
+    # Finds variable command values in yaml file (like volume) and makes
+    # explicit entries in the command structure hash (@yaml_object)
+    #
     @additions = []
     @yaml_object.each_key do |zone|
       @yaml_object[zone].each do |command|
@@ -78,97 +181,9 @@ module EISCP
       begin
       @yaml_object[zone][command]['values'].merge! hash
       rescue
-        binding.pry
+        puts "Failed to add #{hash} to #{zone}:#{command}:#{value}"
       end
     end
 
-
-    def zone_module(name, options={}, &block)
-      @zone_modules[name] = Class.new(options[:base] || EISCP::Zone, &block)
-    end
-
-    def self.command_to_name(command, zone = DEFAULT_ZONE)
-      return @yaml_object[zone][command]['name']
-    end
-
-    def self.command_name_to_command(name, zone = DEFAULT_ZONE)
-      @yaml_object[zone].each_pair do |command, attrs|
-        if attrs['name'] == name
-          return command
-        end
-      end
-    end
-
-    def self.command_value_to_value_name(command, value, zone = DEFAULT_ZONE)
-      return @yaml_object[zone][command]['values'][value]['name'] 
-    end
-
-    def self.command_value_name_to_value(command, value_name, zone = DEFAULT_ZONE)
-      @yaml_object[zone][command]['values'].each_pair do |k, v|
-        if v['name'] == value_name.to_s
-          return k
-        end
-      end
-    end
-
-
-    def self.description_from_command_name(name, zone = DEFAULT_ZONE)
-      @yaml_object[zone].each_pair do |command, attrs|
-        if attrs['name'] == name
-          return @yaml_object[zone][command]['description']
-        end
-      end
-    end
-
-    def self.description_from_command(command, zone = DEFAULT_ZONE)
-      return @yaml_object[zone][command]['description']
-    end
-
-    def self.description_from_command_value(command, value, zone = DEFAULT_ZONE)
-      return @yaml_object[zone][command]['values'].select do |k, v| 
-        if k == value
-          return v['description']
-        end
-      end
-    end
-
-    def self.list_all_commands
-      @yaml_object.each do |zone|
-        @yaml_object[zone].each_pair do |command, attrs|
-          puts "#{command} - #{attrs['name']}: #{attrs['description']}"
-          attrs['values'].each_pair do |k, v|
-            puts "--#{k}:#{v}"
-          end
-        end
-      end
-    end
-
-    def self.list_compatible_commands(modelstring)
-      sets = [] 
-      @modelsets.each_pair do |set, array|
-        if array.include? modelstring
-          sets << set
-        end
-      end
-      return sets
-    end
-
-    def self.parse(string)
-      array = string.split(" ")
-      zone = DEFAULT_ZONE
-      command_name = ''
-      value_name = ''
-      if array.count == 3
-        zone = array.shift
-        command_name = array.shift
-        value_name = array.shift
-      elsif array.count == 2
-        command_name = array.shift
-        value_name = array.shift
-      end
-      command = command_name_to_command(command_name, zone)
-      value = command_value_name_to_value(command, value_name, zone)
-      return EISCP::Message.new(command, value)
-    end
   end
 end

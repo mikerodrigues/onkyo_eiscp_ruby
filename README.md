@@ -64,8 +64,8 @@ Using the Library
 
 * You can also pass a block and operate on received packet strings:
 
-		receiver.connect do |data|
-		  puts EISCP::Command.parse(data).iscp_message
+		receiver.connect do |msg|
+		  puts "Received: #{msg.command_name}:#{msg.value_name}"
 		end
 
 * Turn on the receiver

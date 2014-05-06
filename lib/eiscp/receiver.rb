@@ -2,6 +2,7 @@ require 'socket'
 require_relative './message'
 require_relative './command'
 require 'resolv'
+require 'pry'
 
 module EISCP
   # The EISCP::Receiver class is used to communicate with one or more
@@ -26,61 +27,40 @@ module EISCP
     # If no host is given, use auto discovery and create a
     # receiver object using the first host to respond.
     #
-    def initialize(host = nil, port = ONKYO_PORT)
+    def initialize(host = nil, hash = {})
+      # if no host argument is given, get first receiver objet returned from
+      # Receiver.discover 
       if host.nil?
-        if first_discovered = self.class.discover[0]
-          host = first_discovered[1]
-          set_info first_discovered[0]
-        else
-          fail Exception 'No receivers discovered.'
-        end
+        return Receiver.discover[0]
       end
 
-      # if host given, create object and get info
+
+      # if host is given, set host
       @host = Resolv.getaddress host
-      @port = port
 
-      # use autodiscovery to get information about receiver unless it was
-      # created by discovery above
-      unless @model
-        begin
-          set_info get_ecn
-        rescue
-          warn "WARNING: No receiver at #{host}:#{port}."
+      if hash.empty?
+        Receiver.discover.each do |receiver|
+          if receiver.host == @host
+            return receiver
+          end
         end
       end
+      @model = hash[:model]
+      @port  = hash[:port]
+      @area  = hash[:area]
+      @mac_address = hash[:mac_address]
     end
 
     # Populates attrs with info from ECNQSTN response
     #
-    def set_info(ecn_string)
-      array = self.class.parse_ecn(ecn_string)
-      @model = array.shift
-      @port = array.shift.to_i
-      @area = array.shift
-      @mac_address = array.shift.split("\x19")[0]
-      return self
-    end
-
-    # Broadcasts ECNQSTN to get info for the receiver object
-    #
-    def get_ecn
-      self.class.discover.each do |entry|
-        return entry[0] if @host == entry[1]
-      end
-    end
-
-    # Gets the ECNQSTN response of self using @host
-    # then parses it with parse_ecn, returning an array
-    # with receiver info
-    #
-    def get_ecn_array
-      self.class.discover.each do |entry|
-        if @host == entry[1]
-          array = self.class.parse_ecn(entry[0])
-        end
-        return array
-      end
+    def self.ecn_string_to_ecn_array(ecn_string)
+      hash = {}
+      array = Receiver.parse_ecn(ecn_string)
+      hash[:model] = array.shift
+      hash[:port] = array.shift.to_i
+      hash[:area] = array.shift
+      hash[:mac_address] = array.shift.split("\x19")[0]
+      return hash
     end
 
     # Returns array containing @model, @port, @area, and @mac_address
@@ -101,15 +81,20 @@ module EISCP
       data = []
       begin
         msg, addr = sock.recvfrom_nonblock(1024)
-        data << [msg, addr[2]]
+        data << Receiver.new(addr[2], ecn_string_to_ecn_array(msg))
       rescue IO::WaitReadable
         IO.select([sock], nil, nil, 0.5)
         retry
       end
-      return data
+
+      if data.empty?
+        fail Exception "No receivers found."
+      else
+        return data
+      end
     end
 
-    # Internal method for receiving data with a timeout
+      # Internal method for receiving data with a timeout
     #
     def recv(timeout = 0.5)
       TCPSocket.open(@host, @port) do |sock|
@@ -162,11 +147,11 @@ module EISCP
       TCPSocket.open(@host, @port) do |sock|
         loop do
           begin
-            data = sock.recv_nonblock(1024).chomp
+            data = Message.parse(sock.recv_nonblock(1024).chomp)
             if block_given?
               yield data
             else
-              puts data
+              puts data.to_s
             end
           rescue IO::WaitReadable
             IO.select([sock], nil, nil, nil)
