@@ -79,23 +79,22 @@ module EISCP
       sock.setsockopt(Socket::SOL_SOCKET, Socket::SO_BROADCAST, true)
       sock.send(ONKYO_MAGIC, 0, '<broadcast>', ONKYO_PORT)
       data = []
-      get_response = Proc.new do |data|
+      loop do
+     
         begin
           msg, addr = sock.recvfrom_nonblock(1024)
           data << Receiver.new(addr[2], ecn_string_to_ecn_array(msg))
-          get_response.call data
         rescue IO::WaitReadable
-          IO.select([sock], nil, nil, 0.5)
-          retry
-        rescue
-          if data.empty?
-            fail Exception "No receivers found."
-          else
+          io = IO.select([sock], nil, nil, 0.5)
+          puts io
+          if io == nil
             return data
+          else
+            retry
           end
         end
+
       end
-      get_response.call data
     end
 
     # Internal method for receiving data with a timeout
