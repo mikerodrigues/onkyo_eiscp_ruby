@@ -50,7 +50,7 @@ class Options
       EISCP::Receiver.discover.each do |rec|
         puts "#{rec.host}:#{rec.port} - #{rec.model} - #{rec.mac_address}"
       end
-      exit 0
+       exit 0
     end
 
     if @options.help
@@ -59,7 +59,7 @@ class Options
     end
 
     if @options.connect
-      eiscp = EISCP::Receiver.new(EISCP::Receiver.discover[0][1])
+      eiscp = EISCP::Receiver.new
       eiscp.connect
     end
 
@@ -75,7 +75,7 @@ end
 @options = Options.parse(ARGV)
 
 
-receiver = EISCP::Receiver.new(EISCP::Receiver.discover[0][1])
+receiver = EISCP::Receiver.discover[0]
 command = EISCP::Command.parse(ARGV.join(" "))
 puts receiver.send_recv command
 

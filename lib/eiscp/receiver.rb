@@ -74,10 +74,10 @@ module EISCP
     # Returns an array of arrays consisting of a discovery response packet
     # string and the source ip address of the reciever.
     #
-    def self.discover
+    def self.discover(discovery_port = ONKYO_PORT)
       sock = UDPSocket.new
       sock.setsockopt(Socket::SOL_SOCKET, Socket::SO_BROADCAST, true)
-      sock.send(ONKYO_MAGIC, 0, '<broadcast>', ONKYO_PORT)
+      sock.send(ONKYO_MAGIC, 0, '<broadcast>', discovery_port)
       data = []
       loop do
      
@@ -86,7 +86,6 @@ module EISCP
           data << Receiver.new(addr[2], ecn_string_to_ecn_array(msg))
         rescue IO::WaitReadable
           io = IO.select([sock], nil, nil, 0.5)
-          puts io
           if io == nil
             return data
           else
