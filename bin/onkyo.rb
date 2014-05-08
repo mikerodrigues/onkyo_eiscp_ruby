@@ -63,6 +63,10 @@ class Options
       eiscp.connect
     end
 
+    if @options.list_all
+      EISCP::Command.list_all_commands
+    end
+
     if ARGV == []
       puts options
       exit 0

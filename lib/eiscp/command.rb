@@ -74,7 +74,7 @@ module EISCP
     end
 
     def self.list_all_commands
-      @yaml_object.each do |zone|
+      @yaml_object.each_pair do |zone, commands|
         @yaml_object[zone].each_pair do |command, attrs|
           puts "#{command} - #{attrs['name']}: #{attrs['description']}"
           attrs['values'].each_pair do |k, v|
