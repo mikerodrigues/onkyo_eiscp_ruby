@@ -46,7 +46,7 @@ module EISCP
       (?<unit_type>(\d|x))?
       (?<command>[A-Z]{3})\s?
     (?<value>.*)
-    (?<end>\x1A)?/x
+    (?<end>[[:cntrl:]])/x
 
     # Create an ISCP message
     # @param [String] three-character length ISCP command

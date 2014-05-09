@@ -2,7 +2,6 @@ require 'socket'
 require_relative './message'
 require_relative './command'
 require 'resolv'
-require 'pry'
 
 module EISCP
   # The EISCP::Receiver class is used to communicate with one or more

@@ -3,6 +3,7 @@
 require 'eiscp'
 require 'optparse'
 require 'ostruct'
+
 class Options
   DEFAULT_OPTIONS = { verbose: true, all: false }
   USAGE = ' Usage: onkyo_rb [options]'
@@ -80,8 +81,14 @@ end
 
 
 receiver = EISCP::Receiver.discover[0]
-command = EISCP::Command.parse(ARGV.join(" "))
-puts receiver.send_recv command
+begin
+  command = EISCP::Command.parse(ARGV.join(" "))
+rescue
+  # try using Message.parse
+  command = EISCP::Message.parse(ARGV.join(" "))
+end
+reply = EISCP::Message.parse(receiver.send_recv(command))
+puts "Update: #{reply.zone.capitalize} - #{reply.command_description} -> #{reply.value_description}"
 
 
 
