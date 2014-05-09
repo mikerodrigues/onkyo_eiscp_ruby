@@ -28,47 +28,61 @@ module EISCP
     # receiver object using the first host to respond.
     #
     def initialize(host = nil, hash = {})
-      # if no host argument is given, get first receiver objet returned from
-      # Receiver.discover 
-      if host.nil?
-        return Receiver.discover[0]
+
+      # This proc sets the four ECN attributes and returns the object
+      #
+      set_attrs = Proc.new do |hash|
+        @model = hash[:model]
+        @port  = hash[:port]
+        @area  = hash[:area]
+        @mac_address = hash[:mac_address]
+        return
+      end
+      
+      # This lambda sets the host IP after resolving it
+      set_host = lambda do |host|
+        @host = Resolv.getaddress host
       end
 
+      # if no host argument is given, find a recceiver with matching IP and copy
+      # its ECN attributes. Copying is done because a separate object can not be
+      # the return value of #initialize
+      #
+      if host.nil?
+        first_found = Receiver.discover[0]
+        set_host.call first_found.host
+        set_attrs.call first_found.ecn_hash
+      end
 
-      # if host is given, set host
-      @host = Resolv.getaddress host
-
+      # if a host is given, but no hash, find matching receiver and copy ECN
+      # attreibutes
+      #
       if hash.empty?
+        set_host.call host
         Receiver.discover.each do |receiver|
           if receiver.host == @host
-            return receiver
+            set_attrs.call receiver.ecn_hash
           end
         end
       end
-      @model = hash[:model]
-      @port  = hash[:port]
-      @area  = hash[:area]
-      @mac_address = hash[:mac_address]
+      
+      # this will only run if a hash and host are present
+      #
+      set_host.call host
+      set_attrs.call hash
     end
 
     # Populates attrs with info from ECNQSTN response
     #
     def self.ecn_string_to_ecn_array(ecn_string)
       hash = {}
-      array = Receiver.parse_ecn(ecn_string)
+      message = EISCP::Message.parse(ecn_string)
+      array = message.value.split('/')
       hash[:model] = array.shift
       hash[:port] = array.shift.to_i
       hash[:area] = array.shift
       hash[:mac_address] = array.shift.split("\x19")[0]
       return hash
-    end
-
-    # Returns array containing @model, @port, @area, and @mac_address
-    # from ECNQSTN response
-    #
-    def self.parse_ecn(ecn_string)
-      message = EISCP::Message.parse(ecn_string)
-      message.value.split('/')
     end
 
     # Returns an array of arrays consisting of a discovery response packet
@@ -161,6 +175,12 @@ module EISCP
           end
         end
       end
+    end
+
+    # Return ECN array with model, port, area, and MAC address
+    #
+    def ecn_hash
+      return {:model => @model, :port => @port, :area => @area, :mac_address => @mac_address}
     end
 
     def method_missing(sym, *args, &block)
