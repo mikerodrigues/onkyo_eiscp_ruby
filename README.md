@@ -73,7 +73,7 @@ Using the Library
 		message = EISCP::Message.parse("PWR", "01")
 		message.send(message.to_eiscp)
 
-* Parse incoming messages and the following formats:
+* Parse incoming messages and the following formats
         
 		iscp_message = EISCP::Message.parse "PWR01"
 		iscp_message = EISCP::Message.parse "PWR 01"
@@ -88,7 +88,7 @@ Using the Library
 
 		EISCP::Command.parse("main-volume 34")
 
-* Human-readable methods and parameters ( you can use "_" in place of "-" in
+* Human-readable methods and parameters ( you must use "_" in place of "-" in
   methods or parameters
 
 		receiver.master_volume("level-up")
@@ -102,9 +102,13 @@ Using the Binaries
 
 		$ onkyo.rb -d
 		
-* Send a raw command
+* Send a human-readable command
  		
-		$ onkyo.rb PWR01 # or any string accepted by EISCP::Command.parse
+		$ onkyo.rb system-power on  # uses Command.parse
+
+* Or send a raw command
+
+		$ onkyo.rb PWRQSTN   # Also tries to use Message.parse
 
 * Connect to the first discovered receiver to see status updates
 

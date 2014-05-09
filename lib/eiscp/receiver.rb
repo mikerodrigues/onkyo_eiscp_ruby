@@ -182,7 +182,10 @@ module EISCP
     def ecn_hash
       return {:model => @model, :port => @port, :area => @area, :mac_address => @mac_address}
     end
-
+    
+    # Catch any missing methods and treat the method name as the human-readable
+    # command name while treating the argument as a human-readable value name.
+    #
     def method_missing(sym, *args, &block)
       command_name = sym.to_s.gsub(/_/, "-")
       value_name = args[0].to_s.gsub(/_/, "-")
