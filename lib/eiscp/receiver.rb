@@ -19,7 +19,7 @@ module EISCP
     attr_accessor :area
     attr_accessor :mac_address
 
-    ONKYO_MAGIC = Message.new('ECN', 'QSTN', 'x').to_eiscp
+    ONKYO_MAGIC = Message.new('ECN', 'QSTN', "\r\n", 'x').to_eiscp
     ONKYO_PORT = 60_128
 
     # Create a new EISCP object to communicate with a receiver.
@@ -80,7 +80,7 @@ module EISCP
       hash[:model] = array.shift
       hash[:port] = array.shift.to_i
       hash[:area] = array.shift
-      hash[:mac_address] = array.shift.split("\x19")[0]
+      hash[:mac_address] = array.shift
       return hash
     end
 

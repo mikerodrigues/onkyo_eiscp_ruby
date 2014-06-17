@@ -4,16 +4,16 @@ require "test/unit"
 class TestMessage <  Test::Unit::TestCase
 
   
-  DISCOVERY_PACKET = EISCP::Message.new('ECN', 'QSTN', 'x', '!')
+  DISCOVERY_PACKET = EISCP::Message.new('ECN', 'QSTN', "\r\n", 'x', '!')
   DISCOVERY_STRING = DISCOVERY_PACKET.to_eiscp
 
 
   def test_create_discovery_iscp_message
-    assert_equal(EISCP::Message.new("ECN", "QSTN", "x", "!").to_iscp, "!xECNQSTN")
+    assert_equal(EISCP::Message.new('ECN', 'QSTN', "\r\n",  'x', '!').to_iscp, '!xECNQSTN')
   end
 
   def test_parse_discovery_iscp_message
-    assert_equal(EISCP::Message.parse("!xECNQSTN").to_iscp, "!xECNQSTN")
+    assert_equal(EISCP::Message.parse('!xECNQSTN').to_iscp, '!xECNQSTN')
   end
 
   def test_create_discovery_packet_string

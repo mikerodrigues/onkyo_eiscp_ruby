@@ -1,5 +1,6 @@
 # encoding: utf-8
 require_relative './command'
+
 module EISCP
   # The EISCP::Message class is used to handle commands and responses.
   #
@@ -14,7 +15,7 @@ module EISCP
     attr_accessor :header
     MAGIC = 'ISCP'
     HEADER_SIZE = 16
-    ISCP_VERSION = "\x01"
+    ISCP_VERSION = 1
     RESERVED = "\x00\x00\x00"
 
     # ISCP Start character, usually "!"
@@ -40,27 +41,33 @@ module EISCP
     # Differentiates parsed messages from command messages
     attr_reader :parsed
 
+    # Terminator character for eISCP packets
+    attr_reader :terminator
+
     # Regexp for parsing messages
-    REGEX =
-      /(?<start>!)?
-      (?<unit_type>(\d|x))?
-      (?<command>[A-Z]{3})\s?
-    (?<value>.*)
-    (?<end>[[:cntrl:]])/x
+    REGEX = /(?<start>!)?(?<unit_type>(\d|x))?(?<command>[a-zA-Z]{3})\s?(?<value>.*?)(?<terminator>[[:cntrl:]]*$)/
 
     # Create an ISCP message
     # @param [String] three-character length ISCP command
     # @param [String] variable length ISCP command value
     # @param [String] override default unit type character, optional
     # @param [String] override default start character, optional
-    def initialize(command, value, unit_type = '1', start = '!')
-      if unit_type.nil?
-        @unit_type = '1'
+    def initialize(command, value, terminator = "\r\n", unit_type = '1', start = '!')
+      # A really stupid hack so that I don't have to figure out which attrs are
+      # being passed to #new from an array where some attrs are 'nil'.
+      #
+      if terminator == ""
+        @terminator = "\r\n"
+      else
+        @terminator = terminator
+      end
+      if unit_type == nil
+        @unit_type = "1"
       else
         @unit_type = unit_type
       end
-      if start.nil?
-        @start = '!'
+      if start == nil
+        @start = "!"
       else
         @start = start
       end
@@ -86,7 +93,6 @@ module EISCP
     # returns Message object.
     #
     def self.parse(string)
-      @parsed == true
       case string
       when /^ISCP/
         parse_eiscp_string(string)
@@ -101,15 +107,16 @@ module EISCP
     #
     def self.parse_iscp_message(msg_string)
       match = msg_string.match(REGEX)
-      new(match[:command], match[:value], match[:unit_type], match[:start])
+      match
+      new(match[:command], match[:value], match[:terminator], match[:unit_type], match[:start])
     end
 
     # Parse eiscp_message string
     #
     def self.parse_eiscp_string(eiscp_message_string)
-      array = eiscp_message_string.unpack('A4NNAa3A*')
+      array = eiscp_message_string.unpack('A4NNCa3A*')
       msg = parse_iscp_message(array[5])
-      packet = new(msg.command, msg.value, msg.unit_type, msg.start)
+      packet = new(msg.command, msg.value, msg.terminator, msg.unit_type, msg.start)
       packet.header = {
         magic: array[0],
         header_size: array[1],
@@ -131,12 +138,13 @@ module EISCP
     def to_eiscp
       [
         @header[:magic],
-        @header[:header_size],
-        @header[:data_size],
-        @header[:version],
+        @header[:header_size].to_i,
+        @header[:data_size].to_i,
+        @header[:version].to_i,
         @header[:reserved],
-        @iscp_message.to_s
-      ].pack('A4NNAa3A*')
+        @iscp_message.to_s,
+        @terminator
+      ].pack('A4NNCa3A*A*')
     end
 
     # Return human readable description.
