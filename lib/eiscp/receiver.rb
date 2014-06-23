@@ -19,6 +19,10 @@ module EISCP
     attr_accessor :area
     attr_accessor :mac_address
 
+    attr_reader :socket
+    attr_reader :thread
+    attr_reader :queue
+
     ONKYO_MAGIC = Message.new('ECN', 'QSTN', "\r\n", 'x').to_eiscp
     ONKYO_PORT = 60_128
 
@@ -35,6 +39,13 @@ module EISCP
         @port  = hash[:port]
         @area  = hash[:area]
         @mac_address = hash[:mac_address]
+        @socket = TCPSocket.new(@host, @port)
+        @queue = []
+        @thread = Thread.new do
+          while true
+            @queue << recv
+          end
+        end
         return
       end
       
@@ -108,70 +119,47 @@ module EISCP
 
       end
     end
-
-    # Internal method for receiving data with a timeout
-    #
-    def recv(timeout = 0.5)
-      TCPSocket.open(@host, @port) do |sock|
-        begin
-          data = sock.recv_nonblock(1024).chomp
-        rescue IO::WaitReadable
-          IO.select([sock], nil, nil, timeout)
-          retry
-        end
-        return data
-      end
-    end
-
+    
     # Sends an EISCP::Message object or string on the network
     #
     def send(eiscp, timeout = 0.5)
-      TCPSocket.open(@host, @port) do |sock|
-        if eiscp.is_a? EISCP::Message
-          sock.puts(eiscp.to_eiscp)
-        elsif eiscp.is_a? String
-          sock.puts eiscp
-        end
+      if eiscp.is_a? EISCP::Message
+        @socket.puts(eiscp.to_eiscp)
+      elsif eiscp.is_a? String
+        @socket.puts eiscp
       end
+    end
+
+    def recv(timeout = 0.5)
+      message = ""
+      until message.match(/\r\n$/) do
+        message << @socket.gets
+      end
+      return message
     end
 
     # Sends an EISCP::Message object or string on the network and returns recieved data string.
     #
     def send_recv(eiscp, timeout = 0.5)
-      TCPSocket.open(@host, @port) do |sock|
-        if eiscp.is_a? EISCP::Message
-          sock.puts(eiscp.to_eiscp)
-        elsif eiscp.is_a? String
-          sock.puts(eiscp)
-        end
-
-        begin
-          data = sock.recv_nonblock(1024).chomp
-        rescue IO::WaitReadable
-          IO.select([sock], nil, nil, timeout)
-          retry
-        end
-        return data
+      if eiscp.is_a? EISCP::Message
+        @socket.puts(eiscp.to_eiscp)
+      elsif eiscp.is_a? String
+        @socket.puts(eiscp)
       end
+      sleep 0.1
+      @queue.last
     end
 
     # Open a TCP connection to the host and print all received messages until
     # killed.
     #
     def connect(&block)
-      TCPSocket.open(@host, @port) do |sock|
-        loop do
-          begin
-            data = Message.parse(sock.recv_nonblock(1024).chomp)
-            if block_given?
-              yield data
-            else
-              puts data.to_s
-            end
-          rescue IO::WaitReadable
-            IO.select([sock], nil, nil, nil)
-            retry
-          end
+      loop do
+        data = recv
+        if block_given?
+          yield data
+        else
+          puts data.to_s
         end
       end
     end
@@ -181,7 +169,7 @@ module EISCP
     def ecn_hash
       return {:model => @model, :port => @port, :area => @area, :mac_address => @mac_address}
     end
-    
+
     # Catch any missing methods and treat the method name as the human-readable
     # command name while treating the argument as a human-readable value name.
     #

@@ -88,7 +88,7 @@ rescue
   command = EISCP::Message.parse(ARGV.join(" "))
 end
 reply = EISCP::Message.parse(receiver.send_recv(command))
-puts "Update: #{reply.zone.capitalize} - #{reply.command_description} -> #{reply.value_description}"
+puts "Update: #{reply.zone.capitalize} - #{reply.command_description} -> #{reply.value_name}"
 
 
 
