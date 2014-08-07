@@ -4,7 +4,8 @@ require 'ostruct'
 
 module EISCP
   module Command
-
+    
+    # Assume we're talking about the 'main' zone unless otherwise specified.
     DEFAULT_ZONE = 'main'
     @yaml_file_path = File.join(File.expand_path(File.dirname(__FILE__)), '../../eiscp-commands.yaml')
     @yaml_object = YAML.load(File.read(@yaml_file_path))
@@ -12,6 +13,7 @@ module EISCP
     @yaml_object.delete("modelsets")
     @zones = @yaml_object.map{|k, v| k}
 
+    # Return the zone that includes the given command
     def self.zone_from_command(command)
       @zones.each do |zone|
          @yaml_object[zone].each_pair do |k, v|
@@ -23,11 +25,13 @@ module EISCP
       return nil
     end
 
+    # Return the human readable name of a command
     def self.command_to_name(command)
       zone = zone_from_command(command)
       return @yaml_object[zone][command]['name']
     end
 
+    # Return the command from a given command name
     def self.command_name_to_command(name, zone)
       @yaml_object[zone].each_pair do |command, attrs|
         if attrs['name'] == name
@@ -36,11 +40,13 @@ module EISCP
       end
     end
 
+    # Return a command value name from a command and value
     def self.command_value_to_value_name(command, value)
       zone = zone_from_command(command)
       return @yaml_object[zone][command]['values'][value]['name'] 
     end
 
+    # Return a command value from a command and value name
     def self.command_value_name_to_value(command, value_name)
       zone = zone_from_command(command)
       @yaml_object[zone][command]['values'].each_pair do |k, v|
@@ -50,7 +56,7 @@ module EISCP
       end
     end
 
-
+    # Return a description form a command name and zone
     def self.description_from_command_name(name, zone)
       @yaml_object[zone].each_pair do |command, attrs|
         if attrs['name'] == name
@@ -59,11 +65,13 @@ module EISCP
       end
     end
 
+    # Return a description from a command
     def self.description_from_command(command)
       zone = zone_from_command(command)
       return @yaml_object[zone][command]['description']
     end
 
+    # Return a description from a command and value
     def self.description_from_command_value(command, value)
       zone = zone_from_command(command)
       return @yaml_object[zone][command]['values'].select do |k, v| 
@@ -73,6 +81,7 @@ module EISCP
       end
     end
 
+    # Return a list of all commands
     def self.list_all_commands
       @yaml_object.each_pair do |zone, commands|
         @yaml_object[zone].each_pair do |command, attrs|
@@ -84,6 +93,7 @@ module EISCP
       end
     end
 
+    # Return a list of commands compatible with a given model
     def self.list_compatible_commands(modelstring)
       sets = [] 
       @modelsets.each_pair do |set, array|
@@ -94,6 +104,7 @@ module EISCP
       return sets
     end
 
+    # Parse a command and return a message object
     def self.parse(string)
       array = string.split(" ")
       zone = DEFAULT_ZONE
@@ -111,7 +122,8 @@ module EISCP
       value = command_value_name_to_value(command, value_name)
       return EISCP::Message.new(command, value)
     end
-    
+   
+    # Generate individual commands defined by ranges (eg. master-volume 1 - 80)
     def self.create_range_commands(zone, command, value)
       case value.count
       when 3
@@ -131,6 +143,7 @@ module EISCP
       return tmp
     end
 
+    # Generate individual treble and bass commands defined by an array
     def self.create_treble_bass_commands(zone, command, value)
       tmp = {}
       ['-A', '-8', '-6', '-4', '-2', '00', '+2', '+4', '+6', '+8', '+A'].each do |v|
@@ -143,6 +156,7 @@ module EISCP
       return tmp
     end
 
+    # Generate individual balacne commands defined by an array.
     def self.create_balance_commands(zone, command, value)
       tmp = {}
       ['-A', '-8', '-6', '-4', '-2', '00', '+2', '+4', '+6', '+8', '+A'].each do |v|

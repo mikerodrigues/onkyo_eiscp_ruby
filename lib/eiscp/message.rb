@@ -13,9 +13,13 @@ module EISCP
   class Message
     # EISCP header
     attr_accessor :header
+    # ISCP "magic" indicates the start of an eISCP message.
     MAGIC = 'ISCP'
+    # eISCP header size, fixed length.
     HEADER_SIZE = 16
+    # ISCP protocol version.
     ISCP_VERSION = 1
+    # Reserved for future protocol updates.
     RESERVED = "\x00\x00\x00"
 
     # ISCP Start character, usually "!"
@@ -44,14 +48,14 @@ module EISCP
     # Terminator character for eISCP packets
     attr_reader :terminator
 
-    # Regexp for parsing messages
+    # Regexp for parsing ISCP messages
     REGEX = /(?<start>!)?(?<unit_type>(\d|x))?(?<command>[a-zA-Z]{3})\s?(?<value>.*?)(?<terminator>[[:cntrl:]]*$)/
 
     # Create an ISCP message
-    # @param [String] three-character length ISCP command
-    # @param [String] variable length ISCP command value
-    # @param [String] override default unit type character, optional
-    # @param [String] override default start character, optional
+    # @param [String] command three-character length ISCP command
+    # @param [String] value variable length ISCP command value
+    # @param [String] unit_type_character override default unit type character, optional
+    # @param [String] start_character override default start character, optional
     def initialize(command, value, terminator = "\r\n", unit_type = '1', start = '!')
       # A really stupid hack so that I don't have to figure out which attrs are
       # being passed to #new from an array where some attrs are 'nil'.
@@ -71,6 +75,7 @@ module EISCP
       else
         @start = start
       end
+      
       @command = command
       @value = value
       @iscp_message = [@start, @unit_type, @command, @value].inject(:+)

@@ -13,17 +13,27 @@ module EISCP
   #   receiver = EISCP::Receiver.new('192.168.1.12', 60129) # non standard port
   #
   class Receiver
+    # Receiver's IP address
     attr_accessor :host
+    # Receiver's model string
     attr_accessor :model
+    # Receiver's ISCP port
     attr_accessor :port
+    # Receiver's region
     attr_accessor :area
+    # Receiver's MAC address
     attr_accessor :mac_address
 
+    # Receiver's connection socket
     attr_reader :socket
+    # Receiver's connection thread
     attr_reader :thread
+    # Receiver's message response queue
     attr_reader :queue
 
+    # ISCP Magic Packet for Autodiscovery
     ONKYO_MAGIC = Message.new('ECN', 'QSTN', "\r\n", 'x').to_eiscp
+    # Default Onkyo eISCP port
     ONKYO_PORT = 60_128
 
     # Create a new EISCP object to communicate with a receiver.
