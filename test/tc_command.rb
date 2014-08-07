@@ -1,8 +1,8 @@
 require_relative "../lib/eiscp/command.rb"
 require_relative "../lib/eiscp/message.rb"
-require "test/unit"
+require "minitest/autorun"
 
-class TestCommand < Test::Unit::TestCase
+class TestCommand < MiniTest::Test
 
   def test_command_to_name
     assert_equal(EISCP::Command.command_to_name("PWR"), "system-power")

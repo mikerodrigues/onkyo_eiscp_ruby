@@ -4,7 +4,7 @@ require 'ostruct'
 
 module EISCP
   module Command
-    
+
     # Assume we're talking about the 'main' zone unless otherwise specified.
     DEFAULT_ZONE = 'main'
     @yaml_file_path = File.join(File.expand_path(File.dirname(__FILE__)), '../../eiscp-commands.yaml')
@@ -16,7 +16,7 @@ module EISCP
     # Return the zone that includes the given command
     def self.zone_from_command(command)
       @zones.each do |zone|
-         @yaml_object[zone].each_pair do |k, v|
+        @yaml_object[zone].each_pair do |k, v|
           if command == k
             return zone
           end
@@ -118,11 +118,15 @@ module EISCP
         command_name = array.shift
         value_name = array.shift
       end
-      command = command_name_to_command(command_name, zone)
-      value = command_value_name_to_value(command, value_name)
-      return EISCP::Message.new(command, value)
+      begin
+        command = command_name_to_command(command_name, zone)
+        value = command_value_name_to_value(command, value_name)
+        return EISCP::Message.new(command, value)
+      rescue
+        return nil
+      end
     end
-   
+
     # Generate individual commands defined by ranges (eg. master-volume 1 - 80)
     def self.create_range_commands(zone, command, value)
       case value.count
@@ -133,7 +137,7 @@ module EISCP
       end
       tmp = {}
       range.each do |number|
-      #  @yaml_update[zone][command]['values'][number.to_s(16).upcase] 
+        #  @yaml_update[zone][command]['values'][number.to_s(16).upcase] 
         tmp.merge! ({ number.to_s(16).rjust(2, "0").upcase => {
           "name" => number.to_s,
           "description" => @yaml_object[zone][command]['values'][value]['description'],
@@ -186,14 +190,14 @@ module EISCP
           elsif value.match(/^{xx}$/)
             @additions << [zone, command, value, create_balance_commands(zone, command, value)]
           else
-           next
+            next
           end
         end
       end
     end
     @additions.each do |zone, command, value, hash|
       begin
-      @yaml_object[zone][command]['values'].merge! hash
+        @yaml_object[zone][command]['values'].merge! hash
       rescue
         puts "Failed to add #{hash} to #{zone}:#{command}:#{value}"
       end

@@ -1,5 +1,6 @@
 require_relative "../lib/eiscp/receiver"
-require "test/unit"
+require "minitest/autorun"
+
 
 class TestEISCP
 

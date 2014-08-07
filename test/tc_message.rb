@@ -1,7 +1,7 @@
 require_relative "../lib/eiscp/message"
-require "test/unit"
+require "minitest/autorun"
 
-class TestMessage <  Test::Unit::TestCase
+class TestMessage <  MiniTest::Test
 
   
   DISCOVERY_PACKET = EISCP::Message.new('ECN', 'QSTN', "\r\n", 'x', '!')
