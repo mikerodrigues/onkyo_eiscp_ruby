@@ -54,6 +54,9 @@ module EISCP
         @thread = Thread.new do
           while true
             @queue << recv
+            if @queue.size > 10
+              @queue.shift
+            end
           end
         end
         return
@@ -136,7 +139,11 @@ module EISCP
       if eiscp.is_a? EISCP::Message
         @socket.puts(eiscp.to_eiscp)
       elsif eiscp.is_a? String
-        @socket.puts eiscp
+        if Message.parse eiscp
+          @socket.puts eiscp
+        else
+          raise
+        end
       end
     end
 
@@ -154,7 +161,11 @@ module EISCP
       if eiscp.is_a? EISCP::Message
         @socket.puts(eiscp.to_eiscp)
       elsif eiscp.is_a? String
-        @socket.puts(eiscp)
+        if Message.parse eiscp
+          @socket.puts(eiscp)
+        else
+          raise
+        end
       end
       sleep 0.1
       @queue.last

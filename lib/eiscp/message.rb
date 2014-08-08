@@ -104,7 +104,7 @@ module EISCP
       when REGEX
         parse_iscp_message(string)
       else
-        puts 'Not a valid ISCP or EISCP message.'
+        raise
       end
     end
 
@@ -112,7 +112,9 @@ module EISCP
     #
     def self.parse_iscp_message(msg_string)
       match = msg_string.match(REGEX)
-      match
+      if (match['command'].nil? || match['value'].nil?)
+        raise
+      end
       new(match[:command], match[:value], match[:terminator], match[:unit_type], match[:start])
     end
 

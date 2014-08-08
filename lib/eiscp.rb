@@ -7,3 +7,4 @@ end
 require_relative './eiscp/receiver'
 require_relative './eiscp/message'
 require_relative './eiscp/command'
+require_relative './eiscp/dictionary'
