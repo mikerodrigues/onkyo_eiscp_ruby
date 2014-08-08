@@ -3,6 +3,7 @@ require 'yaml'
 module EISCP
   module Dictionary
 
+    # Add attribute readers to the module
     class << self
       attr_reader :zones
       attr_reader :modelsets
@@ -17,7 +18,8 @@ module EISCP
     @zones = @commands.map{|k, v| k}
 
 
-
+    # Creates a hash object for range commands like master-volume
+    #
     def self.create_range_commands(zone, command, value)
       case value.count
       when 3
@@ -37,6 +39,8 @@ module EISCP
       return tmp
     end
 
+    # Creates hash object for treble and bass commands
+    #
     def self.create_treble_bass_commands(zone, command, value)
       tmp = {}
       ['-A', '-8', '-6', '-4', '-2', '00', '+2', '+4', '+6', '+8', '+A'].each do |v|
@@ -49,6 +53,8 @@ module EISCP
       return tmp
     end
 
+    # Creates hash object for balance commands
+    #
     def self.create_balance_commands(zone, command, value)
       tmp = {}
       ['-A', '-8', '-6', '-4', '-2', '00', '+2', '+4', '+6', '+8', '+A'].each do |v|
