@@ -141,11 +141,11 @@ module EISCP
     end
 
     def recv(timeout = 0.5)
-      message = ""
-      until message.match(/\r\n$/) do
-        message << @socket.gets
+      mesg_str = ""
+      until mesg_str.match(/\r\n$/) do
+        mesg_str << @socket.gets
       end
-      return message
+      return Message.parse mesg_str
     end
 
     # Sends an EISCP::Message object or string on the network and returns recieved data string.
