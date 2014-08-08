@@ -18,8 +18,12 @@ module EISCP
 
     # Return the human readable name of a command
     def self.command_to_name(command)
-      zone = zone_from_command(command)
-      return Dictionary.commands[zone][command]['name']
+      begin
+        zone = zone_from_command(command)
+        return Dictionary.commands[zone][command]['name']
+      rescue
+        return nil
+      end
     end
 
     # Return the command from a given command name
@@ -34,8 +38,12 @@ module EISCP
 
     # Return a command value name from a command and value
     def self.command_value_to_value_name(command, value)
-      zone = zone_from_command(command)
-      return Dictionary.commands[zone][command]['values'][value]['name'] 
+      begin
+        zone = zone_from_command(command)
+        return Dictionary.commands[zone][command]['values'][value]['name'] 
+      rescue
+        return nil
+      end
     end
 
     # Return a command value from a command and value name
@@ -61,8 +69,12 @@ module EISCP
 
     # Return a description from a command
     def self.description_from_command(command)
-      zone = zone_from_command(command)
-      return Dictionary.commands[zone][command]['description']
+      begin
+        zone = zone_from_command(command)
+        return Dictionary.commands[zone][command]['description']
+      rescue
+        return nil
+      end
     end
 
     # Return a description from a command and value
