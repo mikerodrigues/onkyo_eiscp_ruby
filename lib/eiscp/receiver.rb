@@ -1,6 +1,6 @@
 require 'socket'
 require_relative './message'
-require_relative './command'
+require_relative './dictionary'
 require 'resolv'
 
 module EISCP

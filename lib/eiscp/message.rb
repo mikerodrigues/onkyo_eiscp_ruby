@@ -1,5 +1,5 @@
 # encoding: utf-8
-require_relative './command'
+require_relative './dictionary'
 
 module EISCP
   # The EISCP::Message class is used to handle commands and responses.
@@ -11,6 +11,10 @@ module EISCP
   #   response = EISCP::Message.parse(receiver.send_recv(command))
   #
   class Message
+    
+
+    extend Dictionary
+
     # EISCP header
     attr_accessor :header
     # ISCP "magic" indicates the start of an eISCP message.
@@ -49,7 +53,7 @@ module EISCP
     attr_reader :terminator
 
     # Regexp for parsing ISCP messages
-    REGEX = /(?<start>!)?(?<unit_type>(\d|x))?(?<command>[a-zA-Z]{3})\s?(?<value>.*?)(?<terminator>[[:cntrl:]]*$)/
+    REGEX = /(?<start>!)?(?<unit_type>(\d|x))?(?<command>[A-Z]{3})\s?(?<value>.*?)(?<terminator>[[:cntrl:]]*$)/
 
     # Create an ISCP message
     # @param [String] command three-character length ISCP command
@@ -75,7 +79,7 @@ module EISCP
       else
         @start = start
       end
-      
+
       @command = command
       @value = value
       @iscp_message = [@start, @unit_type, @command, @value].inject(:+)
@@ -104,17 +108,33 @@ module EISCP
       when REGEX
         parse_iscp_message(string)
       else
-        raise
+        parse_human_readable(string)
       end
+    end
+
+    # Human readable command parser
+    def self.parse_human_readable(string)
+      array = string.split(" ")
+      zone = Dictionary::DEFAULT_ZONE
+      command_name = ''
+      value_name = ''
+      if array.count == 3
+        zone = array.shift
+        command_name = array.shift
+        value_name = array.shift
+      elsif array.count == 2
+        command_name = array.shift
+        value_name = array.shift
+      end
+        command = command_name_to_command(command_name)
+        value = command_value_name_to_value(command, value_name)
+        return new(command, value)
     end
 
     # ISCP Message string parser
     #
     def self.parse_iscp_message(msg_string)
       match = msg_string.match(REGEX)
-      if (match['command'].nil? || match['value'].nil?)
-        raise
-      end
       new(match[:command], match[:value], match[:terminator], match[:unit_type], match[:start])
     end
 
@@ -158,17 +178,18 @@ module EISCP
     #
     def to_s
       puts "#{@zone} - #{@command_name}:#{@value_name}"
-    end 
+    end
 
     private
-    # Retrieves human readable attributes from the yaml file via Command
+
+    # Retrieves human readable attributes from the yaml file via Dictionary
     def get_human_readable_attrs
       begin
-        @zone = Command.zone_from_command(@command)
-        @command_name = Command.command_to_name(@command)
-        @command_description = Command.description_from_command(@command)
-        @value_name = Command.command_value_to_value_name(@command, @value)
-        @value_description = Command.description_from_command_value(@command, @value)
+        @zone = zone_from_command(@command)
+        @command_name = command_to_name(@command)
+        @command_description = description_from_command(@command)
+        @value_name = command_value_to_value_name(@command, @value)
+        @value_description = description_from_command_value(@command, @value)
       rescue
         # "Error getting human readable attrs for #{@zone} - #{@command}:#{@value}"
       end

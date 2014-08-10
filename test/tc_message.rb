@@ -24,9 +24,12 @@ class TestMessage <  MiniTest::Test
     assert_equal(EISCP::Message.parse(DISCOVERY_STRING).to_eiscp, DISCOVERY_PACKET.to_eiscp)
   end
 
-  def test_validate
+  def test_validate_discovery
     assert_equal(DISCOVERY_PACKET.valid?, true)
-    assert_equal(EISCP::Message.new('BAD', 'MSG'), false)
+  end
+  
+  def test_validate_bad_message
+    assert_equal(EISCP::Message.new('BAD', 'MSG').valid?, false)
   end
 
 end
