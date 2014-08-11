@@ -39,8 +39,6 @@ module EISCP
     attr_reader :value_name
     # Value description
     attr_reader :value_description
-    # Full ISCP Message
-    attr_reader :iscp_message
     # ISCP Zone
     attr_reader :zone
     # Differentiates parsed messages from command messages
@@ -61,15 +59,18 @@ module EISCP
       unless Dictionary.validate_command(command)
         raise "Invalid command #{command}"
       end
+      
+      if value.nil?
+        raise "No value specified."
+      end
       @command = command
       @value = value
       @terminator = terminator
       @unit_type = unit_type
       @start = start
-      @iscp_message = [@start, @unit_type, @command, @value].inject(:+)
       @header = { magic: MAGIC,
                   header_size:  HEADER_SIZE,
-                  data_size: @iscp_message.length,
+                  data_size: iscp_message.length,
                   version: ISCP_VERSION,
                   reserved: RESERVED
       }
@@ -80,6 +81,14 @@ module EISCP
     #
     def ==(other)
       iscp_message == other.iscp_message ? true : false
+    end
+
+    def iscp_message
+      begin
+      @iscp_message = [@start, @unit_type, @command, @value].inject(:+)
+      rescue
+        puts "S:#{@start}, UT:#{@unit_type}, C:#{@command}, V:#{@value}"
+      end
     end
 
     # Identifies message format, calls appropriate parse function
@@ -119,13 +128,17 @@ module EISCP
     #
     def self.parse_iscp_message(msg_string)
       match = msg_string.match(REGEX)
-      new(
-        command: match[:command],
-        value: match[:value],
-        terminator: match[:terminator],
-        unit_type: match[:unit_type],
-        start: match[:start]
-      )
+      
+      # Convert MatchData to Hash
+      hash = Hash[ match.names.zip( match.captures )]
+
+      # Remove nil and blank values
+      hash.delete_if {|k, v| v.nil? || v == ""}
+
+      # Convert keys to symbols
+      hash = hash.inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
+
+      new(**hash)
     end
 
     # Parse eiscp_message string

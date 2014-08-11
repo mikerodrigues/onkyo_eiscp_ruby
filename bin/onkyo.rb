@@ -65,7 +65,7 @@ class Options
     end
 
     if @options.list_all
-      EISCP::Command.list_all_commands
+      EISCP::Dictionary.list_all_commands
     end
 
     if ARGV == []
@@ -82,7 +82,7 @@ end
 
 receiver = EISCP::Receiver.discover[0]
 begin
-  command = EISCP::Command.parse(ARGV.join(" "))
+  command = EISCP::Message.parse(ARGV.join(" "))
 rescue
   # try using Message.parse
   command = EISCP::Message.parse(ARGV.join(" "))
