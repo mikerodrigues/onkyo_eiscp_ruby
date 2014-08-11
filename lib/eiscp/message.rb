@@ -11,9 +11,6 @@ module EISCP
   #   response = EISCP::Message.parse(receiver.send_recv(command))
   #
   class Message
-    
-
-    extend Dictionary
 
     # EISCP header
     attr_accessor :header
@@ -60,28 +57,15 @@ module EISCP
     # @param [String] value variable length ISCP command value
     # @param [String] unit_type_character override default unit type character, optional
     # @param [String] start_character override default start character, optional
-    def initialize(command, value, terminator = "\r\n", unit_type = '1', start = '!')
-      # A really stupid hack so that I don't have to figure out which attrs are
-      # being passed to #new from an array where some attrs are 'nil'.
-      #
-      if terminator == ""
-        @terminator = "\r\n"
-      else
-        @terminator = terminator
+    def initialize(command: nil, value: nil, terminator:  "\r\n", unit_type: '1', start: '!')
+      unless Dictionary.validate_command(command)
+        raise "Invalid command #{command}"
       end
-      if unit_type == nil
-        @unit_type = "1"
-      else
-        @unit_type = unit_type
-      end
-      if start == nil
-        @start = "!"
-      else
-        @start = start
-      end
-
       @command = command
       @value = value
+      @terminator = terminator
+      @unit_type = unit_type
+      @start = start
       @iscp_message = [@start, @unit_type, @command, @value].inject(:+)
       @header = { magic: MAGIC,
                   header_size:  HEADER_SIZE,
@@ -126,16 +110,22 @@ module EISCP
         command_name = array.shift
         value_name = array.shift
       end
-        command = command_name_to_command(command_name)
-        value = command_value_name_to_value(command, value_name)
-        return new(command, value)
+        command = Dictionary.command_name_to_command(command_name)
+        value = Dictionary.command_value_name_to_value(command, value_name)
+        return new(command: command, value: value)
     end
 
     # ISCP Message string parser
     #
     def self.parse_iscp_message(msg_string)
       match = msg_string.match(REGEX)
-      new(match[:command], match[:value], match[:terminator], match[:unit_type], match[:start])
+      new(
+        command: match[:command],
+        value: match[:value],
+        terminator: match[:terminator],
+        unit_type: match[:unit_type],
+        start: match[:start]
+      )
     end
 
     # Parse eiscp_message string
@@ -143,7 +133,13 @@ module EISCP
     def self.parse_eiscp_string(eiscp_message_string)
       array = eiscp_message_string.unpack('A4NNCa3A*')
       msg = parse_iscp_message(array[5])
-      packet = new(msg.command, msg.value, msg.terminator, msg.unit_type, msg.start)
+      packet = new(
+        command: msg.command,
+        value: msg.value,
+        terminator: msg.terminator,
+        unit_type: msg.unit_type,
+        start: msg.start
+      )
       packet.header = {
         magic: array[0],
         header_size: array[1],
@@ -185,11 +181,11 @@ module EISCP
     # Retrieves human readable attributes from the yaml file via Dictionary
     def get_human_readable_attrs
       begin
-        @zone = zone_from_command(@command)
-        @command_name = command_to_name(@command)
-        @command_description = description_from_command(@command)
-        @value_name = command_value_to_value_name(@command, @value)
-        @value_description = description_from_command_value(@command, @value)
+        @zone = Dictionary.zone_from_command(@command)
+        @command_name = Dictionary.command_to_name(@command)
+        @command_description = Dictionary.description_from_command(@command)
+        @value_name = Dictionary.command_value_to_value_name(@command, @value)
+        @value_description = Dictionary.description_from_command_value(@command, @value)
       rescue
         # "Error getting human readable attrs for #{@zone} - #{@command}:#{@value}"
       end

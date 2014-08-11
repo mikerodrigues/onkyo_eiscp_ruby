@@ -86,7 +86,7 @@ Using the Library
 
 * Human-readable commands
 
-		EISCP::Command.parse("main-volume 34")
+		EISCP::Message.parse("main-volume 34")
 
 * Human-readable methods and parameters ( you must use "_" in place of "-" in
   methods or parameters

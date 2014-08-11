@@ -9,6 +9,14 @@
 # new generated versions of the file.
 
 main:
+  ECN:
+    name: system-discovery
+    description: System Discovery Command
+    values:
+      QSTN:
+        name: query
+        description: discovers receivers on the LAN
+        models: set1
   PWR:
     name: system-power
     description: System Power Command

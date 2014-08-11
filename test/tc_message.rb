@@ -4,12 +4,12 @@ require "minitest/autorun"
 class TestMessage <  MiniTest::Test
 
   
-  DISCOVERY_PACKET = EISCP::Message.new('ECN', 'QSTN', "\r\n", 'x', '!')
+  DISCOVERY_PACKET = EISCP::Message.new(command: 'ECN', value: 'QSTN', terminator: "\r\n", unit_type: 'x', start: '!')
   DISCOVERY_STRING = DISCOVERY_PACKET.to_eiscp
 
 
   def test_create_discovery_iscp_message
-    assert_equal(EISCP::Message.new('ECN', 'QSTN', "\r\n",  'x', '!').to_iscp, '!xECNQSTN')
+    assert_equal(EISCP::Message.new(command: 'ECN', value: 'QSTN', terminator: "\r\n", unit_type: 'x', start: '!').to_iscp, '!xECNQSTN')
   end
 
   def test_parse_discovery_iscp_message
@@ -28,8 +28,20 @@ class TestMessage <  MiniTest::Test
     assert_equal(DISCOVERY_PACKET.valid?, true)
   end
   
-  def test_validate_bad_message
-    assert_equal(EISCP::Message.new('BAD', 'MSG').valid?, false)
+  def test_validate_invalidate_message
+    assert_equal(EISCP::Message.new(command: 'BAD', value: 'MSG').valid?, false)
+  end
+
+  def test_validate_valid_message
+    assert_equal(EISCP::Message.new(command: 'PWR', value: '01').valid?, true)
+  end
+
+  def test_parse_human_readable
+    assert_equal(EISCP::Message.parse("system-power on"), EISCP::Message.new(command: 'PWR', value: "01"))
+  end
+
+  def test_validate_valid_message_with_variable
+    # Commands that return something unexpected like an artist name
   end
 
 end

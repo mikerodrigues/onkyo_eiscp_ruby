@@ -32,7 +32,7 @@ module EISCP
     attr_reader :queue
 
     # ISCP Magic Packet for Autodiscovery
-    ONKYO_MAGIC = Message.new('ECN', 'QSTN', "\r\n", 'x').to_eiscp
+    ONKYO_MAGIC = Message.new(command: 'ECN', value: 'QSTN', terminator: "\r\n", unit_type: 'x').to_eiscp
     # Default Onkyo eISCP port
     ONKYO_PORT = 60_128
 
