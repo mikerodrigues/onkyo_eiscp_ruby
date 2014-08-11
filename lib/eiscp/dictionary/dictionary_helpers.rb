@@ -26,15 +26,29 @@ module EISCP
       end
 
       # Return the command from a given command name
-      def command_name_to_command(name)
-        @zones.each do |zone|
+      def command_name_to_command(name, zone = nil)
+        if zone.nil?
+
+          @zones.each do |zone|
+            @commands[zone].each_pair do |command, attrs|
+              if attrs['name'] == name
+                return command
+              end
+            end
+            return nil
+          end
+
+        else
+
           @commands[zone].each_pair do |command, attrs|
             if attrs['name'] == name
               return command
             end
           end
           return nil
+
         end
+
       end
 
       # Return a command value name from a command and value
@@ -89,10 +103,6 @@ module EISCP
         return nil
       end
 
-      def validate_command(command)
-        (command_to_name(command) || command_name_to_command(command)) ? true : false
-      end
-
       # Return a list of commands compatible with a given model
       def list_compatible_commands(modelstring)
         sets = []
@@ -106,8 +116,8 @@ module EISCP
 
       def validate_command(command)
         begin
-        zone = zone_from_command(command)
-        @commands[zone].include? command
+          zone = zone_from_command(command)
+          @commands[zone].include? command
         rescue
           false
         end

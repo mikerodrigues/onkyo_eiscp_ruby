@@ -3,8 +3,15 @@ require "minitest/autorun"
 
 class TestDictionary < MiniTest::Test
 
+  def test_zone_from_command
+    assert_equal(EISCP::Dictionary.zone_from_command("PWR"), 'main')
+    assert_equal(EISCP::Dictionary.zone_from_command("ZPW"), 'zone2')
+    assert_equal(EISCP::Dictionary.zone_from_command('CDS'), 'dock')
+  end
+
   def test_command_to_name
     assert_equal(EISCP::Dictionary.command_to_name("PWR"), "system-power")
+    assert_equal(EISCP::Dictionary.command_to_name("ZPW"), "power")
   end
 
   def test_command_name_to_command
