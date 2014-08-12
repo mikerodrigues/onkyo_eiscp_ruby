@@ -1,6 +1,7 @@
 Gem::Specification.new do |s|
   s.name         = 'onkyo_eiscp_ruby'
   s.version      = File.read(File.expand_path('VERSION', File.dirname(__FILE__))).strip
+  s.licenses      = ['MIT']
   s.platform     = Gem::Platform::RUBY
   s.summary      = 'Manipulate Onkyo stereos with the eISCP protocol'
   s.files        = Dir.glob('{bin,config,lib,test,doc}/**/*') +
