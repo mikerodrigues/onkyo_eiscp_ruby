@@ -25,7 +25,7 @@ class TestMessage <  MiniTest::Test
   end
 
   def test_parse_human_readable
-    assert_equal(EISCP::Message.parse("system-power on"), EISCP::Message.new(command: 'PWR', value: '01'))
+    assert_equal(EISCP::Message.parse('system-power on'), EISCP::Message.new(command: 'PWR', value: '01'))
   end
 
   def test_validate_valid_message_with_variable

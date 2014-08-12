@@ -4,6 +4,8 @@ require 'eiscp'
 require 'optparse'
 require 'ostruct'
 
+# This object parses ARGV and returns an @option hash
+#
 class Options
   DEFAULT_OPTIONS = { verbose: true, all: false }
   USAGE = ' Usage: onkyo_rb [options]'
@@ -43,7 +45,7 @@ class Options
 
     options.parse!(args)
 
-    if @options == nil && ARGV == []
+    if @options.nil? && ARGV == []
       puts options
     end
 
@@ -51,12 +53,12 @@ class Options
       EISCP::Receiver.discover.each do |rec|
         puts "#{rec.host}:#{rec.port} - #{rec.model} - #{rec.mac_address}"
       end
-       exit 0
+      exit 0
     end
 
     if @options.help
       puts options
-      exit 0 
+      exit 0
     end
 
     if @options.connect
@@ -73,23 +75,16 @@ class Options
       exit 0
     end
   end
-
 end
-
 
 @options = Options.parse(ARGV)
 
-
 receiver = EISCP::Receiver.discover[0]
 begin
-  command = EISCP::Message.parse(ARGV.join(" "))
+  command = EISCP::Message.parse(ARGV.join(' '))
 rescue
   # try using Message.parse
-  command = EISCP::Message.parse(ARGV.join(" "))
+  command = EISCP::Message.parse(ARGV.join(' '))
 end
 reply = EISCP::Message.parse(receiver.send_recv(command))
-puts "Update: #{reply.zone.capitalize} - #{reply.command_description} -> #{reply.value_name}"
-
-
-
-
+puts "Update: #{reply.zone.capitalize}   #{reply.command_description} -> #{reply.value_name}"

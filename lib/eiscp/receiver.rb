@@ -40,11 +40,10 @@ module EISCP
     # If no host is given, use auto discovery and create a
     # receiver object using the first host to respond.
     #
-    def initialize(host = nil, hash = {})
-
+    def initialize(host = nil, info_hash = {})
       # This proc sets the four ECN attributes and returns the object
       #
-      set_attrs = Proc.new do |hash|
+      set_attrs = proc do |hash|
         @model = hash[:model]
         @port  = hash[:port]
         @area  = hash[:area]
@@ -52,7 +51,7 @@ module EISCP
         @socket = TCPSocket.new(@host, @port)
         @queue = []
         @thread = Thread.new do
-          while true
+          loop do
             @queue << recv
             if @queue.size > 10
               @queue.shift
@@ -61,10 +60,10 @@ module EISCP
         end
         return
       end
-      
+
       # This lambda sets the host IP after resolving it
-      set_host = lambda do |host|
-        @host = Resolv.getaddress host
+      set_host = lambda do |hostname|
+        @host = Resolv.getaddress hostname
       end
 
       # if no host argument is given, find a recceiver with matching IP and copy
@@ -88,11 +87,11 @@ module EISCP
           end
         end
       end
-      
-      # this will only run if a hash and host are present
+
+      # this will only run if an info_hash and host are present
       #
       set_host.call host
-      set_attrs.call hash
+      set_attrs.call info_hash
     end
 
     # Populates attrs with info from ECNQSTN response
@@ -105,7 +104,7 @@ module EISCP
       hash[:port] = array.shift.to_i
       hash[:area] = array.shift
       hash[:mac_address] = array.shift
-      return hash
+      hash
     end
 
     # Returns an array of arrays consisting of a discovery response packet
@@ -117,13 +116,13 @@ module EISCP
       sock.send(ONKYO_MAGIC, 0, '<broadcast>', discovery_port)
       data = []
       loop do
-     
+
         begin
           msg, addr = sock.recvfrom_nonblock(1024)
           data << Receiver.new(addr[2], ecn_string_to_ecn_array(msg))
         rescue IO::WaitReadable
           io = IO.select([sock], nil, nil, 0.5)
-          if io == nil
+          if io.nil?
             return data
           else
             retry
@@ -132,7 +131,7 @@ module EISCP
 
       end
     end
-    
+
     # Sends an EISCP::Message object or string on the network
     #
     def send(eiscp, timeout = 0.5)
@@ -142,20 +141,21 @@ module EISCP
         if Message.parse eiscp
           @socket.puts eiscp
         else
-          raise
+          fail
         end
       end
     end
 
     def recv(timeout = 0.5)
-      mesg_str = ""
-      until mesg_str.match(/\r\n$/) do
+      mesg_str = ''
+      until mesg_str.match(/\r\n$/)
         mesg_str << @socket.gets
       end
-      return Message.parse mesg_str
+      Message.parse mesg_str
     end
 
-    # Sends an EISCP::Message object or string on the network and returns recieved data string.
+    # Sends an EISCP::Message object or string on the network and returns
+    # recieved data string.
     #
     def send_recv(eiscp, timeout = 0.5)
       if eiscp.is_a? EISCP::Message
@@ -164,7 +164,7 @@ module EISCP
         if Message.parse eiscp
           @socket.puts(eiscp)
         else
-          raise
+          fail
         end
       end
       sleep 0.1
@@ -188,17 +188,21 @@ module EISCP
     # Return ECN array with model, port, area, and MAC address
     #
     def ecn_hash
-      return {:model => @model, :port => @port, :area => @area, :mac_address => @mac_address}
+      { model: @model,
+        port: @port,
+        area: @area,
+        mac_address: @mac_address
+      }
     end
 
     # Catch any missing methods and treat the method name as the human-readable
     # command name while treating the argument as a human-readable value name.
     #
     def method_missing(sym, *args, &block)
-      command_name = sym.to_s.gsub(/_/, "-")
-      value_name = args[0].to_s.gsub(/_/, "-")
+      command_name = sym.to_s.gsub(/_/, '-')
+      value_name = args[0].to_s.gsub(/_/, '-')
       begin
-        send_recv EISCP::Command.parse(command_name + " " + value_name)
+        send_recv EISCP::Command.parse(command_name + ' ' + value_name)
       rescue
         puts "Could not find a command: #{command_name} with args #{value_name} and block #{block}"
       end
