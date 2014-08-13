@@ -20,7 +20,7 @@ class Options
       opts.on '-d', '--discover', 'Find Onkyo Receivers on the local broadcast domain' do |d|
         @options.discover = d
       end
-
+      
       opts.on '-a', '--all', 'Send command to all Onkyo Receivers instead of just the first one' do |a|
         @options.all = a
       end
@@ -86,5 +86,5 @@ rescue
   # try using Message.parse
   command = EISCP::Message.parse(ARGV.join(' '))
 end
-reply = EISCP::Message.parse(receiver.send_recv(command))
+reply = receiver.send_recv(command)
 puts "Update: #{reply.zone.capitalize}   #{reply.command_description} -> #{reply.value_name}"
