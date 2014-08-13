@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.homepage     = "https://github.com/mikerodrigues/onkyo_eiscp_ruby"
 
   s.description  = %q(
-    Control Onkyo receivers over the network.Use the provided binary script or
+    Control Onkyo receivers over the network.Use the provided binary or
     require the library for use in your scripts.
   )
 

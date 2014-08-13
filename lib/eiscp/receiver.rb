@@ -30,6 +30,8 @@ module EISCP
     attr_reader :thread
     # Receiver's message response queue
     attr_reader :queue
+    # Most recent message received
+    attr_reader :last
 
     # ISCP Magic Packet for Autodiscovery
     ONKYO_MAGIC = Message.new(command: 'ECN', value: 'QSTN', terminator: "\r\n", unit_type: 'x').to_eiscp
@@ -49,13 +51,12 @@ module EISCP
         @area  = hash[:area]
         @mac_address = hash[:mac_address]
         @socket = TCPSocket.new(@host, @port)
-        @queue = []
+        @queue = Queue.new
         @thread = Thread.new do
-          loop do
-            @queue << recv
-            if @queue.size > 10
-              @queue.shift
-            end
+          while true
+            msg = recv
+            @queue << msg
+            @last = msg
           end
         end
         return
@@ -79,7 +80,7 @@ module EISCP
       # if a host is given, but no hash, find matching receiver and copy ECN
       # attreibutes
       #
-      if hash.empty?
+      if info_hash.empty?
         set_host.call host
         Receiver.discover.each do |receiver|
           if receiver.host == @host
@@ -168,7 +169,7 @@ module EISCP
         end
       end
       sleep 0.1
-      @queue.last
+      @last
     end
 
     # Open a TCP connection to the host and print all received messages until
@@ -202,7 +203,7 @@ module EISCP
       command_name = sym.to_s.gsub(/_/, '-')
       value_name = args[0].to_s.gsub(/_/, '-')
       begin
-        send_recv EISCP::Command.parse(command_name + ' ' + value_name)
+        send_recv EISCP::Message.parse(command_name + ' ' + value_name)
       rescue
         puts "Could not find a command: #{command_name} with args #{value_name} and block #{block}"
       end
