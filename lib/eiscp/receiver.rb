@@ -42,15 +42,62 @@ module EISCP
     # If no host is given, use auto discovery and create a
     # receiver object using the first host to respond.
     #
-    def initialize(host = nil, info_hash = {})
+    def initialize(host = nil, info_hash = {}, &block)
       # This proc sets the four ECN attributes and returns the object
       #
-      set_attrs = proc do |hash|
+      set_attrs = lambda do |hash|
         @model = hash[:model]
         @port  = hash[:port]
         @area  = hash[:area]
         @mac_address = hash[:mac_address]
         @socket = TCPSocket.new(@host, @port)
+      end
+
+      # This lambda sets the host IP after resolving it
+      set_host = lambda do |hostname|
+        @host = Resolv.getaddress hostname
+      end
+
+      # When no host is give, the first discovered host is returned.
+      # 
+      # When a host is given without a hash ::discover will be used to find
+      # a receiver that matches.
+      #
+      # Else, use the given host and hash to create a new Receiver object.
+      # This is how ::discover creates Receivers.
+      a 
+      case
+      when host.nil?
+        first_found = Receiver.discover[0]
+        set_host.call first_found.host
+        set_attrs.call first_found.ecn_hash
+      when info_hash.empty?
+        set_host.call host
+        Receiver.discover.each do |receiver|
+          if receiver.host == @host
+            set_attrs.call receiver.ecn_hash
+          end
+        end
+      else
+        set_host.call host
+        set_attrs.call info_hash
+      end
+
+      # This handles the background thread for monitoring messages from the
+      # receiver.
+      #
+      # If a block is given, it can be used to setup a callback when a message
+      # is received.
+      #
+      if block_given?
+        @thread = Thread.new do 
+          while true
+            msg = recv
+            @last = msg
+            block.call(msg)
+          end
+        end
+      else
         @queue = Queue.new
         @thread = Thread.new do
           while true
@@ -59,40 +106,7 @@ module EISCP
             @last = msg
           end
         end
-        return
       end
-
-      # This lambda sets the host IP after resolving it
-      set_host = lambda do |hostname|
-        @host = Resolv.getaddress hostname
-      end
-
-      # if no host argument is given, find a recceiver with matching IP and copy
-      # its ECN attributes. Copying is done because a separate object can not be
-      # the return value of #initialize
-      #
-      if host.nil?
-        first_found = Receiver.discover[0]
-        set_host.call first_found.host
-        set_attrs.call first_found.ecn_hash
-      end
-
-      # if a host is given, but no hash, find matching receiver and copy ECN
-      # attreibutes
-      #
-      if info_hash.empty?
-        set_host.call host
-        Receiver.discover.each do |receiver|
-          if receiver.host == @host
-            set_attrs.call receiver.ecn_hash
-          end
-        end
-      end
-
-      # this will only run if an info_hash and host are present
-      #
-      set_host.call host
-      set_attrs.call info_hash
     end
 
     # Populates attrs with info from ECNQSTN response
