@@ -89,21 +89,15 @@ module EISCP
       # If a block is given, it can be used to setup a callback when a message
       # is received.
       #
-      if block_given?
-        @thread = Thread.new do 
-          while true
-            msg = recv
-            @last = msg
-            block.call(msg)
+      @queue = Queue.new
+      @thread = Thread.new do
+        while true
+          @last = recv
+          if @queue.size >= 10
+            @queue.shift
           end
-        end
-      else
-        @queue = Queue.new
-        @thread = Thread.new do
-          while true
-            msg = recv
-            @queue << msg
-            @last = msg
+          if block_given?
+            block.call(msg)
           end
         end
       end
