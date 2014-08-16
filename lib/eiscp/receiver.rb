@@ -65,7 +65,7 @@ module EISCP
       #
       # Else, use the given host and hash to create a new Receiver object.
       # This is how ::discover creates Receivers.
-      a 
+      #
       case
       when host.nil?
         first_found = Receiver.discover[0]
