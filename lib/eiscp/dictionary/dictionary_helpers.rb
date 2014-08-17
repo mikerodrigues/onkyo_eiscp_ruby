@@ -35,8 +35,8 @@ module EISCP
                 return command
               end
             end
-            return nil
           end
+          return nil
 
         else
 
