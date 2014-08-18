@@ -29,6 +29,7 @@ class TestDictionary < MiniTest::Test
 
   def test_command_value_name_to_value
     assert_equal(EISCP::Dictionary.command_value_name_to_value('PWR', 'on'), '01')
+    assert_equal(EISCP::Dictionary.command_value_name_to_value('ZPW', 'on'), '01')
   end
 
   def test_description_from_command_name
