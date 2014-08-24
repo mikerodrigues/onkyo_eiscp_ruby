@@ -1,4 +1,3 @@
-require 'socket'
 require 'resolv'
 require_relative './message'
 require_relative './receiver'
@@ -29,11 +28,6 @@ module EISCP
     attr_accessor :area
     # Receiver's MAC address
     attr_accessor :mac_address
-
-    # ISCP Magic Packet for Autodiscovery
-    ONKYO_MAGIC = Message.new(command: 'ECN', value: 'QSTN', terminator: "\r\n", unit_type: 'x').to_eiscp
-    # Default Onkyo eISCP port
-    ONKYO_PORT = 60_128
 
     # Create a new EISCP object to communicate with a receiver.
     # If no host is given, use auto discovery and create a

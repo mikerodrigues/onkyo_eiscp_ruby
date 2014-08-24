@@ -1,3 +1,5 @@
+require 'socket'
+
 module EISCP
   class Receiver
     module Connection
@@ -8,8 +10,12 @@ module EISCP
       attr_reader :thread
       # Most recent message received
       attr_reader :last
-
+      
+      # Default connection timeout value in seconds
       DEFAULT_TIMEOUT = 0.5
+
+      # Default Onkyo eISCP port
+      ONKYO_PORT = 60128
 
       # This handles the background thread for monitoring messages from the
       # receiver.
@@ -17,7 +23,7 @@ module EISCP
       # If a block is given, it can be used to setup a callback when a message
       # is received.
       #
-      def connect(host, port = 60128, block = nil)
+      def connect(host, port = ONKYO_PORT, block = nil)
         begin
         @socket = TCPSocket.new(host, port)
         @thread = Thread.new do
