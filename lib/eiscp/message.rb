@@ -66,7 +66,7 @@ module EISCP
       @start = start
       @header = { magic: MAGIC,
                   header_size:  HEADER_SIZE,
-                  data_size: iscp_message.length,
+                  data_size: to_iscp.length,
                   version: ISCP_VERSION,
                   reserved: RESERVED
       }
@@ -76,16 +76,8 @@ module EISCP
     # Check if two messages are equivalent comparing their ISCP messages.
     #
     def ==(other)
-      iscp_message == other.iscp_message ? true : false
+      to_iscp == other.to_iscp ? true : false
     end
-
-    def iscp_message
-      begin
-        @iscp_message = [@start, @unit_type, @command, @value].inject(:+)
-      rescue
-        puts "S:#{@start}, UT:#{@unit_type}, C:#{@command}, V:#{@value}"
-      end
-    end  
 
     # Return ISCP Message string
     #
@@ -102,7 +94,7 @@ module EISCP
         @header[:data_size].to_i,
         @header[:version].to_i,
         @header[:reserved],
-        @iscp_message.to_s,
+        to_iscp.to_s,
         @terminator
       ].pack('A4NNCa3A*A*')
     end
