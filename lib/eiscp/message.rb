@@ -11,7 +11,6 @@ module EISCP
   #   response = EISCP::Message.parse(receiver.send_recv(command))
   #
   class Message
-
     # EISCP header
     attr_accessor :header
     # ISCP "magic" indicates the start of an eISCP message.
@@ -57,12 +56,11 @@ module EISCP
     # @param [String] start_character override default start character, optional
     def initialize(command: nil, value: nil, terminator:  "\r\n", unit_type: '1', start: '!')
       unless Dictionary.validate_command(command)
-        raise "Invalid command #{command}"
+        fail "Invalid command #{command}"
       end
-      
-      if value.nil?
-        raise "No value specified."
-      end
+
+      if value.nil? then fail 'No value specified.' end
+
       @command = command
       @value = value
       @terminator = terminator
@@ -84,11 +82,7 @@ module EISCP
     end
 
     def iscp_message
-      begin
-      @iscp_message = [@start, @unit_type, @command, @value].inject(:+)
-      rescue
-        puts "S:#{@start}, UT:#{@unit_type}, C:#{@command}, V:#{@value}"
-      end
+      [@start, @unit_type, @command, @value].inject(:+)
     end
 
     # Identifies message format, calls appropriate parse function
@@ -107,8 +101,7 @@ module EISCP
 
     # Human readable command parser
     def self.parse_human_readable(string)
-      array = string.split(" ")
-      zone = Dictionary::DEFAULT_ZONE
+      array = string.split(' ')
       command_name = ''
       value_name = ''
       if array.count == 3
@@ -116,24 +109,25 @@ module EISCP
         command_name = array.shift
         value_name = array.shift
       elsif array.count == 2
+        zone = Dictionary::DEFAULT_ZONE
         command_name = array.shift
         value_name = array.shift
       end
-        command = Dictionary.command_name_to_command(command_name)
-        value = Dictionary.command_value_name_to_value(command, value_name)
-        return new(command: command, value: value)
+      command = Dictionary.command_name_to_command(command_name)
+      value = Dictionary.command_value_name_to_value(command, value_name)
+      new(command: command, value: value)
     end
 
     # ISCP Message string parser
     #
     def self.parse_iscp_message(msg_string)
       match = msg_string.match(REGEX)
-      
+
       # Convert MatchData to Hash
-      hash = Hash[ match.names.zip( match.captures )]
+      hash = Hash[match.names.zip(match.captures)]
 
       # Remove nil and blank values
-      hash.delete_if {|k, v| v.nil? || v == ""}
+      hash.delete_if {|k, v| v.nil? || v == ''}
 
       # Convert keys to symbols
       hash = hash.inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
@@ -193,15 +187,11 @@ module EISCP
 
     # Retrieves human readable attributes from the yaml file via Dictionary
     def get_human_readable_attrs
-      begin
-        @zone = Dictionary.zone_from_command(@command)
-        @command_name = Dictionary.command_to_name(@command)
-        @command_description = Dictionary.description_from_command(@command)
-        @value_name = Dictionary.command_value_to_value_name(@command, @value)
-        @value_description = Dictionary.description_from_command_value(@command, @value)
-      rescue
-        # "Error getting human readable attrs for #{@zone} - #{@command}:#{@value}"
-      end
+      @zone = Dictionary.zone_from_command(@command)
+      @command_name = Dictionary.command_to_name(@command)
+      @command_description = Dictionary.description_from_command(@command)
+      @value_name = Dictionary.command_value_to_value_name(@command, @value)
+      @value_description = Dictionary.description_from_command_value(@command, @value)
     end
   end
 end

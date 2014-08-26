@@ -3,14 +3,13 @@ require 'socket'
 module EISCP
   class Receiver
     module Connection
-
       # Receiver's connection socket
       attr_reader :socket
       # Receiver's connection thread
       attr_reader :thread
       # Most recent message received
       attr_reader :last
-      
+
       # Default connection timeout value in seconds
       DEFAULT_TIMEOUT = 0.5
 
@@ -50,7 +49,7 @@ module EISCP
       end
 
       def recv(timeout = DEFAULT_TIMEOUT)
-        message = ""
+        message = ''
         until message.match(/\r\n$/) do
           message << @socket.gets
         end
@@ -65,10 +64,9 @@ module EISCP
         elsif eiscp.is_a? String
           @socket.puts(eiscp)
         end
-        sleep 0.1
+        sleep DEFAULT_TIMEOUT
         last
       end
-
     end
   end
 end

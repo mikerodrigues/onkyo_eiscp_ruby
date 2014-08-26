@@ -1,12 +1,9 @@
-require_relative "../lib/eiscp/message"
-require "minitest/autorun"
+require_relative '../lib/eiscp/message'
+require 'minitest/autorun'
 
 class TestMessage <  MiniTest::Test
-
-
   DISCOVERY_PACKET = EISCP::Message.new(command: 'ECN', value: 'QSTN', terminator: "\r\n", unit_type: 'x', start: '!')
   DISCOVERY_STRING = DISCOVERY_PACKET.to_eiscp
-
 
   def test_create_discovery_iscp_message
     assert_equal(EISCP::Message.new(command: 'ECN', value: 'QSTN', terminator: "\r\n", unit_type: 'x', start: '!').to_iscp, '!xECNQSTN')
@@ -52,5 +49,4 @@ class TestMessage <  MiniTest::Test
   def test_validate_valid_message_with_variable
     # Commands that return something unexpected like an artist name
   end
-
 end

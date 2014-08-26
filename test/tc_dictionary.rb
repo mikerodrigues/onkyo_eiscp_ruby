@@ -2,7 +2,6 @@ require_relative '../lib/eiscp/dictionary.rb'
 require 'minitest/autorun'
 
 class TestDictionary < MiniTest::Test
-
   def test_zone_from_command
     assert_equal(EISCP::Dictionary.zone_from_command('PWR'), 'main')
     assert_equal(EISCP::Dictionary.zone_from_command('ZPW'), 'zone2')
@@ -41,5 +40,4 @@ class TestDictionary < MiniTest::Test
     assert_equal(EISCP::Dictionary.description_from_command('PWR'), 'System Power Command')
     assert_equal(EISCP::Dictionary.description_from_command('ZPW'), 'Zone2 Power Command')
   end
-
 end

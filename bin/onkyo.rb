@@ -20,7 +20,7 @@ class Options
       opts.on '-d', '--discover', 'Find Onkyo Receivers on the local broadcast domain' do |d|
         @options.discover = d
       end
-      
+
       opts.on '-a', '--all', 'Send command to all Onkyo Receivers instead of just the first one' do |a|
         @options.all = a
       end
@@ -37,7 +37,7 @@ class Options
         @options.list_all = l
       end
 
-      opts.on '-c', '--connect', 'Connect to the first discovered reciever and show updates' do |c|
+      opts.on '-m', '--monitor', 'Connect to the first discovered reciever and monitor updates' do |c|
         @options.connect = c
       end
 
@@ -45,9 +45,7 @@ class Options
 
     options.parse!(args)
 
-    if @options.nil? && ARGV == []
-      puts options
-    end
+    if @options.nil? && ARGV == [] then puts options end
 
     if @options.discover
       EISCP::Receiver.discover.each do |rec|
@@ -61,14 +59,13 @@ class Options
       exit 0
     end
 
-    if @options.connect
-      eiscp = EISCP::Receiver.new
-      eiscp.connect
+    if @options.monitor
+      eiscp = EISCP::Receiver.new do |msg|
+        puts msg
+      end
     end
 
-    if @options.list_all
-      EISCP::Dictionary.list_all_commands
-    end
+    @options.list_all && EISCP::Dictionary.list_all_commands
 
     if ARGV == []
       puts options

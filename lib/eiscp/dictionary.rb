@@ -3,7 +3,6 @@ require_relative './dictionary/dictionary_helpers'
 
 module EISCP
   module Dictionary
-
     extend DictionaryGenerators
     extend DictionaryHelpers
 
@@ -46,6 +45,5 @@ module EISCP
         puts "Failed to add #{hash} to #{zone}:#{command}:#{value}"
       end
     end
-
   end
 end

@@ -1,8 +1,8 @@
 require 'resolv'
 require_relative './message'
 require_relative './receiver'
-require_relative'./receiver/discovery'
-require_relative'./receiver/connection'
+require_relative './receiver/discovery'
+require_relative './receiver/connection'
 
 module EISCP
   # The EISCP::Receiver class is used to communicate with one or more
@@ -14,7 +14,6 @@ module EISCP
   #   receiver = EISCP::Receiver.new('192.168.1.12', 60129) # non standard port
   #
   class Receiver
-
     extend Discovery
     include Connection
 
@@ -54,7 +53,7 @@ module EISCP
       end
 
       # When no host is give, the first discovered host is returned.
-      # 
+      #
       # When a host is given without a hash ::discover will be used to find
       # a receiver that matches.
       #
@@ -69,17 +68,13 @@ module EISCP
       when info_hash.empty?
         set_host.call host
         Receiver.discover.each do |receiver|
-          if receiver.host == @host
-            set_attrs.call receiver.ecn_hash
-          end
+          receiver.host == @host && set_attrs.call(receiver.ecn_hash)
         end
       else
         set_host.call host
         set_attrs.call info_hash
       end
-
     end
-
 
     # Return ECN array with model, port, area, and MAC address
     #
@@ -100,7 +95,8 @@ module EISCP
       begin
         @connection.send_recv Message.parse(command_name + ' ' + value_name)
       rescue
-        puts "Could not find a command: #{command_name} with args #{value_name} and block #{block}"
+        puts "No known command: #{command_name} with args #{value_name} and" \
+             " block #{block}"
       end
     end
   end

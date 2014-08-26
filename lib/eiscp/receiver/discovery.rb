@@ -3,8 +3,7 @@ require_relative '../message'
 
 module EISCP
   class Receiver
-    module Discovery 
-
+    module Discovery
       # ISCP Magic Packet for Autodiscovery
       ONKYO_MAGIC = Message.new(command: 'ECN', value: 'QSTN', terminator: "\r\n", unit_type: 'x').to_eiscp
 
@@ -42,10 +41,8 @@ module EISCP
               retry
             end
           end
-
         end
       end
-
     end
   end
 end

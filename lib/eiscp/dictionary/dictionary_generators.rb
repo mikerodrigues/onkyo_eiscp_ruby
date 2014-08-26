@@ -3,7 +3,6 @@ require 'yaml'
 module EISCP
   module Dictionary
     module DictionaryGenerators
-
       # Creates a hash object for range commands like master-volume
       #
       def create_range_commands(zone, command, value)
@@ -15,11 +14,10 @@ module EISCP
         end
         tmp = {}
         range.each do |number|
-          #  @yaml_update[zone][command]['values'][number.to_s(16).upcase] 
-          tmp.merge! ({ number.to_s(16).rjust(2, "0").upcase => {
-            "name" => number.to_s,
-            "description" => @commands[zone][command]['values'][value]['description'],
-            "models" => @commands[zone][command]['values'][value]['models'],
+          tmp.merge! ({ number.to_s(16).rjust(2, '0').upcase => {
+            'name' => number.to_s,
+            'description' => @commands[zone][command]['values'][value]['description'],
+            'models' => @commands[zone][command]['values'][value]['models'],
           }})
         end
         return tmp
@@ -31,9 +29,9 @@ module EISCP
         tmp = {}
         ['-A', '-8', '-6', '-4', '-2', '00', '+2', '+4', '+6', '+8', '+A'].each do |v|
           tmp.merge!({ (value[0] + v.to_s) => {
-            "name" => value[0].downcase + v,
-            "description" => @commands[zone][command]['values'][value[0] + '{xx}']['description'],
-            "models" => @commands[zone][command]['values'][value[0] + '{xx}']['models']
+            'name' => value[0].downcase + v,
+            'description' => @commands[zone][command]['values'][value[0] + '{xx}']['description'],
+            'models' => @commands[zone][command]['values'][value[0] + '{xx}']['models']
           }})
         end
         return tmp
@@ -45,9 +43,9 @@ module EISCP
         tmp = {}
         ['-A', '-8', '-6', '-4', '-2', '00', '+2', '+4', '+6', '+8', '+A'].each do |v|
           tmp.merge!({ v.to_s => {
-            "name" => v.downcase,
-            "description" => @commands[zone][command]['values']['{xx}']['description'],
-            "models" => @commands[zone][command]['values']['{xx}']['models']
+            'name' => v.downcase,
+            'description' => @commands[zone][command]['values']['{xx}']['description'],
+            'models' => @commands[zone][command]['values']['{xx}']['models']
           }})
         end
         return tmp
@@ -55,4 +53,3 @@ module EISCP
     end
   end
 end
-

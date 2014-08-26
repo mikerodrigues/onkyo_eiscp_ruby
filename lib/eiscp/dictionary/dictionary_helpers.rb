@@ -1,7 +1,6 @@
 module EISCP
   module Dictionary
     module DictionaryHelpers
-
       # Return the zone that includes the given command
       def zone_from_command(command)
         @zones.each do |zone|
@@ -48,7 +47,6 @@ module EISCP
           return nil
 
         end
-
       end
 
       # Return a command value name from a command and value
@@ -122,29 +120,6 @@ module EISCP
           false
         end
       end
-
-      # Parse a command and return a message object
-      #def parse(string)
-      #  array = string.split(" ")
-      #  zone = DEFAULT_ZONE
-      #  command_name = ''
-      #  value_name = ''
-      #  if array.count == 3
-      #    zone = array.shift
-      #    command_name = array.shift
-      #    value_name = array.shift
-      #  elsif array.count == 2
-      #    command_name = array.shift
-      #    value_name = array.shift
-      #  end
-      #  begin
-      #    command = command_name_to_command(command_name, zone)
-      #    value = command_value_name_to_value(command, value_name)
-      #    return EISCP::Message.new(command, value)
-      #  rescue
-      #    return nil
-      #  end
-      #end
     end
   end
 end
