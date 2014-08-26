@@ -14,17 +14,14 @@ module EISCP
       DEFAULT_TIMEOUT = 0.5
 
       # Default Onkyo eISCP port
-      ONKYO_PORT = 60128
+      ONKYO_PORT = 60_128
 
-      # This handles the background thread for monitoring messages from the
-      # receiver.
+      # Create a new connection thread. Also accepts a block that will run
+      # whenver a message is received. You can pass the Message object in with
+      # your block. This is the method #new uses to create the initial thread.
       #
-      # If a block is given, it can be used to setup a callback when a message
-      # is received.
-      #
-      def connect(host, port = ONKYO_PORT, block = nil)
-        begin
-        @socket = TCPSocket.new(host, port)
+      def start_thread(&block)
+        @thread && @thread.kill
         @thread = Thread.new do
           loop do
             recv
@@ -33,6 +30,18 @@ module EISCP
             end
           end
         end
+      end
+
+      # This handles the background thread for monitoring messages from the
+      # receiver.
+      #
+      # If a block is given, it can be used to setup a callback when a message
+      # is received.
+      #
+      def connect(host, port = ONKYO_PORT, &block)
+        begin
+          @socket = TCPSocket.new(host, port)
+          start_thread(&block)
         rescue => e
           puts e
         end
@@ -48,6 +57,8 @@ module EISCP
         end
       end
 
+      # Reads the socket and returns and EISCP::Message
+      #
       def recv(timeout = DEFAULT_TIMEOUT)
         message = ''
         until message.match(/\r\n$/) do

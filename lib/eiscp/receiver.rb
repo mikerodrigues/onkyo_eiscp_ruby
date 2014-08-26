@@ -1,5 +1,5 @@
 require 'resolv'
-require_relative './message'
+require_relative './parser'
 require_relative './receiver'
 require_relative './receiver/discovery'
 require_relative './receiver/connection'
@@ -41,7 +41,7 @@ module EISCP
         @area  = hash[:area]
         @mac_address = hash[:mac_address]
         if block_given?
-          connect(@host, @port, block)
+          connect(@host, @port, &block)
         else
           connect(@host, @port)
         end
@@ -93,7 +93,7 @@ module EISCP
       command_name = sym.to_s.gsub(/_/, '-')
       value_name = args[0].to_s.gsub(/_/, '-')
       begin
-        @connection.send_recv Message.parse(command_name + ' ' + value_name)
+        @connection.send_recv Parser.parse(command_name + ' ' + value_name)
       rescue
         puts "No known command: #{command_name} with args #{value_name} and" \
              " block #{block}"

@@ -1,5 +1,6 @@
 require 'socket'
 require_relative '../message'
+require_relative '../parser'
 
 module EISCP
   class Receiver
@@ -11,7 +12,7 @@ module EISCP
       #
       def ecn_string_to_ecn_array(ecn_string)
         hash = {}
-        message = Message.parse(ecn_string)
+        message = Parser.parse(ecn_string)
         array = message.value.split('/')
         hash[:model] = array.shift
         hash[:port] = array.shift.to_i
@@ -23,7 +24,7 @@ module EISCP
       # Returns an array of arrays consisting of a discovery response packet
       # string and the source ip address of the reciever.
       #
-      def discover(discovery_port = ONKYO_PORT)
+      def discover(discovery_port = Receiver::ONKYO_PORT)
         sock = UDPSocket.new
         sock.setsockopt(Socket::SOL_SOCKET, Socket::SO_BROADCAST, true)
         sock.send(ONKYO_MAGIC, 0, '<broadcast>', discovery_port)

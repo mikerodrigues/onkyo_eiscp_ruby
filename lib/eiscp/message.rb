@@ -1,5 +1,6 @@
 # encoding: utf-8
 require_relative './dictionary'
+require_relative './parser'
 
 module EISCP
   # The EISCP::Message class is used to handle commands and responses.
@@ -8,7 +9,7 @@ module EISCP
   #   receiver = Receiver.new
   #
   #   command = EISCP::Message.new('PWR', 'QSTN')
-  #   response = EISCP::Message.parse(receiver.send_recv(command))
+  #   response = EISCP::Parser.parse(receiver.send_recv(command))
   #
   class Message
     # EISCP header
@@ -46,9 +47,6 @@ module EISCP
     # Terminator character for eISCP packets
     attr_reader :terminator
 
-    # Regexp for parsing ISCP messages
-    REGEX = /(?<start>!)?(?<unit_type>(\d|x))?(?<command>[A-Z]{3})\s?(?<value>.*?)(?<terminator>[[:cntrl:]]*$)/
-
     # Create an ISCP message
     # @param [String] command three-character length ISCP command
     # @param [String] value variable length ISCP command value
@@ -82,80 +80,12 @@ module EISCP
     end
 
     def iscp_message
-      [@start, @unit_type, @command, @value].inject(:+)
-    end
-
-    # Identifies message format, calls appropriate parse function
-    # returns Message object.
-    #
-    def self.parse(string)
-      case string
-      when /^ISCP/
-        parse_eiscp_string(string)
-      when REGEX
-        parse_iscp_message(string)
-      else
-        parse_human_readable(string)
+      begin
+        @iscp_message = [@start, @unit_type, @command, @value].inject(:+)
+      rescue
+        puts "S:#{@start}, UT:#{@unit_type}, C:#{@command}, V:#{@value}"
       end
-    end
-
-    # Human readable command parser
-    def self.parse_human_readable(string)
-      array = string.split(' ')
-      command_name = ''
-      value_name = ''
-      if array.count == 3
-        zone = array.shift
-        command_name = array.shift
-        value_name = array.shift
-      elsif array.count == 2
-        zone = Dictionary::DEFAULT_ZONE
-        command_name = array.shift
-        value_name = array.shift
-      end
-      command = Dictionary.command_name_to_command(command_name)
-      value = Dictionary.command_value_name_to_value(command, value_name)
-      new(command: command, value: value)
-    end
-
-    # ISCP Message string parser
-    #
-    def self.parse_iscp_message(msg_string)
-      match = msg_string.match(REGEX)
-
-      # Convert MatchData to Hash
-      hash = Hash[match.names.zip(match.captures)]
-
-      # Remove nil and blank values
-      hash.delete_if {|k, v| v.nil? || v == ''}
-
-      # Convert keys to symbols
-      hash = hash.inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
-
-      new(**hash)
-    end
-
-    # Parse eiscp_message string
-    #
-    def self.parse_eiscp_string(eiscp_message_string)
-      array = eiscp_message_string.unpack('A4NNCa3A*')
-      msg = parse_iscp_message(array[5])
-      packet = new(
-        command: msg.command,
-        value: msg.value,
-        terminator: msg.terminator,
-        unit_type: msg.unit_type,
-        start: msg.start
-      )
-      packet.header = {
-        magic: array[0],
-        header_size: array[1],
-        data_size: array[2],
-        version: array[3],
-        reserved: array[4]
-      }
-      return packet
-    end
+    end  
 
     # Return ISCP Message string
     #
