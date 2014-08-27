@@ -2,6 +2,9 @@ require 'yaml'
 
 module EISCP
   module Dictionary
+    # This module provides methods that can be used to generate command entries
+    # that are specified as ranges in the yaml file.
+    #
     module DictionaryGenerators
       # Creates a hash object for range commands like master-volume
       #

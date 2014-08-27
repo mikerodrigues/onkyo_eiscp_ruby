@@ -2,6 +2,8 @@ require 'socket'
 
 module EISCP
   class Receiver
+    # This module handles connecting, sending, and receiving for Receivers.
+    #
     module Connection
       # Receiver's connection socket
       attr_reader :socket
@@ -49,7 +51,7 @@ module EISCP
 
       # Sends an EISCP::Message object or string on the network
       #
-      def send(eiscp, timeout = DEFAULT_TIMEOUT)
+      def send(eiscp)
         if eiscp.is_a? EISCP::Message
           @socket.puts(eiscp.to_eiscp)
         elsif eiscp.is_a? String
@@ -59,7 +61,7 @@ module EISCP
 
       # Reads the socket and returns and EISCP::Message
       #
-      def recv(timeout = DEFAULT_TIMEOUT)
+      def recv
         message = ''
         until message.match(/\r\n$/) do
           message << @socket.gets
@@ -69,7 +71,7 @@ module EISCP
 
       # Sends an EISCP::Message object or string on the network and returns recieved data string.
       #
-      def send_recv(eiscp, timeout = DEFAULT_TIMEOUT)
+      def send_recv(eiscp)
         if eiscp.is_a? EISCP::Message
           @socket.puts(eiscp.to_eiscp)
         elsif eiscp.is_a? String

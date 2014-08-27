@@ -60,7 +60,7 @@ class Options
     end
 
     if @options.monitor
-      eiscp = EISCP::Receiver.new do |msg|
+      EISCP::Receiver.new do |msg|
         puts msg
       end
     end

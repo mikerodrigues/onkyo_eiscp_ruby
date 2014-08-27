@@ -23,7 +23,7 @@ module EISCP
           version: array[3],
           reserved: array[4]
         }
-        return packet
+        packet
       end
     end
   end

@@ -4,6 +4,8 @@ require_relative '../parser'
 
 module EISCP
   class Receiver
+    # This module discovers receivers on the local LAN.
+    #
     module Discovery
       # ISCP Magic Packet for Autodiscovery
       ONKYO_MAGIC = Message.new(command: 'ECN', value: 'QSTN', terminator: "\r\n", unit_type: 'x').to_eiscp

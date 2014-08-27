@@ -1,10 +1,13 @@
 module EISCP
   module Dictionary
+    # This module provides methods to get information from the Dictionary about
+    # commands, values, zones, and models.
+    #
     module DictionaryHelpers
       # Return the zone that includes the given command
       def zone_from_command(command)
         @zones.each do |zone|
-          @commands[zone].each_pair do |k, v|
+          @commands[zone].each_pair do |k, _|
             if command == k
               return zone
             end
@@ -98,7 +101,6 @@ module EISCP
             return v['description']
           end
         end
-        return nil
       end
 
       # Return a list of commands compatible with a given model

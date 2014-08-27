@@ -2,6 +2,11 @@ require_relative './dictionary/dictionary_generators'
 require_relative './dictionary/dictionary_helpers'
 
 module EISCP
+  # This module provides an interface to the information from the yaml file. It
+  # uses DictionaryGenerators to add commands specified by ranges in the yaml
+  # file. It uses DictionaryHelpers to convert commands and values to and from
+  # their human readable form.
+  #
   module Dictionary
     extend DictionaryGenerators
     extend DictionaryHelpers
@@ -17,7 +22,7 @@ module EISCP
     @commands = YAML.load(File.read(@yaml_file_path))
     @modelsets = @commands['modelsets']
     @commands.delete('modelsets')
-    @zones = @commands.map { |k, v| k }
+    @zones = @commands.map { |k, _| k }
 
     @additions = []
     @commands.each_key do |zone|

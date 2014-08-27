@@ -11,10 +11,10 @@ module EISCP
         match = string.match(REGEX)
 
         # Convert MatchData to Hash
-        hash = Hash[match.names.zip( match.captures )]
+        hash = Hash[match.names.zip(match.captures)]
 
         # Remove nil and blank values
-        hash.delete_if {|k, v| v.nil? || v == ""}
+        hash.delete_if { |_, v| v.nil? || v == "" }
 
         # Convert keys to symbols
         hash = hash.inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
