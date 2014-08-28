@@ -43,7 +43,11 @@ Using the Library
 
 		require 'eiscp'
 
-* You can do most everything through the Receiver and Message objects. If you
+* You might want to `include EISCP` if you know you won't pollute your namespace
+  with Constants under `EISCP` (`Dictionary`, `Message`, `Parser`, `Receiver`,
+  `VERSION`)
+
+* You can do most everything through the `Receiver` and `Message` objects. If you
   want to accept user input you will probably want to use the Parser module. Be
   sure to check out the RDocs or dig through the source code. I try to keep it
   well commented/documented, and there's more functionality to the library than
@@ -93,6 +97,7 @@ Using the Library
 		end
 
 * Get information about the Receiver:
+	
 		receiver.model => "TX-NR609"
 		receiver.host  => "10.0.0.111"
 		receiver.port  => 60128
@@ -103,10 +108,10 @@ Using the Library
 
 		receiver.last
 
-* You can use Command Methods to easily send a message and return the reply as a
+* You can use `CommandMethods` to easily send a message and return the reply as a
   Message object. A method is defined for each command listed in the Dictionary
   using the @command_name attribute which is 'human readable'. You can check the
-  included yaml file or look at the output of EISCP::Dictionary.commands. Here
+  included yaml file or look at the output of `EISCP::Dictionary.commands`. Here
   a few examples:
 		
 		# Turn on receiver
@@ -121,7 +126,7 @@ Using the Library
 		# Set the master volume to 45
 		receiver.master_volume "45"
 
-* Parse ISCPand human readable strings:
+* Parse ISCP and human readable strings:
        		
 		# Parse various ISCP strings 
 		iscp_message = EISCP::Parser.parse "PWR01"
@@ -132,7 +137,7 @@ Using the Library
 		# Parse human readable,
 		EISCP::Parser.parse("main-volume 34")
 
-* Parser.parse is also used internally by Receiver to parse raw eISCP socket
+* `Parser.parse` is also used internally by `Receiver` to parse raw eISCP socket
   data.
 
 
