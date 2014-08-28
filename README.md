@@ -29,7 +29,7 @@ What's missing?
 * Parsing of all human readable commands (run the tests to see some commands that aren't parsable in human readable form yet.
 
 * Reasonable variants for human-readable commands (ex. `main-volume` or`volume
-` as opposed to "master-volume")
+` as opposed to `master-volume`)
 
 * Model compatability checking
 
