@@ -37,8 +37,8 @@ class Options
         @options.list_all = l
       end
 
-      opts.on '-m', '--monitor', 'Connect to the first discovered reciever and monitor updates' do |c|
-        @options.connect = c
+      opts.on '-m', '--monitor', 'Connect to the first discovered reciever and monitor updates' do |m|
+        @options.connect = m 
       end
 
     end
@@ -78,10 +78,10 @@ end
 
 receiver = EISCP::Receiver.discover[0]
 begin
-  command = EISCP::Message.parse(ARGV.join(' '))
+  command = EISCP::Parser.parse(ARGV.join(' '))
 rescue
   # try using Message.parse
   command = EISCP::Message.parse(ARGV.join(' '))
 end
-reply = receiver.send_recv(command)
-puts "Update: #{reply.zone.capitalize}   #{reply.command_description} -> #{reply.value_name}"
+reply = EISCP::Parser.parse receiver.send_recv(command)
+puts "Update: #{reply.zone.capitalize}   #{reply.command_description} -> #{reply.value_description}"

@@ -3,6 +3,7 @@ require_relative './parser'
 require_relative './receiver'
 require_relative './receiver/discovery'
 require_relative './receiver/connection'
+require_relative './command_methods'
 
 module EISCP
   # The EISCP::Receiver class is used to communicate with one or more
@@ -16,6 +17,7 @@ module EISCP
   class Receiver
     extend Discovery
     include Connection
+    include EISCP::CommandMethods
 
     # Receiver's IP address
     attr_accessor :host
@@ -84,20 +86,6 @@ module EISCP
         area: @area,
         mac_address: @mac_address
       }
-    end
-
-    # Catch any missing methods and treat the method name as the human-readable
-    # command name while treating the argument as a human-readable value name.
-    #
-    def method_missing(sym, *args, &block)
-      command_name = sym.to_s.gsub(/_/, '-')
-      value_name = args[0].to_s.gsub(/_/, '-')
-      begin
-        @connection.send_recv Parser.parse(command_name + ' ' + value_name)
-      rescue
-        puts "No known command: #{command_name} with args #{value_name} and" \
-             " block #{block}"
-      end
     end
   end
 end

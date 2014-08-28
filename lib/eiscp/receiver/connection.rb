@@ -1,4 +1,5 @@
 require 'socket'
+require 'parser'
 
 module EISCP
   class Receiver
@@ -66,7 +67,7 @@ module EISCP
         until message.match(/\r\n$/) do
           message << @socket.gets
         end
-        @last = message
+        @last = Parser.parse(message)
       end
 
       # Sends an EISCP::Message object or string on the network and returns recieved data string.

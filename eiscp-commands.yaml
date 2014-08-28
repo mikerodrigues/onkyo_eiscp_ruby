@@ -3612,7 +3612,7 @@ main:
         models: set140
 zone2:
   ZPW:
-    name: power
+    name: power2
     description: Zone2 Power Command
     values:
       '00':
@@ -4183,7 +4183,7 @@ zone2:
         models: set169
 zone3:
   PW3:
-    name: power
+    name: power3
     description: Zone3 Power Command
     values:
       '00':
@@ -4672,7 +4672,7 @@ zone3:
         models: set184
 zone4:
   PW4:
-    name: power
+    name: power4
     description: Zone4 Power Command
     values:
       '00':
