@@ -37,20 +37,21 @@ What's missing?
 
 * Exhaustive testing and documentation
 
-
-
-
 Using the Library
 -----------------
 * require the library
 
 		require 'eiscp'
 
-* You do most everything through the Receiver and Message objects.
+* You can do most everything through the Receiver and Message objects. If you
+  want to accept user input you will probably want to use the Parser module. Be
+  sure to check out the RDocs or dig through the source code. I try to keep it
+  well commented/documented, and there's more functionality to the library than
+  is shown here:
 
-* The Message object is pretty self explanatory. The #new method is mostly used
-  internally, you're better of using the Parser module to create them, but you
-  interact with Message objects to get information:
+* The `Message` object is pretty self explanatory. `Message.new` is mostly used
+  internally, but you're better of using `Parser.parse` to create them. You
+  probably will want to interact with `Message` objects to get information:
 		
 		msg = EISCP::Message.new(command: 'PWR', value: '01')
 		msg.zone                => 'main'
@@ -65,7 +66,7 @@ Using the Library
 
 		EISCP::Receiver.discover
 
-* Create Receiver object from first discovered
+* Create Receiver object from first discovered Receiver on the LAN
 
 		receiver = EISCP::Receiver.new
 
@@ -73,9 +74,9 @@ Using the Library
 
 		receiver = EISCP::Receiver.new('10.0.0.132')
 
-* When you create a Receiver object, it uses the Receiver::Connection module to
+* When you create a Receiver object, it uses the `Receiver::Connection` module to
   make a connection and monitor incoming messages. By default, the last message
-  received gets stored in the @last instance variable of the Receiver. You can
+  received can be retrieved with `receiver.last`. You can
   pass your own block at creation time, it will have access to messages as they
   come in. This will let you setup callbacks to run when messages are receivedL
 
@@ -128,7 +129,7 @@ Using the Library
 		iscp_message = EISCP::Parser.parse "!1PWR01"
 		iscp_message = EISCP::Parser.parse "!1PWR 01"
 
-		# Parse human readable
+		# Parse human readable,
 		EISCP::Parser.parse("main-volume 34")
 
 * Parser.parse is also used internally by Receiver to parse raw eISCP socket
