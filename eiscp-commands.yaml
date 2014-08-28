@@ -3648,7 +3648,7 @@ zone2:
         description: gets the Zone2 Muting Status
         models: set142
   ZVL:
-    name: volume
+    name: volume2
     description: Zone2 Volume Command
     values:
       ? - 0
@@ -4219,7 +4219,7 @@ zone3:
         description: gets the Zone3 Muting Status
         models: set170
   VL3:
-    name: volume
+    name: volume3
     description: Zone3 Volume Command
     values:
       ? - 0
@@ -4708,7 +4708,7 @@ zone4:
         description: gets the Zone4 Muting Status
         models: set185
   VL4:
-    name: volume
+    name: volume4
     description: Zone4 Volume Command
     values:
       ? - 0
