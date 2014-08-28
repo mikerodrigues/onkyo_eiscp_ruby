@@ -1,9 +1,8 @@
 require 'resolv'
-require_relative './parser'
 require_relative './receiver'
 require_relative './receiver/discovery'
 require_relative './receiver/connection'
-require_relative './command_methods'
+require_relative './receiver/command_methods'
 
 module EISCP
   # The EISCP::Receiver class is used to communicate with one or more
@@ -17,7 +16,7 @@ module EISCP
   class Receiver
     extend Discovery
     include Connection
-    include EISCP::CommandMethods
+    include CommandMethods
 
     # Receiver's IP address
     attr_accessor :host
@@ -35,6 +34,13 @@ module EISCP
     # receiver object using the first host to respond.
     #
     def initialize(host = nil, info_hash = {}, &block)
+      # Define the behavior of CommandMethods, we're just doing a simple send
+      # and receive here.
+      #
+      CommandMethods.generate do |message|
+        self.send_recv message
+      end
+
       # This proc sets the four ECN attributes and returns the object
       #
       set_attrs = lambda do |hash|
