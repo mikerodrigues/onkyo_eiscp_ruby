@@ -28,8 +28,8 @@ What's missing?
 
 * Parsing of all human readable commands (run the tests to see some commands that aren't parsable in human readable form yet.
 
-* Reasonable variants for human-readable commands (ex. "main-volume" or "volume"
-  as opposed to "master-volume".
+* Reasonable variants for human-readable commands (ex. `main-volume` or`volume
+` as opposed to "master-volume")
 
 * Model compatability checking
 
@@ -66,11 +66,11 @@ Using the Library
 		msg.value_name          => "on"
 		msg.value_description   => "sets System On"
 
-* Discover local receivers (returns an Array of Receiver objects)
+* Discover local receivers (returns an `Array` of `Receiver` objects)
 
 		EISCP::Receiver.discover
 
-* Create Receiver object from first discovered Receiver on the LAN
+* Create `Receiver` object from first discovered Receiver on the LAN
 
 		receiver = EISCP::Receiver.new
 
@@ -78,7 +78,7 @@ Using the Library
 
 		receiver = EISCP::Receiver.new('10.0.0.132')
 
-* When you create a Receiver object, it uses the `Receiver::Connection` module to
+* When you create a `Receiver` object, it uses the `Receiver::Connection` module to
   make a connection and monitor incoming messages. By default, the last message
   received can be retrieved with `receiver.last`. You can
   pass your own block at creation time, it will have access to messages as they
@@ -104,7 +104,7 @@ Using the Library
 		receiver.mac_address => "001122334455"
 		receiver.area => "DX"
 
-* Get the last message received by the Receiver:
+* Get the last message received from the Receiver:
 
 		receiver.last
 
