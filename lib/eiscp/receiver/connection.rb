@@ -23,7 +23,7 @@ module EISCP
       # whenver a message is received. You can pass the Message object in with
       # your block. This is the method #new uses to create the initial thread.
       #
-      def start_thread(&block)
+      def update_thread(&block)
         @thread && @thread.kill
         @thread = Thread.new do
           loop do
@@ -44,7 +44,7 @@ module EISCP
       def connect(host, port = ONKYO_PORT, &block)
         begin
           @socket = TCPSocket.new(host, port)
-          start_thread(&block)
+          update_thread(&block)
         rescue => e
           puts e
         end

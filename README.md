@@ -46,7 +46,22 @@ Using the Library
 
 		require 'eiscp'
 
-* Discover local receivers
+* You do most everything through the Receiver and Message objects.
+
+* The Message object is pretty self explanatory. The #new method is mostly used
+  internally, you're better of using the Parser module to create them, but you
+  interact with Message objects to get information:
+		
+		msg = EISCP::Message.new(command: 'PWR', value: '01')
+		msg.zone                => 'main'
+		msg.command             => "PWR"
+		msg.value               => "01"
+		msg.command_name        => "system-power"
+		msg.command_description => "System Power Command"
+		msg.value_name          => "on"
+		msg.value_description   => "sets System On"
+
+* Discover local receivers (returns an Array of Receiver objects)
 
 		EISCP::Receiver.discover
 
@@ -58,41 +73,66 @@ Using the Library
 
 		receiver = EISCP::Receiver.new('10.0.0.132')
 
-* Open a TCP connection to monitor solicited updates
+* When you create a Receiver object, it uses the Receiver::Connection module to
+  make a connection and monitor incoming messages. By default, the last message
+  received gets stored in the @last instance variable of the Receiver. You can
+  pass your own block at creation time, it will have access to messages as they
+  come in. This will let you setup callbacks to run when messages are receivedL
 
-		receiver.connect
+		receiver = EISCP::Receiver.new do |msg|
+		  puts msg.command
+		  puts msg.value
+		end
 
-* You can also pass a block and operate on received packet strings:
+* You can also change the block later. This will kill the existing connection
+  thread (but not the socket) and start your new one:
 
-		receiver.connect do |msg|
+		receiver.update_thread do |msg|
 		  puts "Received: #{msg.command_name}:#{msg.value_name}"
 		end
 
-* Turn on the receiver
+* Get information about the Receiver:
+		receiver.model => "TX-NR609"
+		receiver.host  => "10.0.0.111"
+		receiver.port  => 60128
+		receiver.mac_address => "001122334455"
+		receiver.area => "DX"
 
-		message = EISCP::Message.parse("PWR", "01")
-		message.send(message.to_eiscp)
+* Get the last message received by the Receiver:
 
-* Parse incoming messages and the following formats
-        
-		iscp_message = EISCP::Message.parse "PWR01"
-		iscp_message = EISCP::Message.parse "PWR 01"
-		iscp_message = EISCP::Message.parse "!1PWR01"
-		iscp_message = EISCP::Message.parse "!1PWR 01"
+		receiver.last
 
-* Parsing raw socket data
+* You can use Command Methods to easily send a message and return the reply as a
+  Message object. A method is defined for each command listed in the Dictionary
+  using the @command_name attribute which is 'human readable'. You can check the
+  included yaml file or look at the output of EISCP::Dictionary.commands. Here
+  a few examples:
+		
+		# Turn on receiver
+		receiver.system_power "on"
 
-		iscp_message = EISCP::Message.parse iscp_message.to_eiscp
+		# Query current input source
+		receiver.input_selector "query"
+		
+		# Turn the master volume up one level
+		receiver.master_volume "level-up"
 
-* Human-readable commands
+		# Set the master volume to 45
+		receiver.master_volume "45"
 
-		EISCP::Message.parse("main-volume 34")
+* Parse ISCPand human readable strings:
+       		
+		# Parse various ISCP strings 
+		iscp_message = EISCP::Parser.parse "PWR01"
+		iscp_message = EISCP::Parser.parse "PWR 01"
+		iscp_message = EISCP::Parser.parse "!1PWR01"
+		iscp_message = EISCP::Parser.parse "!1PWR 01"
 
-* Human-readable methods and parameters ( you must use "_" in place of "-" in
-  methods or parameters
+		# Parse human readable
+		EISCP::Parser.parse("main-volume 34")
 
-		receiver.master_volume("level-up")
-
+* Parser.parse is also used internally by Receiver to parse raw eISCP socket
+  data.
 
 
 Using the Binaries
