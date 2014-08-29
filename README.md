@@ -3,10 +3,9 @@ onkyo_eiscp_ruby
 [![Gem Version](https://badge.fury.io/rb/onkyo_eiscp_ruby.png)](http://badge.fury.io/rb/onkyo_eiscp_ruby)
 [![GitHub version](https://badge.fury.io/gh/mikerodrigues%2Fonkyo_eiscp_ruby.png)](http://badge.fury.io/gh/mikerodrigues%2Fonkyo_eiscp_ruby)
 
-A Ruby implementation of eISCP for controlling Onkyo receivers.
+*A Ruby implementation of eISCP for controlling Onkyo receivers.*
 
 **This code is still under heavy development and using it might make you sick.**
-
 
 Automatically discover receivers in the broadcast domain
 
@@ -108,11 +107,11 @@ Using the Library
 
 		receiver.last
 
-* You can use `CommandMethods` to easily send a message and return the reply as a
-  Message object. A method is defined for each command listed in the Dictionary
-  using the @command_name attribute which is 'human readable'. You can check the
-  included yaml file or look at the output of `EISCP::Dictionary.commands`. Here
-  a few examples:
+* You can use `CommandMethods` to easily send a message and return the reply as
+  a Message object. A method is defined for each command listed in the
+  `Dictionary` using the `@command_name` attribute which is 'human readable'.
+  You can check the included yaml file or look at the output of 
+  `EISCP::Dictionary.commands`. Here a few examples:
 		
 		# Turn on receiver
 		receiver.system_power "on"

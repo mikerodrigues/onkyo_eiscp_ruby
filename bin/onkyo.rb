@@ -48,9 +48,7 @@ class Options
     if @options.nil? && ARGV == [] then puts options end
 
     if @options.discover
-      EISCP::Receiver.discover.each do |rec|
-        puts "#{rec.host}:#{rec.port} - #{rec.model} - #{rec.mac_address}"
-      end
+      EISCP::Receiver.discover.each {|rec| puts "#{rec.host}:#{rec.port} - #{rec.model} - #{rec.mac_address}"}
       exit 0
     end
 
@@ -60,12 +58,19 @@ class Options
     end
 
     if @options.monitor
-      EISCP::Receiver.new do |msg|
-        puts msg
-      end
+      EISCP::Receiver.new {|msg| puts msg}
     end
 
-    @options.list_all && EISCP::Dictionary.list_all_commands
+    if @options.list_all
+      EISCP::Dictionary.zones.each do |zone|
+        EISCP::Dictionary.commands[zone].each do |command, command_hash|
+          puts "#{EISCP::Dictionary.commands[zone][command]['name']} - "\
+               "#{EISCP::Dictionary.commands[zone][command]['description']}"
+          command_hash['values'].each {|value, attr_hash| puts " #{EISCP::Dictionary.commands[zone][command]['values'][value]['name']}"\
+                 " #{EISCP::Dictionary.commands[zone][command]['values'][value]['description']}"}
+        end
+      end
+    end
 
     if ARGV == []
       puts options
@@ -80,8 +85,7 @@ receiver = EISCP::Receiver.discover[0]
 begin
   command = EISCP::Parser.parse(ARGV.join(' '))
 rescue
-  # try using Message.parse
-  command = EISCP::Message.parse(ARGV.join(' '))
+  raise "Couldn't parse command"
 end
-reply = EISCP::Parser.parse receiver.send_recv(command)
+reply = receiver.send_recv(command)
 puts "Update: #{reply.zone.capitalize}   #{reply.command_description} -> #{reply.value_description}"

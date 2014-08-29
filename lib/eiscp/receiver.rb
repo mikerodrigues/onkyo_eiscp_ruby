@@ -37,9 +37,7 @@ module EISCP
       # Define the behavior of CommandMethods, we're just doing a simple send
       # and receive here.
       #
-      CommandMethods.generate do |message|
-        self.send_recv message
-      end
+      CommandMethods.generate {|message|self.send_recv message}
 
       # This proc sets the four ECN attributes and returns the object
       #
