@@ -38,7 +38,7 @@ class Options
       end
 
       opts.on '-m', '--monitor', 'Connect to the first discovered reciever and monitor updates' do |m|
-        @options.connect = m 
+        @options.monitor = m 
       end
 
     end
@@ -58,18 +58,34 @@ class Options
     end
 
     if @options.monitor
-      EISCP::Receiver.new {|msg| puts msg}
+      begin
+        rec = EISCP::Receiver.new {|msg| puts msg.to_s}
+        rec.thread.join
+      rescue Interrupt
+        fail 'Exiting...'
+      rescue Exception => e
+        puts e
+      end
     end
 
     if @options.list_all
       EISCP::Dictionary.zones.each do |zone|
         EISCP::Dictionary.commands[zone].each do |command, command_hash|
-          puts "#{EISCP::Dictionary.commands[zone][command]['name']} - "\
+          puts "Command - Description"
+          puts "\n"
+          puts "  '#{EISCP::Dictionary.commands[zone][command]['name']}' - "\
                "#{EISCP::Dictionary.commands[zone][command]['description']}"
-          command_hash['values'].each {|value, attr_hash| puts " #{EISCP::Dictionary.commands[zone][command]['values'][value]['name']}"\
-                 " #{EISCP::Dictionary.commands[zone][command]['values'][value]['description']}"}
+          puts "\n"
+          puts "    Value - Description>"
+          puts "\n"
+          command_hash['values'].each do |value, attr_hash| 
+            puts "      '#{attr_hash['name']}' - "\
+                 " #{attr_hash['description']}"
+          end
+          puts "\n"
         end
       end
+      exit 0
     end
 
     if ARGV == []

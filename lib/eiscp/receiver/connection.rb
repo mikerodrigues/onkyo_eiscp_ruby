@@ -28,8 +28,8 @@ module EISCP
         @thread = Thread.new do
           loop do
             recv
-            if block
-              block.call(msg)
+            if block_given?
+              yield(@last)
             end
           end
         end
