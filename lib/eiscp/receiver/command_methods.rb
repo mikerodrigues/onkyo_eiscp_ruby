@@ -9,7 +9,7 @@ module EISCP
     # human readable name of a valid value for that command.
     #
     module CommandMethods
-      def self.generate(&block)
+      def self.generate
         Dictionary.zones.each do |zone|
           Dictionary.commands[zone].each do |command, _values|
             begin

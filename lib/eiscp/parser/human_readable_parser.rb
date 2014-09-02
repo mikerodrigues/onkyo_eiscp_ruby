@@ -7,7 +7,7 @@ module EISCP
     #
     module HumanReadableParser
       def self.parse(string)
-        array = string.split(" ")
+        array = string.split(' ')
         zone = Dictionary::DEFAULT_ZONE
         command_name = ''
         value_name = ''
@@ -21,7 +21,7 @@ module EISCP
         end
         command = Dictionary.command_name_to_command(command_name, zone)
         value = Dictionary.command_value_name_to_value(command, value_name)
-        return Message.new(command: command, value: value)
+        Message.new(command: command, value: value)
       end
     end
   end

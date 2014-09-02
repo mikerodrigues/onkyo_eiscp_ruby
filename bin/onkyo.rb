@@ -78,9 +78,9 @@ class Options
           puts "\n"
           puts "    Value - Description>"
           puts "\n"
-          command_hash['values'].each do |value, attr_hash| 
-            puts "      '#{attr_hash['name']}' - "\
-                 " #{attr_hash['description']}"
+          command_hash[:values].each do |value, attr_hash| 
+            puts "      '#{attr_hash[:name]}' - "\
+                 " #{attr_hash[:description]}"
           end
           puts "\n"
         end

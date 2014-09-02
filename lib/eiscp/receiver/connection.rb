@@ -1,5 +1,5 @@
 require 'socket'
-require 'parser'
+require_relative '../parser'
 
 module EISCP
   class Receiver
@@ -23,14 +23,12 @@ module EISCP
       # whenver a message is received. You can pass the Message object in with
       # your block. This is the method #new uses to create the initial thread.
       #
-      def update_thread(&block)
+      def update_thread
         @thread && @thread.kill
         @thread = Thread.new do
           loop do
             recv
-            if block_given?
-              yield(@last)
-            end
+            yield(@last) if block_given?
           end
         end
       end
@@ -64,10 +62,9 @@ module EISCP
       #
       def recv
         message = ''
-        until message.match(/\r\n$/) do
-          message << @socket.gets
+        message << @socket.gets until message.match(/\r\n$/) do
+          @last = Parser.parse(message)
         end
-        @last = Parser.parse(message)
       end
 
       # Sends an EISCP::Message object or string on the network and returns recieved data string.

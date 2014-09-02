@@ -57,7 +57,7 @@ module EISCP
         fail "Invalid command #{command}"
       end
 
-      if value.nil? then fail 'No value specified.' end
+       fail 'No value specified.' if value.nil?
 
       @command = command
       @value = value
@@ -102,7 +102,7 @@ module EISCP
     # Return human readable description.
     #
     def to_s
-      puts "#{@zone} - #{@command_name}:#{@value_name}"
+      "#{@zone} - #{@command_name}:#{@value_name}"
     end
 
     private

@@ -8,12 +8,10 @@ module EISCP
       def zone_from_command(command)
         @zones.each do |zone|
           @commands[zone].each_pair do |k, _|
-            if command == k
-              return zone
-            end
+            return zone if command == k
           end
         end
-        return nil
+        nil
       end
 
       # Return the human readable name of a command
@@ -21,31 +19,27 @@ module EISCP
         command = command.upcase
         begin
           zone = zone_from_command(command)
-          return @commands[zone][command]['name']
+          return @commands[zone][command][:name]
         rescue
           return nil
         end
       end
 
       # Return the command from a given command name
-      def command_name_to_command(name, zone = nil)
-        if zone.nil?
+      def command_name_to_command(name, command_zone = nil)
+        if command_zone.nil?
 
           @zones.each do |zone|
             @commands[zone].each_pair do |command, attrs|
-              if attrs['name'] == name
-                return command
-              end
+              return command if attrs[:name] == name
             end
           end
           return nil
 
         else
 
-          @commands[zone].each_pair do |command, attrs|
-            if attrs['name'] == name
-              return command
-            end
+          @commands[command_zone].each_pair do |command, attrs|
+            return command if attrs[:name] == name
           end
           return nil
 
@@ -55,51 +49,43 @@ module EISCP
       # Return a command value name from a command and value
       def command_value_to_value_name(command, value)
         begin
-          zone = zone_from_command(command)
-          return @commands[zone][command]['values'][value]['name']
+        zone = zone_from_command(command)
+        @commands[zone][command][:values][value][:name]
         rescue
-          return nil
+          nil
         end
       end
 
       # Return a command value from a command and value name
       def command_value_name_to_value(command, value_name)
         zone = zone_from_command(command)
-        @commands[zone][command]['values'].each_pair do |k, v|
-          if v['name'] == value_name.to_s
-            return k
-          end
+        @commands[zone][command][:values].each_pair do |k, v|
+          return k if v[:name] == value_name.to_s
         end
-        return nil
+        nil
       end
 
       # Return a description form a command name and zone
       def description_from_command_name(name, zone)
         @commands[zone].each_pair do |command, attrs|
-          if attrs['name'] == name
-            return @commands[zone][command]['description']
+          if attrs[:name] == name
+            return @commands[zone][command][:description]
           end
         end
-        return nil
+        nil
       end
 
       # Return a description from a command
       def description_from_command(command)
-        begin
-          zone = zone_from_command(command)
-          return @commands[zone][command]['description']
-        rescue
-          return nil
-        end
+        zone = zone_from_command(command)
+        @commands[zone][command][:description]
       end
 
       # Return a description from a command and value
       def description_from_command_value(command, value)
         zone = zone_from_command(command)
-        return @commands[zone][command]['values'].select do |k, v|
-          if k == value
-            return v['description']
-          end
+        @commands[zone][command][:values].select do |k, v|
+          return v[:description] if k == value
         end
       end
 
@@ -107,20 +93,14 @@ module EISCP
       def list_compatible_commands(modelstring)
         sets = []
         @modelsets.each_pair do |set, array|
-          if array.include? modelstring
-            sets << set
-          end
+          sets << set if array.include? modelstring
         end
-        return sets
+        sets
       end
 
       def validate_command(command)
-        begin
-          zone = zone_from_command(command)
-          @commands[zone].include? command
-        rescue
-          false
-        end
+        zone = zone_from_command(command)
+        @commands[zone].include? command
       end
     end
   end
