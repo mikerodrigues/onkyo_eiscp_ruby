@@ -126,15 +126,17 @@ Using the Library
 		receiver.master_volume "45"
 
 * Parse ISCP and human readable strings:
-       		
-		# Parse various ISCP strings 
-		iscp_message = EISCP::Parser.parse "PWR01"
-		iscp_message = EISCP::Parser.parse "PWR 01"
-		iscp_message = EISCP::Parser.parse "!1PWR01"
-		iscp_message = EISCP::Parser.parse "!1PWR 01"
 
-		# Parse human readable,
-		EISCP::Parser.parse("main-volume 34")
+```ruby     		
+# Parse various ISCP strings 
+iscp_message = EISCP::Parser.parse "PWR01"
+iscp_message = EISCP::Parser.parse "PWR 01"
+iscp_message = EISCP::Parser.parse "!1PWR01"
+iscp_message = EISCP::Parser.parse "!1PWR 01"
+
+# Parse human readable,
+EISCP::Parser.parse("main-volume 34")
+```
 
 * `Parser.parse` is also used internally by `Receiver` to parse raw eISCP socket
   data.
@@ -145,28 +147,39 @@ Using the Binaries
 
 * Discover local receivers
 
-		$ onkyo.rb -d
+```ruby	
+$ onkyo.rb -d
+```
 		
 * Send a human-readable command
- 		
-		$ onkyo.rb system-power on  # uses Command.parse
+
+```ruby
+$ onkyo.rb system-power on  # uses Command.parse
+```
 
 * Or send a raw command
 
-		$ onkyo.rb PWRQSTN   # Also tries to use Message.parse
+```ruby
+$ onkyo.rb PWRQSTN   # Also tries to use Message.parse
+```
 
 * Connect to the first discovered receiver to see status updates
 
-		$ onkyo.rb -c
+```ruby
+$ onkyo.rb -c
+```
 
 * Start the mock server (only responds to 'ECNQSTN')
 
-		$ onkyo-server.rb
+```ruby
+$ onkyo-server.rb
+```
 
 * Turn off the first receiver discovered:
 
-		$ onkyo.rb system-power off
-
+```ruby
+$ onkyo.rb system-power off
+```
 
 Contributing
 ------------
