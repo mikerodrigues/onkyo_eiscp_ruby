@@ -30,7 +30,4 @@ class TestParser < MiniTest::Test
     assert_equal(EISCP::Parser.parse('fake-command value'), nil)
   end
 
-  def test_return_nil_for_invalid_message
-    assert_equal(EISCP::Parser.parse('!FAK 01'), nil)
-  end
 end

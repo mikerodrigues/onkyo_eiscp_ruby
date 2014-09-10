@@ -53,11 +53,11 @@ module EISCP
     # @param [String] unit_type_character override default unit type character, optional
     # @param [String] start_character override default start character, optional
     def initialize(command: nil, value: nil, terminator:  "\r\n", unit_type: '1', start: '!')
-      unless Dictionary.validate_command(command)
-        fail "Invalid command #{command}"
+      unless Dictionary.known_command?(command)
+        warn "Unknown command #{command}"
       end
 
-       fail 'No value specified.' if value.nil?
+      fail 'No value specified.' if value.nil?
 
       @command = command
       @value = value
@@ -70,7 +70,11 @@ module EISCP
                   version: ISCP_VERSION,
                   reserved: RESERVED
       }
-      get_human_readable_attrs
+      begin
+        get_human_readable_attrs
+      rescue
+        warn "Couldn't get all human readable attrs"
+      end
     end
 
     # Check if two messages are equivalent comparing their ISCP messages.

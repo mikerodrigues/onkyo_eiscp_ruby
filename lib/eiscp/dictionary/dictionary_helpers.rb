@@ -49,8 +49,8 @@ module EISCP
       # Return a command value name from a command and value
       def command_value_to_value_name(command, value)
         begin
-        zone = zone_from_command(command)
-        @commands[zone][command][:values][value][:name]
+          zone = zone_from_command(command)
+          @commands[zone][command][:values][value][:name]
         rescue
           nil
         end
@@ -58,11 +58,14 @@ module EISCP
 
       # Return a command value from a command and value name
       def command_value_name_to_value(command, value_name)
-        zone = zone_from_command(command)
-        @commands[zone][command][:values].each_pair do |k, v|
-          return k if v[:name] == value_name.to_s
+        begin
+          zone = zone_from_command(command)
+          @commands[zone][command][:values].each_pair do |k, v|
+            return k if v[:name] == value_name.to_s
+          end
+        rescue
+          nil
         end
-        nil
       end
 
       # Return a description form a command name and zone
@@ -98,10 +101,15 @@ module EISCP
         sets
       end
 
-      def validate_command(command)
-        zone = zone_from_command(command)
-        @commands[zone].include? command
+      def known_command?(command)
+        begin
+          zone = zone_from_command(command)
+          @commands[zone].include? command
+        rescue
+          return nil
+        end
       end
     end
+
   end
 end
