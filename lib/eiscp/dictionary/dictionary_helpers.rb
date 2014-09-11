@@ -90,6 +90,7 @@ module EISCP
         @commands[zone][command][:values].select do |k, v|
           return v[:description] if k == value
         end
+        nil
       end
 
       # Return a list of commands compatible with a given model
