@@ -71,13 +71,17 @@ Using the Library
 
 ```ruby		
 		EISCP::Receiver.discover
+```
 
 * Create `Receiver` object from first discovered Receiver on the LAN
 
+```ruby		
 		receiver = EISCP::Receiver.new
+```
 
 * Or create one manually by IP address or hostname
 
+```ruby		
 		receiver = EISCP::Receiver.new('10.0.0.132')
 ```
 
