@@ -34,12 +34,14 @@ module EISCP
     # receiver object using the first host to respond.
     #
     def initialize(host = nil, info_hash = {}, &block)
-      # Define the behavior of CommandMethods, we're just doing a simple send
-      # and receive here.
+      # This defines the behavior of CommandMethods by telling it what to do wit
+      # the Message object that results from a CommandMethod being called. All
+      # we're doing here is calling #send_recv
       #
       CommandMethods.generate {|message|self.send_recv message}
 
-      # This proc sets the four ECN attributes and returns the object
+      # This proc sets the four ECN attributes and initiates a connection to the
+      # receiver.
       #
       set_attrs = lambda do |hash|
         @model = hash[:model]
@@ -54,11 +56,12 @@ module EISCP
       end
 
       # This lambda sets the host IP after resolving it
+      #
       set_host = lambda do |hostname|
         @host = Resolv.getaddress hostname
       end
 
-      # When no host is give, the first discovered host is returned.
+      # When no host is given, the first discovered host is returned.
       #
       # When a host is given without a hash ::discover will be used to find
       # a receiver that matches.
@@ -82,7 +85,7 @@ module EISCP
       end
     end
 
-    # Return ECN array with model, port, area, and MAC address
+    # Return ECN hash with model, port, area, and MAC address
     #
     def ecn_hash
       { model: @model,

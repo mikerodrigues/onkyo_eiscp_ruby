@@ -10,7 +10,7 @@ module EISCP
       # ISCP Magic Packet for Autodiscovery
       ONKYO_MAGIC = Message.new(command: 'ECN', value: 'QSTN', terminator: "\r\n", unit_type: 'x').to_eiscp
 
-      # Populates attrs with info from ECNQSTN response
+      # Populates Receiver attributes with info from ECNQSTN response.
       #
       def ecn_string_to_ecn_array(ecn_string)
         hash = {}
@@ -23,8 +23,7 @@ module EISCP
         hash
       end
 
-      # Returns an array of arrays consisting of a discovery response packet
-      # string and the source ip address of the reciever.
+      # Returns an array of discovered Receiver objects.
       #
       def discover(discovery_port = Receiver::ONKYO_PORT)
         sock = UDPSocket.new
