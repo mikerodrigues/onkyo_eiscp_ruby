@@ -4,6 +4,8 @@ require 'eiscp'
 require 'optparse'
 require 'ostruct'
 
+# This object parses ARGV and returns an @option hash
+#
 class Options
   DEFAULT_OPTIONS = { verbose: true, all: false }
   USAGE = ' Usage: onkyo_rb [options]'
@@ -35,37 +37,61 @@ class Options
         @options.list_all = l
       end
 
-      opts.on '-c', '--connect', 'Connect to the first discovered reciever and show updates' do |c|
-        @options.connect = c
+      opts.on '-m', '--monitor', 'Connect to the first discovered reciever and monitor updates' do |m|
+        @options.monitor = m 
       end
 
     end
 
     options.parse!(args)
 
-    if @options == nil && ARGV == []
-      puts options
-    end
+    if @options.nil? && ARGV == [] then puts options end
 
     if @options.discover
-      EISCP::Receiver.discover.each do |rec|
-        puts "#{rec.host}:#{rec.port} - #{rec.model} - #{rec.mac_address}"
-      end
-       exit 0
+      EISCP::Receiver.discover.each {|rec| puts "#{rec.host}:#{rec.port} - #{rec.model} - #{rec.mac_address}"}
+      exit 0
     end
 
     if @options.help
       puts options
-      exit 0 
+      exit 0
     end
 
-    if @options.connect
-      eiscp = EISCP::Receiver.new
-      eiscp.connect
+    if @options.monitor
+      begin
+        rec = EISCP::Receiver.new do |reply| 
+          puts "Response:   "\
+               "#{reply.zone.capitalize}: "\
+               "#{reply.command_description || reply.command} "\
+               "-> #{reply.value_description || reply.value}"
+        end
+        rec.thread.join
+      rescue Interrupt
+        fail 'Exiting...'
+      rescue Exception => e
+        puts "bummer..."
+        puts e
+      end
     end
 
     if @options.list_all
-      EISCP::Command.list_all_commands
+      EISCP::Dictionary.zones.each do |zone|
+        EISCP::Dictionary.commands[zone].each do |command, command_hash|
+          puts "Command - Description"
+          puts "\n"
+          puts "  '#{Dictionary.name_from_command(command)}' - "\
+            "#{Dictionary.description_from_command(command)}"
+          puts "\n"
+          puts "    Value - Description>"
+          puts "\n"
+          command_hash[:values].each do |value, attr_hash| 
+            puts "      '#{attr_hash[:name]}' - "\
+              " #{attr_hash[:description]}"
+          end
+          puts "\n"
+        end
+      end
+      exit 0
     end
 
     if ARGV == []
@@ -73,23 +99,15 @@ class Options
       exit 0
     end
   end
-
 end
-
 
 @options = Options.parse(ARGV)
 
-
 receiver = EISCP::Receiver.discover[0]
 begin
-  command = EISCP::Command.parse(ARGV.join(" "))
+  command = EISCP::Parser.parse(ARGV.join(' '))
 rescue
-  # try using Message.parse
-  command = EISCP::Message.parse(ARGV.join(" "))
+  raise "Couldn't parse command"
 end
-reply = EISCP::Message.parse(receiver.send_recv(command))
-puts "Update: #{reply.zone.capitalize} - #{reply.command_description} -> #{reply.value_name}"
-
-
-
-
+reply = receiver.send_recv(command)
+puts "Response from #{Receiver.host}: #{reply.zone.capitalize}   #{reply.command_description || reply.command} -> #{reply.value_description || reply.value}"

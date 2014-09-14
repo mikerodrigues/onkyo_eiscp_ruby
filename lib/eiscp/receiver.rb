@@ -1,7 +1,8 @@
-require 'socket'
-require_relative './message'
-require_relative './command'
 require 'resolv'
+require_relative './receiver'
+require_relative './receiver/discovery'
+require_relative './receiver/connection'
+require_relative './receiver/command_methods'
 
 module EISCP
   # The EISCP::Receiver class is used to communicate with one or more
@@ -13,174 +14,85 @@ module EISCP
   #   receiver = EISCP::Receiver.new('192.168.1.12', 60129) # non standard port
   #
   class Receiver
+    extend Discovery
+    include Connection
+    include CommandMethods
+
+    # Receiver's IP address
     attr_accessor :host
+    # Receiver's model string
     attr_accessor :model
+    # Receiver's ISCP port
     attr_accessor :port
+    # Receiver's region
     attr_accessor :area
+    # Receiver's MAC address
     attr_accessor :mac_address
-
-    attr_reader :socket
-    attr_reader :thread
-    attr_reader :queue
-
-    ONKYO_MAGIC = Message.new('ECN', 'QSTN', "\r\n", 'x').to_eiscp
-    ONKYO_PORT = 60_128
 
     # Create a new EISCP object to communicate with a receiver.
     # If no host is given, use auto discovery and create a
     # receiver object using the first host to respond.
     #
-    def initialize(host = nil, hash = {})
-
-      # This proc sets the four ECN attributes and returns the object
+    def initialize(host = nil, info_hash = {}, &block)
+      # This defines the behavior of CommandMethods by telling it what to do wit
+      # the Message object that results from a CommandMethod being called. All
+      # we're doing here is calling #send_recv
       #
-      set_attrs = Proc.new do |hash|
+      CommandMethods.generate {|message|self.send_recv message}
+
+      # This proc sets the four ECN attributes and initiates a connection to the
+      # receiver.
+      #
+      set_attrs = lambda do |hash|
         @model = hash[:model]
         @port  = hash[:port]
         @area  = hash[:area]
         @mac_address = hash[:mac_address]
-        @socket = TCPSocket.new(@host, @port)
-        @queue = []
-        @thread = Thread.new do
-          while true
-            @queue << recv
-          end
+        if block_given?
+          connect(@host, @port, &block)
+        else
+          connect(@host, @port)
         end
-        return
-      end
-      
-      # This lambda sets the host IP after resolving it
-      set_host = lambda do |host|
-        @host = Resolv.getaddress host
       end
 
-      # if no host argument is given, find a recceiver with matching IP and copy
-      # its ECN attributes. Copying is done because a separate object can not be
-      # the return value of #initialize
+      # This lambda sets the host IP after resolving it
       #
-      if host.nil?
+      set_host = lambda do |hostname|
+        @host = Resolv.getaddress hostname
+      end
+
+      # When no host is given, the first discovered host is returned.
+      #
+      # When a host is given without a hash ::discover will be used to find
+      # a receiver that matches.
+      #
+      # Else, use the given host and hash to create a new Receiver object.
+      # This is how ::discover creates Receivers.
+      #
+      case
+      when host.nil?
         first_found = Receiver.discover[0]
         set_host.call first_found.host
         set_attrs.call first_found.ecn_hash
-      end
-
-      # if a host is given, but no hash, find matching receiver and copy ECN
-      # attreibutes
-      #
-      if hash.empty?
+      when info_hash.empty?
         set_host.call host
         Receiver.discover.each do |receiver|
-          if receiver.host == @host
-            set_attrs.call receiver.ecn_hash
-          end
+          receiver.host == @host && set_attrs.call(receiver.ecn_hash)
         end
-      end
-      
-      # this will only run if a hash and host are present
-      #
-      set_host.call host
-      set_attrs.call hash
-    end
-
-    # Populates attrs with info from ECNQSTN response
-    #
-    def self.ecn_string_to_ecn_array(ecn_string)
-      hash = {}
-      message = EISCP::Message.parse(ecn_string)
-      array = message.value.split('/')
-      hash[:model] = array.shift
-      hash[:port] = array.shift.to_i
-      hash[:area] = array.shift
-      hash[:mac_address] = array.shift
-      return hash
-    end
-
-    # Returns an array of arrays consisting of a discovery response packet
-    # string and the source ip address of the reciever.
-    #
-    def self.discover(discovery_port = ONKYO_PORT)
-      sock = UDPSocket.new
-      sock.setsockopt(Socket::SOL_SOCKET, Socket::SO_BROADCAST, true)
-      sock.send(ONKYO_MAGIC, 0, '<broadcast>', discovery_port)
-      data = []
-      loop do
-     
-        begin
-          msg, addr = sock.recvfrom_nonblock(1024)
-          data << Receiver.new(addr[2], ecn_string_to_ecn_array(msg))
-        rescue IO::WaitReadable
-          io = IO.select([sock], nil, nil, 0.5)
-          if io == nil
-            return data
-          else
-            retry
-          end
-        end
-
-      end
-    end
-    
-    # Sends an EISCP::Message object or string on the network
-    #
-    def send(eiscp, timeout = 0.5)
-      if eiscp.is_a? EISCP::Message
-        @socket.puts(eiscp.to_eiscp)
-      elsif eiscp.is_a? String
-        @socket.puts eiscp
+      else
+        set_host.call host
+        set_attrs.call info_hash
       end
     end
 
-    def recv(timeout = 0.5)
-      message = ""
-      until message.match(/\r\n$/) do
-        message << @socket.gets
-      end
-      return message
-    end
-
-    # Sends an EISCP::Message object or string on the network and returns recieved data string.
-    #
-    def send_recv(eiscp, timeout = 0.5)
-      if eiscp.is_a? EISCP::Message
-        @socket.puts(eiscp.to_eiscp)
-      elsif eiscp.is_a? String
-        @socket.puts(eiscp)
-      end
-      sleep 0.1
-      @queue.last
-    end
-
-    # Open a TCP connection to the host and print all received messages until
-    # killed.
-    #
-    def connect(&block)
-      loop do
-        data = recv
-        if block_given?
-          yield data
-        else
-          puts data.to_s
-        end
-      end
-    end
-
-    # Return ECN array with model, port, area, and MAC address
+    # Return ECN hash with model, port, area, and MAC address
     #
     def ecn_hash
-      return {:model => @model, :port => @port, :area => @area, :mac_address => @mac_address}
-    end
-
-    # Catch any missing methods and treat the method name as the human-readable
-    # command name while treating the argument as a human-readable value name.
-    #
-    def method_missing(sym, *args, &block)
-      command_name = sym.to_s.gsub(/_/, "-")
-      value_name = args[0].to_s.gsub(/_/, "-")
-      begin
-        send_recv EISCP::Command.parse(command_name + " " + value_name)
-      rescue
-        puts "Could not find a command: #{command_name} with args #{value_name} and block #{block}"
-      end
+      { model: @model,
+        port: @port,
+        area: @area,
+        mac_address: @mac_address
+      }
     end
   end
 end

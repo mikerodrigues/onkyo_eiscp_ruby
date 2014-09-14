@@ -3,10 +3,9 @@ onkyo_eiscp_ruby
 [![Gem Version](https://badge.fury.io/rb/onkyo_eiscp_ruby.png)](http://badge.fury.io/rb/onkyo_eiscp_ruby)
 [![GitHub version](https://badge.fury.io/gh/mikerodrigues%2Fonkyo_eiscp_ruby.png)](http://badge.fury.io/gh/mikerodrigues%2Fonkyo_eiscp_ruby)
 
-A Ruby implementation of eISCP for controlling Onkyo receivers.
+*A Ruby implementation of eISCP for controlling Onkyo receivers.*
 
 **This code is still under heavy development and using it might make you sick.**
-
 
 Automatically discover receivers in the broadcast domain
 
@@ -28,8 +27,8 @@ What's missing?
 
 * Parsing of all human readable commands (run the tests to see some commands that aren't parsable in human readable form yet.
 
-* Reasonable variants for human-readable commands (ex. "main-volume" or "volume"
-  as opposed to "master-volume".
+* Reasonable variants for human-readable commands (ex. `main-volume` or`volume
+` as opposed to `master-volume`)
 
 * Model compatability checking
 
@@ -37,62 +36,128 @@ What's missing?
 
 * Exhaustive testing and documentation
 
-
-
-
 Using the Library
 -----------------
 * require the library
 
 		require 'eiscp'
 
-* Discover local receivers
+* You might want to `include EISCP` if you know you won't pollute your namespace
+  with Constants under `EISCP` (`Dictionary`, `Message`, `Parser`, `Receiver`,
+  `VERSION`)
 
+* You can do most everything through the `Receiver` and `Message` objects. If you
+  want to accept user input you will probably want to use the Parser module. Be
+  sure to check out the RDocs or dig through the source code. I try to keep it
+  well commented/documented, and there's more functionality to the library than
+  is shown here:
+
+* The `Message` object is pretty self explanatory. `Message.new` is mostly used
+  internally, but you're better of using `Parser.parse` to create them. You
+  probably will want to interact with `Message` objects to get information:
+
+```ruby		
+		msg = EISCP::Message.new(command: 'PWR', value: '01')
+		msg.zone                => 'main'
+		msg.command             => "PWR"
+		msg.value               => "01"
+		msg.command_name        => "system-power"
+		msg.command_description => "System Power Command"
+		msg.value_name          => "on"
+		msg.value_description   => "sets System On"
+```
+
+* Discover local receivers (returns an `Array` of `Receiver` objects)
+
+```ruby		
 		EISCP::Receiver.discover
+```
 
-* Create Receiver object from first discovered
+* Create `Receiver` object from first discovered Receiver on the LAN
 
+```ruby		
 		receiver = EISCP::Receiver.new
+```
 
 * Or create one manually by IP address or hostname
 
+```ruby		
 		receiver = EISCP::Receiver.new('10.0.0.132')
+```
 
-* Open a TCP connection to monitor solicited updates
+* When you create a `Receiver` object, it uses the `Receiver::Connection` module to
+  make a connection and monitor incoming messages. By default, the last message
+  received can be retrieved with `receiver.last`. You can
+  pass your own block at creation time, it will have access to messages as they
+  come in. This will let you setup callbacks to run when messages are receivedL
 
-		receiver.connect
+```ruby
+		receiver = EISCP::Receiver.new do |msg|
+		  puts msg.command
+		  puts msg.value
+		end
+```
 
-* You can also pass a block and operate on received packet strings:
+* You can also change the block later. This will kill the existing connection
+  thread (but not the socket) and start your new one:
 
-		receiver.connect do |msg|
+```ruby		
+		receiver.update_thread do |msg|
 		  puts "Received: #{msg.command_name}:#{msg.value_name}"
 		end
+```
 
-* Turn on the receiver
+* Get information about the Receiver:
+	
+```ruby		
+		receiver.model => "TX-NR609"
+		receiver.host  => "10.0.0.111"
+		receiver.port  => 60128
+		receiver.mac_address => "001122334455"
+		receiver.area => "DX"
+```
 
-		message = EISCP::Message.parse("PWR", "01")
-		message.send(message.to_eiscp)
+* Get the last message received from the Receiver:
 
-* Parse incoming messages and the following formats
-        
-		iscp_message = EISCP::Message.parse "PWR01"
-		iscp_message = EISCP::Message.parse "PWR 01"
-		iscp_message = EISCP::Message.parse "!1PWR01"
-		iscp_message = EISCP::Message.parse "!1PWR 01"
+```ruby		
+		receiver.last
+```
 
-* Parsing raw socket data
+* You can use `CommandMethods` to easily send a message and return the reply as
+  a Message object. A method is defined for each command listed in the
+  `Dictionary` using the `@command_name` attribute which is 'human readable'.
+  You can check the included yaml file or look at the output of 
+  `EISCP::Dictionary.commands`. Here a few examples:
+		
+```ruby		
+		# Turn on receiver
+		receiver.system_power "on"
 
-		iscp_message = EISCP::Message.parse iscp_message.to_eiscp
+		# Query current input source
+		receiver.input_selector "query"
+		
+		# Turn the master volume up one level
+		receiver.master_volume "level-up"
 
-* Human-readable commands
+		# Set the master volume to 45
+		receiver.master_volume "45"
+```
 
-		EISCP::Command.parse("main-volume 34")
+* Parse ISCP and human readable strings:
 
-* Human-readable methods and parameters ( you must use "_" in place of "-" in
-  methods or parameters
+```ruby     		
+		# Parse various ISCP strings 
+		iscp_message = EISCP::Parser.parse "PWR01"
+		iscp_message = EISCP::Parser.parse "PWR 01"
+		iscp_message = EISCP::Parser.parse "!1PWR01"
+		iscp_message = EISCP::Parser.parse "!1PWR 01"
 
-		receiver.master_volume("level-up")
+		# Parse human readable,
+		EISCP::Parser.parse("main-volume 34")
+```
 
+* `Parser.parse` is also used internally by `Receiver` to parse raw eISCP socket
+  data.
 
 
 Using the Binaries
@@ -100,28 +165,27 @@ Using the Binaries
 
 * Discover local receivers
 
-		$ onkyo.rb -d
+	`$ onkyo.rb -d`
 		
 * Send a human-readable command
- 		
-		$ onkyo.rb system-power on  # uses Command.parse
+
+	`$ onkyo.rb system-power on  # uses Command.parse`
 
 * Or send a raw command
 
-		$ onkyo.rb PWRQSTN   # Also tries to use Message.parse
+	`$ onkyo.rb PWRQSTN   # Also tries to use Message.parse`
 
-* Connect to the first discovered receiver to see status updates
+* Monitor the first discovered receiver to see status updates
 
-		$ onkyo.rb -c
+	`$ onkyo.rb -m`
 
 * Start the mock server (only responds to 'ECNQSTN')
 
-		$ onkyo-server.rb
+	`$ onkyo-server.rb`
 
 * Turn off the first receiver discovered:
 
-		$ onkyo.rb system-power off
-
+	`$ onkyo.rb system-power off`
 
 Contributing
 ------------

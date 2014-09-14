@@ -2,6 +2,6 @@
 
 require 'eiscp/mock_receiver'
 
-puts "Starting server on 60128..."
+puts 'Starting server on 60128...'
 
 EISCP::MockReceiver.new
