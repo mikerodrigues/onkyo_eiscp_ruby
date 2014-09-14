@@ -69,6 +69,7 @@ Using the Library
 
 * Discover local receivers (returns an `Array` of `Receiver` objects)
 
+```ruby		
 		EISCP::Receiver.discover
 
 * Create `Receiver` object from first discovered Receiver on the LAN
@@ -78,6 +79,7 @@ Using the Library
 * Or create one manually by IP address or hostname
 
 		receiver = EISCP::Receiver.new('10.0.0.132')
+```
 
 * When you create a `Receiver` object, it uses the `Receiver::Connection` module to
   make a connection and monitor incoming messages. By default, the last message
@@ -95,21 +97,27 @@ Using the Library
 * You can also change the block later. This will kill the existing connection
   thread (but not the socket) and start your new one:
 
+```ruby		
 		receiver.update_thread do |msg|
 		  puts "Received: #{msg.command_name}:#{msg.value_name}"
 		end
+```
 
 * Get information about the Receiver:
 	
+```ruby		
 		receiver.model => "TX-NR609"
 		receiver.host  => "10.0.0.111"
 		receiver.port  => 60128
 		receiver.mac_address => "001122334455"
 		receiver.area => "DX"
+```
 
 * Get the last message received from the Receiver:
 
+```ruby		
 		receiver.last
+```
 
 * You can use `CommandMethods` to easily send a message and return the reply as
   a Message object. A method is defined for each command listed in the
@@ -117,6 +125,7 @@ Using the Library
   You can check the included yaml file or look at the output of 
   `EISCP::Dictionary.commands`. Here a few examples:
 		
+```ruby		
 		# Turn on receiver
 		receiver.system_power "on"
 
@@ -128,6 +137,7 @@ Using the Library
 
 		# Set the master volume to 45
 		receiver.master_volume "45"
+```
 
 * Parse ISCP and human readable strings:
 
@@ -151,27 +161,27 @@ Using the Binaries
 
 * Discover local receivers
 
-	$ onkyo.rb -d
+	`$ onkyo.rb -d`
 		
 * Send a human-readable command
 
-	$ onkyo.rb system-power on  # uses Command.parse
+	`$ onkyo.rb system-power on  # uses Command.parse`
 
 * Or send a raw command
 
-	$ onkyo.rb PWRQSTN   # Also tries to use Message.parse
+	`$ onkyo.rb PWRQSTN   # Also tries to use Message.parse`
 
 * Connect to the first discovered receiver to see status updates
 
-	$ onkyo.rb -c
+	`$ onkyo.rb -c`
 
 * Start the mock server (only responds to 'ECNQSTN')
 
-	$ onkyo-server.rb
+	`$ onkyo-server.rb`
 
 * Turn off the first receiver discovered:
 
-	$ onkyo.rb system-power off
+	`$ onkyo.rb system-power off`
 
 Contributing
 ------------
