@@ -59,11 +59,17 @@ class Options
 
     if @options.monitor
       begin
-        rec = EISCP::Receiver.new {|msg| puts msg.to_s}
+        rec = EISCP::Receiver.new do |reply| 
+          puts "Response:   "\
+               "#{reply.zone.capitalize}: "\
+               "#{reply.command_description || reply.command} "\
+               "-> #{reply.value_description || reply.value}"
+        end
         rec.thread.join
       rescue Interrupt
         fail 'Exiting...'
       rescue Exception => e
+        puts "bummer..."
         puts e
       end
     end
@@ -74,13 +80,13 @@ class Options
           puts "Command - Description"
           puts "\n"
           puts "  '#{Dictionary.name_from_command(command)}' - "\
-               "#{Dictionary.description_from_command(command)}"
+            "#{Dictionary.description_from_command(command)}"
           puts "\n"
           puts "    Value - Description>"
           puts "\n"
           command_hash[:values].each do |value, attr_hash| 
             puts "      '#{attr_hash[:name]}' - "\
-                 " #{attr_hash[:description]}"
+              " #{attr_hash[:description]}"
           end
           puts "\n"
         end
@@ -104,4 +110,4 @@ rescue
   raise "Couldn't parse command"
 end
 reply = receiver.send_recv(command)
-puts "Update: #{reply.zone.capitalize}   #{reply.command_description} -> #{reply.value_description}"
+puts "Response from #{Receiver.host}: #{reply.zone.capitalize}   #{reply.command_description || reply.command} -> #{reply.value_description || reply.value}"

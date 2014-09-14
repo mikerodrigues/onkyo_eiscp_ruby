@@ -175,9 +175,9 @@ Using the Binaries
 
 	`$ onkyo.rb PWRQSTN   # Also tries to use Message.parse`
 
-* Connect to the first discovered receiver to see status updates
+* Monitor the first discovered receiver to see status updates
 
-	`$ onkyo.rb -c`
+	`$ onkyo.rb -m`
 
 * Start the mock server (only responds to 'ECNQSTN')
 
