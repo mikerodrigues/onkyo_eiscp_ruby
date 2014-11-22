@@ -53,7 +53,7 @@ Using the Library
   is shown here:
 
 * The `Message` object is pretty self explanatory. `Message.new` is mostly used
-  internally, but you're better of using `Parser.parse` to create them. You
+  internally, but you're better off using `Parser.parse` to create them. You
   probably will want to interact with `Message` objects to get information:
 
 ```ruby		
@@ -169,7 +169,7 @@ Using the Binaries
 		
 * Send a human-readable command
 
-	`$ onkyo.rb system-power on  # uses Command.parse`
+	`$ onkyo.rb system-power on  # uses Parser.parse`
 
 * Or send a raw command
 
