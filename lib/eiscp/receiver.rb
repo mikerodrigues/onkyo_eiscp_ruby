@@ -14,8 +14,8 @@ module EISCP
   #   receiver = EISCP::Receiver.new('192.168.1.12', 60129) # non standard port
   #
   class Receiver
+    extend Forwardable
     extend Discovery
-    include Connection
     include CommandMethods
 
     # Receiver's IP address
@@ -28,6 +28,12 @@ module EISCP
     attr_accessor :area
     # Receiver's MAC address
     attr_accessor :mac_address
+
+    # Connection object
+    attr_reader:connection
+
+    # Delegate some methods to the @connection object
+    def_delegators :@connection, :send, :send_recv, :disconnect, :update_thread, :last
 
     # Create a new EISCP object to communicate with a receiver.
     # If no host is given, use auto discovery and create a
@@ -49,9 +55,7 @@ module EISCP
         @area  = hash[:area]
         @mac_address = hash[:mac_address]
         if block_given?
-          connect(@host, @port, &block)
-        else
-          connect(@host, @port)
+          connect(&block)
         end
       end
 
@@ -83,6 +87,11 @@ module EISCP
         set_host.call host
         set_attrs.call info_hash
       end
+    end
+
+    def connect(&block)
+      @connection = Connection.new
+      @connection.connect(@host, @port, &block)
     end
 
     # Return ECN hash with model, port, area, and MAC address

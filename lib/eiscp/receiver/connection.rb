@@ -5,7 +5,7 @@ module EISCP
   class Receiver
     # This module handles connecting, sending, and receiving for Receivers.
     #
-    module Connection
+    class Connection
       # Receiver's connection socket
       attr_reader :socket
       # Receiver's connection thread
@@ -39,7 +39,7 @@ module EISCP
       # If a block is given, it can be used to setup a callback when a message
       # is received.
       #
-      def connect(host, port = ONKYO_PORT, &block)
+      def connect(host, port, &block)
         begin
           @socket = TCPSocket.new(host, port)
           update_thread(&block)
@@ -79,7 +79,7 @@ module EISCP
       #
       def send_recv(eiscp)
         if eiscp.is_a? EISCP::Message
-          @socket.puts(eiscp.to_eiscp)
+          esocket.puts(eiscp.to_eiscp)
         elsif eiscp.is_a? String
           @socket.puts(eiscp)
         end
