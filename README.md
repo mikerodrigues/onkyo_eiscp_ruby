@@ -85,11 +85,22 @@ Using the Library
 		receiver = EISCP::Receiver.new('10.0.0.132')
 ```
 
-* When you create a `Receiver` object, it uses the `Receiver::Connection` module to
-  make a connection and monitor incoming messages. By default, the last message
-  received can be retrieved with `receiver.last`. You can
-  pass your own block at creation time, it will have access to messages as they
-  come in. This will let you setup callbacks to run when messages are receivedL
+* Receiver's created without a block will not connect automatically. You can use
+  the `connect` method with or without a block to initiate a connection.
+
+```ruby
+		receiver.connect
+```
+
+* You can also disconnect, which will close the socket and kill the connection
+  thread:
+
+```ruby
+		receiver.disconnect
+```
+
+* When you create a `Receiver` object with a block it will connect automatically
+  and call your block for each message received:
 
 ```ruby
 		receiver = EISCP::Receiver.new do |msg|
@@ -127,7 +138,8 @@ Using the Library
   a Message object. A method is defined for each command listed in the
   `Dictionary` using the `@command_name` attribute which is 'human readable'.
   You can check the included yaml file or look at the output of 
-  `EISCP::Dictionary.commands`. Here a few examples:
+  `EISCP::Dictionary.commands`. These commands will not be defined on an
+  instance until a connection is made.  Here a few examples:
 		
 ```ruby		
 		# Turn on receiver
