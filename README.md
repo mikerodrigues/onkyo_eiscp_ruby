@@ -173,7 +173,7 @@ Using the Binaries
 
 * Or send a raw command
 
-	`$ onkyo.rb PWRQSTN   # Also tries to use Message.parse`
+	`$ onkyo.rb PWRQSTN   # Also tries to use Parser.parse`
 
 * Monitor the first discovered receiver to see status updates
 
