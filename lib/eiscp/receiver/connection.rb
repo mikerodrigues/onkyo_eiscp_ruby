@@ -48,6 +48,14 @@ module EISCP
         end
       end
 
+      # Disconnect from the receiver by closing the socket and killing the
+      # connection thread.
+      #
+      def disconnect
+        @thread.kill
+        @socket.close
+      end
+
       # Sends an EISCP::Message object or string on the network
       #
       def send(eiscp)
