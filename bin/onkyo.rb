@@ -60,8 +60,8 @@ class Options
     if @options.monitor
       begin
         rec = EISCP::Receiver.new do |reply| 
-          puts "Response:   "\
-               "#{reply.zone.capitalize}: "\
+          puts "#{Time.now} #{rec.host} "\
+               "#{reply.zone}: "\
                "#{reply.command_description || reply.command} "\
                "-> #{reply.value_description || reply.value}"
         end
@@ -110,4 +110,4 @@ rescue
   raise "Couldn't parse command"
 end
 reply = receiver.send_recv(command)
-puts "Response from #{Receiver.host}: #{reply.zone.capitalize}   #{reply.command_description || reply.command} -> #{reply.value_description || reply.value}"
+puts "#{Time.now}: Response from #{Receiver.host}: #{reply.zone.capitalize}   #{reply.command_description || reply.command} -> #{reply.value_description || reply.value}"
