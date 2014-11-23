@@ -79,7 +79,7 @@ module EISCP
       #
       def send_recv(eiscp)
         if eiscp.is_a? EISCP::Message
-          esocket.puts(eiscp.to_eiscp)
+          @socket.puts(eiscp.to_eiscp)
         elsif eiscp.is_a? String
           @socket.puts(eiscp)
         end

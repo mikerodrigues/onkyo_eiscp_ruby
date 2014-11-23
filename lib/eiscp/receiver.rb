@@ -40,12 +40,6 @@ module EISCP
     # receiver object using the first host to respond.
     #
     def initialize(host = nil, info_hash = {}, &block)
-      # This defines the behavior of CommandMethods by telling it what to do wit
-      # the Message object that results from a CommandMethod being called. All
-      # we're doing here is calling #send_recv
-      #
-      CommandMethods.generate {|message|self.send_recv message}
-
       # This proc sets the four ECN attributes and initiates a connection to the
       # receiver.
       #
@@ -89,8 +83,17 @@ module EISCP
       end
     end
 
+    # This method creates a new connection object, initializes CommandMethods,
+    # then establishes a connection with the receiver
     def connect(&block)
       @connection = Connection.new
+      
+      # This defines the behavior of CommandMethods by telling it what to do
+      # with the Message object that results from a CommandMethod being called.
+      # All we're doing here is calling #send_recv
+      #
+      CommandMethods.generate {|message| send_recv message}
+     
       @connection.connect(@host, @port, &block)
     end
 
