@@ -135,11 +135,10 @@ Using the Library
 ```
 
 * You can use `CommandMethods` to easily send a message and return the reply as
-  a Message object. A method is defined for each command listed in the
+  a Message object. Once `Receiver#connect`is called, a method is defined for each command listed in the
   `Dictionary` using the `@command_name` attribute which is 'human readable'.
   You can check the included yaml file or look at the output of 
-  `EISCP::Dictionary.commands`. These commands will not be defined on an
-  instance until a connection is made.  Here a few examples:
+  `EISCP::Dictionary.commands`. Here a few examples:
 		
 ```ruby		
 		# Turn on receiver

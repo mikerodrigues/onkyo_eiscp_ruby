@@ -54,7 +54,7 @@ module EISCP
     # @param [String] start_character override default start character, optional
     def initialize(command: nil, value: nil, terminator:  "\r\n", unit_type: '1', start: '!')
       unless Dictionary.known_command?(command)
-        warn "Unknown command #{command}"
+        #STDERR.puts "Unknown command #{command}"
       end
 
       fail 'No value specified.' if value.nil?
@@ -73,7 +73,7 @@ module EISCP
       begin
         get_human_readable_attrs
       rescue
-        warn "Couldn't get all human readable attrs"
+        #STDERR.puts"Couldn't get all human readable attrs"
       end
     end
 

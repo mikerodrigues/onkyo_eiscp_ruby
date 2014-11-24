@@ -1,4 +1,5 @@
 require 'resolv'
+require 'forwardable'
 require_relative './receiver'
 require_relative './receiver/discovery'
 require_relative './receiver/connection'
@@ -33,13 +34,19 @@ module EISCP
     attr_reader:connection
 
     # Delegate some methods to the @connection object
-    def_delegators :@connection, :send, :send_recv, :disconnect, :update_thread, :last
+    def_delegators :@connection, :send, :send_recv, :disconnect, :update_thread, :last, :thread
 
     # Create a new EISCP object to communicate with a receiver.
     # If no host is given, use auto discovery and create a
     # receiver object using the first host to respond.
     #
     def initialize(host = nil, info_hash = {}, &block)
+      # This defines the behavior of CommandMethods by telling it what to do
+      # with the Message object that results from a CommandMethod being called.
+      # All we're doing here is calling #send_recv
+      #
+      CommandMethods.generate {|msg| send_recv msg}
+
       # This proc sets the four ECN attributes and initiates a connection to the
       # receiver.
       #
@@ -92,8 +99,8 @@ module EISCP
       # with the Message object that results from a CommandMethod being called.
       # All we're doing here is calling #send_recv
       #
-      CommandMethods.generate {|message| send_recv message}
-     
+      CommandMethods.generate {|msg| send_recv msg}
+      
       @connection.connect(@host, @port, &block)
     end
 
