@@ -1,4 +1,3 @@
-require_relative '../message'
 require_relative './iscp_parser'
 
 module EISCP

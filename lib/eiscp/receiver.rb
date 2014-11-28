@@ -1,6 +1,5 @@
 require 'resolv'
 require 'forwardable'
-require_relative './receiver'
 require_relative './receiver/discovery'
 require_relative './receiver/connection'
 require_relative './receiver/command_methods'
@@ -45,8 +44,9 @@ module EISCP
       # with the Message object that results from a CommandMethod being called.
       # All we're doing here is calling #send_recv
       #
-      CommandMethods.generate {|msg| send_recv msg}
-
+      command_method_proc = Proc.new {|msg| self.send_recv msg}
+      CommandMethods.generate(&command_method_proc)
+      
       # This proc sets the four ECN attributes and initiates a connection to the
       # receiver.
       #
@@ -94,13 +94,6 @@ module EISCP
     # then establishes a connection with the receiver
     def connect(&block)
       @connection = Connection.new
-      
-      # This defines the behavior of CommandMethods by telling it what to do
-      # with the Message object that results from a CommandMethod being called.
-      # All we're doing here is calling #send_recv
-      #
-      CommandMethods.generate {|msg| send_recv msg}
-      
       @connection.connect(@host, @port, &block)
     end
 

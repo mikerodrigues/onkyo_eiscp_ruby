@@ -1,5 +1,3 @@
-require_relative '../message'
-
 module EISCP
   module Parser
     # This module parses an ISCP string and returns a Message object

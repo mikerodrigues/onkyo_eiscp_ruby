@@ -19,12 +19,16 @@ module EISCP
       # Default Onkyo eISCP port
       ONKYO_PORT = 60_128
 
+      def initialize
+        # Might need this
+      end
+
       # Create a new connection thread. Also accepts a block that will run
       # whenver a message is received. You can pass the Message object in with
       # your block. This is the method #new uses to create the initial thread.
       #
       def update_thread
-        @thread && @thread.kill
+        thread && @thread.kill
         @thread = Thread.new do
           loop do
             recv
