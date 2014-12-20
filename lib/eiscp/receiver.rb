@@ -35,7 +35,7 @@ module EISCP
     # Delegate some methods to the @connection object
     def_delegators :@connection, :send, :send_recv, :disconnect, :update_thread, :last, :thread
 
-    # Create a new EISCP object to communicate with a receiver.
+    # Create a new EISCP::Receiver object to communicate with a receiver.
     # If no host is given, use auto discovery and create a
     # receiver object using the first host to respond.
     #
