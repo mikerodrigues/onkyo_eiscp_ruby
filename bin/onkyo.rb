@@ -101,6 +101,8 @@ class Options
   end
 end
 
+include EISCP
+
 @options = Options.parse(ARGV)
 
 receiver = EISCP::Receiver.discover[0]
@@ -110,4 +112,4 @@ rescue
   raise "Couldn't parse command"
 end
 reply = receiver.send_recv(command)
-puts "#{Time.now}: Response from #{Receiver.host}: #{reply.zone.capitalize}   #{reply.command_description || reply.command} -> #{reply.value_description || reply.value}"
+puts "#{Time.now}: Response from #{receiver.host}: #{reply.zone.capitalize}   #{reply.command_description || reply.command} -> #{reply.value_description || reply.value}"
