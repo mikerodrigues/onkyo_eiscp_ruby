@@ -25,7 +25,7 @@ module EISCP
 
       # Returns an array of discovered Receiver objects.
       #
-      def discover(discovery_port = Receiver::Connection::ONKYO_PORT)
+      def discover(discovery_port = Receiver::ONKYO_PORT)
         sock = UDPSocket.new
         sock.setsockopt(Socket::SOL_SOCKET, Socket::SO_BROADCAST, true)
         sock.send(ONKYO_MAGIC, 0, '<broadcast>', discovery_port)

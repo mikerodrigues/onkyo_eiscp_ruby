@@ -1,7 +1,5 @@
 require 'resolv'
-require 'forwardable'
 require_relative './receiver/discovery'
-require_relative './receiver/connection'
 require_relative './receiver/command_methods'
 
 module EISCP
@@ -29,11 +27,20 @@ module EISCP
     # Receiver's MAC address
     attr_accessor :mac_address
 
-    # Connection object
-    attr_reader:connection
+    # State object
+    attr_accessor :state
 
-    # Delegate some methods to the @connection object
-    def_delegators :@connection, :send, :send_recv, :disconnect, :update_thread, :last, :thread
+    # Receiver's connection socket
+    attr_reader :socket
+    # Receiver's connection thread
+    attr_reader :thread
+
+    # Default connection timeout value in seconds
+    DEFAULT_TIMEOUT = 0.5
+
+    # Default Onkyo eISCP port
+    ONKYO_PORT = 60_128
+
 
     # Create a new EISCP::Receiver object to communicate with a receiver.
     # If no host is given, use auto discovery and create a
@@ -46,7 +53,7 @@ module EISCP
       #
       command_method_proc = Proc.new {|msg| self.send_recv msg}
       CommandMethods.generate(&command_method_proc)
-      
+
       # This proc sets the four ECN attributes and initiates a connection to the
       # receiver.
       #
@@ -90,11 +97,71 @@ module EISCP
       end
     end
 
-    # This method creates a new connection object, initializes CommandMethods,
-    # then establishes a connection with the receiver
+    def update_thread
+      thread && @thread.kill
+      @thread = Thread.new do
+        loop do
+          message = recv
+          @state[message.command] = message.value
+          yield(message) if block_given?
+        end
+      end
+    end
+
+    # This handles the background thread for monitoring messages from the
+    # receiver.
+    #
+    # If a block is given, it can be used to setup a callback when a message
+    # is received.
+    #
     def connect(&block)
-      @connection = Connection.new
-      @connection.connect(@host, @port, &block)
+      begin
+        @socket = TCPSocket.new(@host, @port)
+        @state = {}
+        update_thread(&block)
+        update_state
+      rescue => e
+        puts e
+      end
+    end
+
+    # Disconnect from the receiver by closing the socket and killing the
+    # connection thread.
+    #
+    def disconnect
+      @thread.kill
+      @socket.close
+    end
+
+    # Sends an EISCP::Message object or string on the network
+    #
+    def send(eiscp)
+      if eiscp.is_a? EISCP::Message
+        @socket.puts(eiscp.to_eiscp)
+      elsif eiscp.is_a? String
+        @socket.puts eiscp
+      end
+    end
+
+    # Reads the socket and returns and EISCP::Message
+    #
+    def recv
+      data = ''
+      data << @socket.gets until data.match(/\r\n$/)
+      message = Parser.parse(data)
+      @state[message.command] = message.value
+      message
+    end
+
+    # Sends an EISCP::Message object or string on the network and returns recieved data string.
+    #
+    def send_recv(eiscp)
+      if eiscp.is_a? String
+        eiscp = Parser.parse(eiscp)
+      end
+      send eiscp
+      sleep DEFAULT_TIMEOUT
+      Parser.parse("#{eiscp.command}#{@state[eiscp.command]}")
     end
 
     # Return ECN hash with model, port, area, and MAC address
@@ -105,6 +172,27 @@ module EISCP
         area: @area,
         mac_address: @mac_address
       }
+    end
+
+    def human_readable_state
+      @state.map do |c, v|
+        "#{Dictionary.command_to_name(c)}: #{Dictionary.command_value_to_value_name(c, v)}"
+      end
+    end
+
+    def update_state
+      Thread.new do
+        Dictionary.commands.each do |zone, commands|
+          Dictionary.commands[zone].each do |command, info|
+            info[:values].each do |value, _|
+              if value == 'QSTN'
+                send(Parser.parse(command + "QSTN"))
+                sleep 0.01
+              end
+            end
+          end
+        end
+      end
     end
   end
 end
