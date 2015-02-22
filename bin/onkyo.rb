@@ -106,6 +106,7 @@ include EISCP
 @options = Options.parse(ARGV)
 
 receiver = EISCP::Receiver.discover[0]
+receiver.connect
 begin
   command = EISCP::Parser.parse(ARGV.join(' '))
 rescue

@@ -12,7 +12,6 @@ module EISCP
   #   receiver = EISCP::Receiver.new('192.168.1.12', 60129) # non standard port
   #
   class Receiver
-    extend Forwardable
     extend Discovery
     include CommandMethods
 
