@@ -1,7 +1,5 @@
 require 'resolv'
-require_relative './receiver'
 require_relative './receiver/discovery'
-require_relative './receiver/connection'
 require_relative './receiver/command_methods'
 
 module EISCP
@@ -15,7 +13,6 @@ module EISCP
   #
   class Receiver
     extend Discovery
-    include Connection
     include CommandMethods
 
     # Receiver's IP address
@@ -29,16 +26,35 @@ module EISCP
     # Receiver's MAC address
     attr_accessor :mac_address
 
-    # Create a new EISCP object to communicate with a receiver.
+    # State object
+    attr_accessor :state
+
+    # Receiver's connection socket
+    attr_reader :socket
+    # Receiver's connection thread
+    attr_reader :thread
+
+    # Default connection timeout value in seconds
+    DEFAULT_TIMEOUT = 0.5
+
+    # Default Onkyo eISCP port
+    ONKYO_PORT = 60_128
+
+
+    # Create a new EISCP::Receiver object to communicate with a receiver.
     # If no host is given, use auto discovery and create a
     # receiver object using the first host to respond.
     #
     def initialize(host = nil, info_hash = {}, &block)
-      # This defines the behavior of CommandMethods by telling it what to do wit
-      # the Message object that results from a CommandMethod being called. All
-      # we're doing here is calling #send_recv
+      # Initialize state
       #
-      CommandMethods.generate {|message|self.send_recv message}
+      @state = {}
+      # This defines the behavior of CommandMethods by telling it what to do
+      # with the Message object that results from a CommandMethod being called.
+      # All we're doing here is calling #send_recv
+      #
+      command_method_proc = Proc.new {|msg| self.send_recv msg}
+      CommandMethods.generate(&command_method_proc)
 
       # This proc sets the four ECN attributes and initiates a connection to the
       # receiver.
@@ -49,9 +65,7 @@ module EISCP
         @area  = hash[:area]
         @mac_address = hash[:mac_address]
         if block_given?
-          connect(@host, @port, &block)
-        else
-          connect(@host, @port)
+          connect(&block)
         end
       end
 
@@ -85,6 +99,71 @@ module EISCP
       end
     end
 
+    # Manages the thread and uses the same block passed to throgh #connect.
+    #
+    def update_thread
+      # Kill thread if it exists
+      thread && @thread.kill
+      @thread = Thread.new do
+        loop do
+          message = recv
+          @state[message.command] = message.value
+          yield(message) if block_given?
+        end
+      end
+    end
+    private :update_thread
+
+    # This creates a socket conection to the receiver if one doesn't exist, 
+    # and updates or sets the callback block if one is passed.
+    #
+    def connect(&block)
+      begin
+        @socket ||= TCPSocket.new(@host, @port)
+        update_thread(&block)
+      rescue => e
+        puts e
+      end
+    end
+
+    # Disconnect from the receiver by closing the socket and killing the
+    # connection thread.
+    #
+    def disconnect
+      @thread.kill
+      @socket.close
+    end
+
+    # Sends an EISCP::Message object or string on the network
+    #
+    def send(eiscp)
+      if eiscp.is_a? EISCP::Message
+        @socket.puts(eiscp.to_eiscp)
+      elsif eiscp.is_a? String
+        @socket.puts eiscp
+      end
+    end
+
+    # Reads the socket and returns and EISCP::Message
+    #
+    def recv
+      data = ''
+      data << @socket.gets until data.match(/\r\n$/)
+      message = Parser.parse(data)
+      message
+    end
+
+    # Sends an EISCP::Message object or string on the network and returns recieved data string.
+    #
+    def send_recv(eiscp)
+      if eiscp.is_a? String
+        eiscp = Parser.parse(eiscp)
+      end
+      send eiscp
+      sleep DEFAULT_TIMEOUT
+      Parser.parse("#{eiscp.command}#{@state[eiscp.command]}")
+    end
+
     # Return ECN hash with model, port, area, and MAC address
     #
     def ecn_hash
@@ -93,6 +172,39 @@ module EISCP
         area: @area,
         mac_address: @mac_address
       }
+    end
+
+    # This will return a human-readable represantion of the receiver's state. 
+    #
+    def human_readable_state
+      hash = {}
+      @state.each do |c, v|
+        hash["#{Dictionary.command_to_name(c)}"] =  "#{Dictionary.command_value_to_value_name(c, v) || v.to_s}"
+      end
+      hash
+    end
+
+    # Runs every command that supports the 'QSTN' value. This is a good way to
+    # get the sate of the receiver after connecting.
+    #
+    def update_state
+      Thread.new do
+        Dictionary.commands.each do |zone, commands|
+          Dictionary.commands[zone].each do |command, info|
+            info[:values].each do |value, _|
+              if value == 'QSTN'
+                send(Parser.parse(command + "QSTN"))
+                # If we send any faster we risk making the stereo drop replies. 
+                # A dropped reply is not necessarily indicative of the
+                # receiver's failure to receive the command and change state
+                # accordingly. In this case, we're only making queries, so we do
+                # want to capture every reply.
+                sleep DEFAULT_TIMEOUT
+              end
+            end
+          end
+        end
+      end
     end
   end
 end

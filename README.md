@@ -53,7 +53,7 @@ Using the Library
   is shown here:
 
 * The `Message` object is pretty self explanatory. `Message.new` is mostly used
-  internally, but you're better of using `Parser.parse` to create them. You
+  internally, but you're better off using `Parser.parse` to create them. You
   probably will want to interact with `Message` objects to get information:
 
 ```ruby		
@@ -85,11 +85,8 @@ Using the Library
 		receiver = EISCP::Receiver.new('10.0.0.132')
 ```
 
-* When you create a `Receiver` object, it uses the `Receiver::Connection` module to
-  make a connection and monitor incoming messages. By default, the last message
-  received can be retrieved with `receiver.last`. You can
-  pass your own block at creation time, it will have access to messages as they
-  come in. This will let you setup callbacks to run when messages are receivedL
+* When you create a `Receiver` object with a callback block it will
+  connect and call your block on each message received.:
 
 ```ruby
 		receiver = EISCP::Receiver.new do |msg|
@@ -98,13 +95,28 @@ Using the Library
 		end
 ```
 
-* You can also change the block later. This will kill the existing connection
-  thread (but not the socket) and start your new one:
+* Receivers created without a block will not connect automatically. You can use
+  the `connect` method to create a socket and connect to the receiver.
+
+```ruby
+		receiver.connect
+```
+
+* You can also set or change the callback block later. This will kill the 
+  existing callback thread, recreate the socket if necessary and start
+  a new callback thread using the provided block:
 
 ```ruby		
-		receiver.update_thread do |msg|
+		receiver.connect do |msg|
 		  puts "Received: #{msg.command_name}:#{msg.value_name}"
 		end
+```
+
+* You can also disconnect, which will close the socket and kill the connection
+  thread:
+
+```ruby
+		receiver.disconnect
 ```
 
 * Get information about the Receiver:
@@ -117,14 +129,21 @@ Using the Library
 		receiver.area => "DX"
 ```
 
-* Get the last message received from the Receiver:
+* Receivers now have a `@state` hash that contains a mapping of commands and
+  values received. You can use this see the Receiver's last known state without
+  querying. Use the `#update_state` method to run every 'QSTN' command in the
+  Dictionary and update the state hash, but do note that it will take a few
+  seconds to finish:
 
-```ruby		
-		receiver.last
+```ruby
+		receiver.update_state
+		receiver.state["MVL"] => "22"
+		receiver.human_readable_state["master-volume"] => 34
 ```
+		
 
 * You can use `CommandMethods` to easily send a message and return the reply as
-  a Message object. A method is defined for each command listed in the
+  a Message object. Once `Receiver#connect`is called, a method is defined for each command listed in the
   `Dictionary` using the `@command_name` attribute which is 'human readable'.
   You can check the included yaml file or look at the output of 
   `EISCP::Dictionary.commands`. Here a few examples:
@@ -169,11 +188,11 @@ Using the Binaries
 		
 * Send a human-readable command
 
-	`$ onkyo.rb system-power on  # uses Command.parse`
+	`$ onkyo.rb system-power on  # uses Parser.parse`
 
 * Or send a raw command
 
-	`$ onkyo.rb PWRQSTN   # Also tries to use Message.parse`
+	`$ onkyo.rb PWRQSTN   # Also tries to use Parser.parse`
 
 * Monitor the first discovered receiver to see status updates
 
@@ -186,6 +205,14 @@ Using the Binaries
 * Turn off the first receiver discovered:
 
 	`$ onkyo.rb system-power off`
+
+* List all known commands and values:
+
+	`$ onkyo.rb -L`
+
+* List all known commands known to work with discovered models:
+
+	`$ onkyo.rb -l`
 
 Contributing
 ------------

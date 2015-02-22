@@ -9,13 +9,13 @@ module EISCP
     # human readable name of a valid value for that command.
     #
     module CommandMethods
-      def self.generate
+      def self.generate(&block)
         Dictionary.zones.each do |zone|
           Dictionary.commands[zone].each do |command, _values|
             begin
               command_name = Dictionary.command_to_name(command).to_s.gsub(/-/, '_')
               define_method(command_name) do |v|
-                yield Parser.parse(command_name.gsub(/_/, '-') + ' ' + v)
+                self.instance_exec Parser.parse(command_name.gsub(/_/, '-') + ' ' + v), &block
               end
             rescue => e
               puts e
@@ -26,4 +26,3 @@ module EISCP
     end
   end
 end
-

@@ -60,8 +60,8 @@ class Options
     if @options.monitor
       begin
         rec = EISCP::Receiver.new do |reply| 
-          puts "Response:   "\
-               "#{reply.zone.capitalize}: "\
+          puts "#{Time.now} #{rec.host} "\
+               "#{reply.zone}: "\
                "#{reply.command_description || reply.command} "\
                "-> #{reply.value_description || reply.value}"
         end
@@ -74,12 +74,46 @@ class Options
       end
     end
 
+    if @options.list
+      models =  []
+      modelsets = []
+      EISCP::Receiver.discover.each do |rec|
+        models << rec.model
+      end 
+      models.each do |model|
+        EISCP::Dictionary.modelsets.each do |modelset, list|
+          if list.select{|x| x.match model}.length > 0
+            modelsets << modelset
+          end
+        end
+      end
+      EISCP::Dictionary.zones.each do |zone|
+        EISCP::Dictionary.commands[zone].each do |command, command_hash|
+          puts "Command - Description"
+          puts "\n"
+          puts "  '#{Dictionary.command_to_name(command)}' - "\
+            "#{Dictionary.description_from_command(command)}"
+          puts "\n"
+          puts "    Value - Description>"
+          puts "\n"
+          command_hash[:values].each do |value, attr_hash|
+            if  modelsets.include? attr_hash[:models]
+            puts "      '#{attr_hash[:name]}' - "\
+              " #{attr_hash[:description]}"
+            else  
+            end
+          end
+          puts "\n"
+        end
+      end
+    end
+
     if @options.list_all
       EISCP::Dictionary.zones.each do |zone|
         EISCP::Dictionary.commands[zone].each do |command, command_hash|
           puts "Command - Description"
           puts "\n"
-          puts "  '#{Dictionary.name_from_command(command)}' - "\
+          puts "  '#{Dictionary.command_to_name(command)}' - "\
             "#{Dictionary.description_from_command(command)}"
           puts "\n"
           puts "    Value - Description>"
@@ -101,13 +135,16 @@ class Options
   end
 end
 
+include EISCP
+
 @options = Options.parse(ARGV)
 
 receiver = EISCP::Receiver.discover[0]
+receiver.connect
 begin
   command = EISCP::Parser.parse(ARGV.join(' '))
 rescue
   raise "Couldn't parse command"
 end
 reply = receiver.send_recv(command)
-puts "Response from #{Receiver.host}: #{reply.zone.capitalize}   #{reply.command_description || reply.command} -> #{reply.value_description || reply.value}"
+puts "#{Time.now}: Response from #{receiver.host}: #{reply.zone.capitalize}   #{reply.command_description || reply.command} -> #{reply.value_description || reply.value}"
