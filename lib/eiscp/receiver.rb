@@ -96,6 +96,9 @@ module EISCP
       end
     end
 
+    # Creates or updates connection threads. You can provide a block just like
+    # with #connect.
+    #
     def update_thread
       thread && @thread.kill
       @thread = Thread.new do
@@ -115,7 +118,7 @@ module EISCP
     #
     def connect(&block)
       begin
-        @socket = TCPSocket.new(@host, @port)
+        @socket ||= TCPSocket.new(@host, @port)
         @state = {}
         update_thread(&block)
       rescue => e
@@ -172,12 +175,17 @@ module EISCP
       }
     end
 
+    # This will return a human-readable represantion of the receiver's state. 
+    #
     def human_readable_state
       @state.map do |c, v|
         "#{Dictionary.command_to_name(c)}: #{Dictionary.command_value_to_value_name(c, v)}"
       end
     end
 
+    # Runs every command that supports the 'QSTN' value. This is a good way to
+    # get the sate of the receiver after connecting.
+    #
     def update_state
       Thread.new do
         Dictionary.commands.each do |zone, commands|
@@ -185,7 +193,12 @@ module EISCP
             info[:values].each do |value, _|
               if value == 'QSTN'
                 send(Parser.parse(command + "QSTN"))
-                sleep 0.01
+                # If we send any faster we risk making the stereo drop replies. 
+                # A dropped reply is not necessarily indicative of the
+                # receiver's failure to receive the command and change state
+                # accordingly. In this case, we're only making queries, so we do
+                # want to capture every reply.
+                sleep DEFAULT_TIMEOUT
               end
             end
           end
