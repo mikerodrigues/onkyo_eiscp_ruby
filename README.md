@@ -206,6 +206,14 @@ Using the Binaries
 
 	`$ onkyo.rb system-power off`
 
+* List all known commands and values:
+
+	`$ onkyo.rb -L`
+
+* List all known commands known to work with discovered models:
+
+	`$ onkyo.rb -l`
+
 Contributing
 ------------
 
