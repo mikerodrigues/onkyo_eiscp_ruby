@@ -118,7 +118,6 @@ module EISCP
         @socket = TCPSocket.new(@host, @port)
         @state = {}
         update_thread(&block)
-        update_state
       rescue => e
         puts e
       end
