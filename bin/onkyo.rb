@@ -79,7 +79,7 @@ class Options
         EISCP::Dictionary.commands[zone].each do |command, command_hash|
           puts "Command - Description"
           puts "\n"
-          puts "  '#{Dictionary.name_from_command(command)}' - "\
+          puts "  '#{Dictionary.command_to_name(command)}' - "\
             "#{Dictionary.description_from_command(command)}"
           puts "\n"
           puts "    Value - Description>"
