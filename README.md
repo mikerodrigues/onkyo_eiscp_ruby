@@ -85,22 +85,8 @@ Using the Library
 		receiver = EISCP::Receiver.new('10.0.0.132')
 ```
 
-* Receiver's created without a block will not connect automatically. You can use
-  the `connect` method with or without a block to initiate a connection.
-
-```ruby
-		receiver.connect
-```
-
-* You can also disconnect, which will close the socket and kill the connection
-  thread:
-
-```ruby
-		receiver.disconnect
-```
-
-* When you create a `Receiver` object with a block it will connect automatically
-  and call your block for each message received:
+* When you create a `Receiver` object with a callback block it will
+  connect and call your block on each message received.:
 
 ```ruby
 		receiver = EISCP::Receiver.new do |msg|
@@ -109,13 +95,28 @@ Using the Library
 		end
 ```
 
-* You can also change the block later. This will kill the existing connection
-  thread (but not the socket) and start your new one:
+* Receivers created without a block will not connect automatically. You can use
+  the `connect` method to create a socket and connect to the receiver.
+
+```ruby
+		receiver.connect
+```
+
+* You can also set or change the callback block later. This will kill the 
+  existing callback thread, recreate the socket if necessary and start
+  a new callback thread using the provided block:
 
 ```ruby		
-		receiver.update_thread do |msg|
+		receiver.connect do |msg|
 		  puts "Received: #{msg.command_name}:#{msg.value_name}"
 		end
+```
+
+* You can also disconnect, which will close the socket and kill the connection
+  thread:
+
+```ruby
+		receiver.disconnect
 ```
 
 * Get information about the Receiver:
@@ -128,11 +129,18 @@ Using the Library
 		receiver.area => "DX"
 ```
 
-* Get the last message received from the Receiver:
+* Receivers now have a `@state` hash that contains a mapping of commands and
+  values received. You can use this see the Receiver's last known state without
+  querying. Use the `#update_state` method to run every 'QSTN' command in the
+  Dictionary and update the state hash, but do note that it will take a few
+  seconds to finish:
 
-```ruby		
-		receiver.last
+```ruby
+		receiver.update_state
+		receiver.state["MVL"] => "22"
+		receiver.human_readable_state["master-volume"] => 34
 ```
+		
 
 * You can use `CommandMethods` to easily send a message and return the reply as
   a Message object. Once `Receiver#connect`is called, a method is defined for each command listed in the

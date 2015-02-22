@@ -46,6 +46,9 @@ module EISCP
     # receiver object using the first host to respond.
     #
     def initialize(host = nil, info_hash = {}, &block)
+      # Initialize state
+      #
+      @state = {}
       # This defines the behavior of CommandMethods by telling it what to do
       # with the Message object that results from a CommandMethod being called.
       # All we're doing here is calling #send_recv
@@ -96,8 +99,7 @@ module EISCP
       end
     end
 
-    # Creates or updates connection threads. You can provide a block just like
-    # with #connect.
+    # Manages the thread and uses the same block passed to throgh #connect.
     #
     def update_thread
       # Kill thread if it exists
@@ -110,17 +112,14 @@ module EISCP
         end
       end
     end
+    private :update_thread
 
-    # This handles the background thread for monitoring messages from the
-    # receiver.
-    #
-    # If a block is given, it can be used to setup a callback when a message
-    # is received.
+    # This creates a socket conection to the receiver if one doesn't exist, 
+    # and updates or sets the callback block if one is passed.
     #
     def connect(&block)
       begin
         @socket ||= TCPSocket.new(@host, @port)
-        @state = {}
         update_thread(&block)
       rescue => e
         puts e
@@ -178,9 +177,11 @@ module EISCP
     # This will return a human-readable represantion of the receiver's state. 
     #
     def human_readable_state
-      @state.map do |c, v|
-        "#{Dictionary.command_to_name(c)}: #{Dictionary.command_value_to_value_name(c, v)}"
+      hash = {}
+      @state.each do |c, v|
+        hash["#{Dictionary.command_to_name(c)}"] =  "#{Dictionary.command_value_to_value_name(c, v) || v.to_s}"
       end
+      hash
     end
 
     # Runs every command that supports the 'QSTN' value. This is a good way to
