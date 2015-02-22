@@ -100,6 +100,7 @@ module EISCP
     # with #connect.
     #
     def update_thread
+      # Kill thread if it exists
       thread && @thread.kill
       @thread = Thread.new do
         loop do
@@ -150,7 +151,6 @@ module EISCP
       data = ''
       data << @socket.gets until data.match(/\r\n$/)
       message = Parser.parse(data)
-      @state[message.command] = message.value
       message
     end
 
