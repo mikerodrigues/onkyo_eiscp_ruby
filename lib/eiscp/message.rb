@@ -66,7 +66,7 @@ module EISCP
       @start = start
       @header = { magic: MAGIC,
                   header_size:  HEADER_SIZE,
-                  data_size: to_iscp.length + 3,
+                  data_size: to_iscp.length + @terminator.length,
                   version: ISCP_VERSION,
                   reserved: RESERVED
       }
