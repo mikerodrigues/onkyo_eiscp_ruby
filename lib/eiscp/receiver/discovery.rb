@@ -8,7 +8,7 @@ module EISCP
     #
     module Discovery
       # ISCP Magic Packet for Autodiscovery
-      ONKYO_MAGIC = Message.new(command: 'ECN', value: 'QSTN', terminator: "\r\n", unit_type: 'x').to_eiscp
+      ONKYO_MAGIC = Message.new(command: 'ECN', value: 'QSTN', terminator: "\x0D\x0A", unit_type: 'x').to_eiscp
 
       # Populates Receiver attributes with info from ECNQSTN response.
       #
