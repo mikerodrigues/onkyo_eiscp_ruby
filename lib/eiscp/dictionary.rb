@@ -25,10 +25,10 @@ module EISCP
     @zones = commands.map { |k, _| k }
 
     @additions = []
-    @commands.each_key do |zone|
-      @commands[zone].each do |command|
+    commands.each_key do |zone|
+      commands[zone].each do |command|
         command = command[0]
-        @commands[zone][command][:values].each do |value|
+        commands[zone][command][:values].each do |value|
           value = value[0]
           if value.is_a? Array
             @additions << [zone, command, value, create_range_commands(zone, command, value)]
