@@ -99,7 +99,7 @@ module EISCP
       end
     end
 
-    # Manages the thread and uses the same block passed to throgh #connect.
+    # Manages the thread and uses the same block passed to through #connect.
     #
     def update_thread
       # Kill thread if it exists
