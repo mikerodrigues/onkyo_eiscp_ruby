@@ -91,7 +91,7 @@ module EISCP
       when info_hash.empty?
         set_host.call host
         Receiver.discover.each do |receiver|
-          receiver.host == @host && set_attrs.call(receiver.ecn_hash)
+          receiver.host == host && set_attrs.call(receiver.ecn_hash)
         end
       else
         set_host.call host
@@ -103,8 +103,8 @@ module EISCP
     #
     def update_thread
       # Kill thread if it exists
-      thread && @thread.kill
-      @thread = Thread.new do
+      thread && thread.kill
+      thread = Thread.new do
         loop do
           message = recv
           @state[message.command] = message.value
@@ -119,7 +119,7 @@ module EISCP
     #
     def connect(&block)
       begin
-        @socket ||= TCPSocket.new(@host, @port)
+        @socket ||= TCPSocket.new(host, port)
         update_thread(&block)
       rescue => e
         puts e
@@ -130,17 +130,17 @@ module EISCP
     # connection thread.
     #
     def disconnect
-      @thread.kill
-      @socket.close
+      thread.kill
+      socket.close
     end
 
     # Sends an EISCP::Message object or string on the network
     #
     def send(eiscp)
       if eiscp.is_a? EISCP::Message
-        @socket.puts(eiscp.to_eiscp)
+        socket.puts(eiscp.to_eiscp)
       elsif eiscp.is_a? String
-        @socket.puts eiscp
+        socket.puts eiscp
       end
     end
 
@@ -148,7 +148,7 @@ module EISCP
     #
     def recv
       data = ''
-      data << @socket.gets until data.match(/\r\n$/)
+      data << socket.gets until data.match(/\r\n$/)
       message = Parser.parse(data)
       message
     end
@@ -161,16 +161,16 @@ module EISCP
       end
       send eiscp
       sleep DEFAULT_TIMEOUT
-      Parser.parse("#{eiscp.command}#{@state[eiscp.command]}")
+      Parser.parse("#{eiscp.command}#{state[eiscp.command]}")
     end
 
     # Return ECN hash with model, port, area, and MAC address
     #
     def ecn_hash
-      { model: @model,
-        port: @port,
-        area: @area,
-        mac_address: @mac_address
+      { model: model,
+        port: port,
+        area: area,
+        mac_address: mac_address
       }
     end
 
@@ -178,7 +178,7 @@ module EISCP
     #
     def human_readable_state
       hash = {}
-      @state.each do |c, v|
+      state.each do |c, v|
         hash["#{Dictionary.command_to_name(c)}"] =  "#{Dictionary.command_value_to_value_name(c, v) || v.to_s}"
       end
       hash

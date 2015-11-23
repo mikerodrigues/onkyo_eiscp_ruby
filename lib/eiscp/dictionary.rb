@@ -20,9 +20,9 @@ module EISCP
     DEFAULT_ZONE = 'main'
     @yaml_file_path = File.join(File.expand_path(File.dirname(__FILE__)), '../../eiscp-commands.yaml')
     @commands = YAML.load(File.read(@yaml_file_path))
-    @modelsets = @commands[:modelsets]
+    @modelsets = commands[:modelsets]
     @commands.delete(:modelsets)
-    @zones = @commands.map { |k, _| k }
+    @zones = commands.map { |k, _| k }
 
     @additions = []
     @commands.each_key do |zone|
@@ -45,7 +45,7 @@ module EISCP
 
     @additions.each do |zone, command, value, hash|
       begin
-        @commands[zone][command][:values].merge! hash
+        commands[zone][command][:values].merge! hash
       rescue
         puts "Failed to add #{hash} to #{zone}:#{command}:#{value}"
       end
