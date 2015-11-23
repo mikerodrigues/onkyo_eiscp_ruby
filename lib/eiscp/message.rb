@@ -86,38 +86,38 @@ module EISCP
     # Return ISCP Message string
     #
     def to_iscp
-      "#{@start + @unit_type + @command + @value}"
+      "#{start + unit_type + command + value}"
     end
 
     # Return EISCP Message string
     #
     def to_eiscp
       [
-        @header[:magic],
-        @header[:header_size].to_i,
-        @header[:data_size].to_i,
-        @header[:version].to_i,
-        @header[:reserved],
+        header[:magic],
+        header[:header_size],
+        header[:data_size],
+        header[:version],
+        header[:reserved],
         to_iscp.to_s,
-        @terminator
+        terminator
       ].pack('A4NNCa3A*A*')
     end
 
     # Return human readable description.
     #
     def to_s
-      "#{@zone} - #{@command_name}:#{@value_name}"
+      "#{zone} - #{command_name}:#{value_name}"
     end
 
     private
 
     # Retrieves human readable attributes from the yaml file via Dictionary
     def get_human_readable_attrs
-      @zone = Dictionary.zone_from_command(@command)
-      @command_name = Dictionary.command_to_name(@command)
-      @command_description = Dictionary.description_from_command(@command)
-      @value_name = Dictionary.command_value_to_value_name(@command, @value)
-      @value_description = Dictionary.description_from_command_value(@command, @value)
+      @zone = Dictionary.zone_from_command(command)
+      @command_name = Dictionary.command_to_name(command)
+      @command_description = Dictionary.description_from_command(command)
+      @value_name = Dictionary.command_value_to_value_name(command, value)
+      @value_description = Dictionary.description_from_command_value(command, value)
     end
   end
 end
