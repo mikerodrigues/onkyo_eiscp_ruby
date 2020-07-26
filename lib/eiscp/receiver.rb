@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'resolv'
 require_relative './receiver/discovery'
 require_relative './receiver/command_methods'
@@ -40,7 +42,6 @@ module EISCP
     # Default Onkyo eISCP port
     ONKYO_PORT = 60_128
 
-
     # Create a new EISCP::Receiver object to communicate with a receiver.
     # If no host is given, use auto discovery and create a
     # receiver object using the first host to respond.
@@ -53,7 +54,7 @@ module EISCP
       # with the Message object that results from a CommandMethod being called.
       # All we're doing here is calling #send_recv
       #
-      command_method_proc = Proc.new {|msg| self.send_recv msg}
+      command_method_proc = proc { |msg| send_recv msg }
       CommandMethods.generate(&command_method_proc)
 
       # This proc sets the four ECN attributes and initiates a connection to the
@@ -64,9 +65,7 @@ module EISCP
         @port  = hash[:port]
         @area  = hash[:area]
         @mac_address = hash[:mac_address]
-        if block_given?
-          connect(&block)
-        end
+        connect(&block) if block_given?
       end
 
       # This lambda sets the host IP after resolving it
@@ -83,12 +82,11 @@ module EISCP
       # Else, use the given host and hash to create a new Receiver object.
       # This is how ::discover creates Receivers.
       #
-      case
-      when host.nil?
+      if host.nil?
         first_found = Receiver.discover[0]
         set_host.call first_found.host
         set_attrs.call first_found.ecn_hash
-      when info_hash.empty?
+      elsif info_hash.empty?
         set_host.call host
         Receiver.discover.each do |receiver|
           receiver.host == @host && set_attrs.call(receiver.ecn_hash)
@@ -114,16 +112,14 @@ module EISCP
     end
     private :update_thread
 
-    # This creates a socket conection to the receiver if one doesn't exist, 
+    # This creates a socket conection to the receiver if one doesn't exist,
     # and updates or sets the callback block if one is passed.
     #
     def connect(&block)
-      begin
-        @socket ||= TCPSocket.new(@host, @port)
-        update_thread(&block)
-      rescue => e
-        puts e
-      end
+      @socket ||= TCPSocket.new(@host, @port)
+      update_thread(&block)
+    rescue StandardError => e
+      puts e
     end
 
     # Disconnect from the receiver by closing the socket and killing the
@@ -156,9 +152,7 @@ module EISCP
     # Sends an EISCP::Message object or string on the network and returns recieved data string.
     #
     def send_recv(eiscp)
-      if eiscp.is_a? String
-        eiscp = Parser.parse(eiscp)
-      end
+      eiscp = Parser.parse(eiscp) if eiscp.is_a? String
       send eiscp
       sleep DEFAULT_TIMEOUT
       Parser.parse("#{eiscp.command}#{@state[eiscp.command]}")
@@ -170,16 +164,15 @@ module EISCP
       { model: @model,
         port: @port,
         area: @area,
-        mac_address: @mac_address
-      }
+        mac_address: @mac_address }
     end
 
-    # This will return a human-readable represantion of the receiver's state. 
+    # This will return a human-readable represantion of the receiver's state.
     #
     def human_readable_state
       hash = {}
       @state.each do |c, v|
-        hash["#{Dictionary.command_to_name(c)}"] =  "#{Dictionary.command_value_to_value_name(c, v) || v.to_s}"
+        hash[Dictionary.command_to_name(c).to_s] = (Dictionary.command_value_to_value_name(c, v) || v.to_s).to_s
       end
       hash
     end
@@ -189,18 +182,18 @@ module EISCP
     #
     def update_state
       Thread.new do
-        Dictionary.commands.each do |zone, commands|
+        Dictionary.commands.each do |zone, _commands|
           Dictionary.commands[zone].each do |command, info|
             info[:values].each do |value, _|
-              if value == 'QSTN'
-                send(Parser.parse(command + "QSTN"))
-                # If we send any faster we risk making the stereo drop replies. 
-                # A dropped reply is not necessarily indicative of the
-                # receiver's failure to receive the command and change state
-                # accordingly. In this case, we're only making queries, so we do
-                # want to capture every reply.
-                sleep DEFAULT_TIMEOUT
-              end
+              next unless value == 'QSTN'
+
+              send(Parser.parse(command + 'QSTN'))
+              # If we send any faster we risk making the stereo drop replies.
+              # A dropped reply is not necessarily indicative of the
+              # receiver's failure to receive the command and change state
+              # accordingly. In this case, we're only making queries, so we do
+              # want to capture every reply.
+              sleep DEFAULT_TIMEOUT
             end
           end
         end

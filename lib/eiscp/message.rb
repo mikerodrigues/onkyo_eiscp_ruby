@@ -1,4 +1,5 @@
-# encoding: utf-8
+# frozen_string_literal: true
+
 require_relative './dictionary'
 require_relative './parser'
 
@@ -52,12 +53,12 @@ module EISCP
     # @param [String] value variable length ISCP command value
     # @param [String] unit_type_character override default unit type character, optional
     # @param [String] start_character override default start character, optional
-    def initialize(command: nil, value: nil, terminator:  "\r\n", unit_type: '1', start: '!')
+    def initialize(command: nil, value: nil, terminator: "\r\n", unit_type: '1', start: '!')
       unless Dictionary.known_command?(command)
-        #STDERR.puts "Unknown command #{command}"
+        # STDERR.puts "Unknown command #{command}"
       end
 
-      fail 'No value specified.' if value.nil?
+      raise 'No value specified.' if value.nil?
 
       @command = command
       @value = value
@@ -65,28 +66,27 @@ module EISCP
       @unit_type = unit_type
       @start = start
       @header = { magic: MAGIC,
-                  header_size:  HEADER_SIZE,
+                  header_size: HEADER_SIZE,
                   data_size: to_iscp.length,
                   version: ISCP_VERSION,
-                  reserved: RESERVED
-      }
+                  reserved: RESERVED }
       begin
         get_human_readable_attrs
-      rescue
-        #STDERR.puts"Couldn't get all human readable attrs"
+      rescue StandardError
+        # STDERR.puts"Couldn't get all human readable attrs"
       end
     end
 
     # Check if two messages are equivalent comparing their ISCP messages.
     #
     def ==(other)
-      to_iscp == other.to_iscp ? true : false
+      to_iscp == other.to_iscp
     end
 
     # Return ISCP Message string
     #
     def to_iscp
-      "#{@start + @unit_type + @command + @value}"
+      (@start + @unit_type + @command + @value).to_s
     end
 
     # Return EISCP Message string

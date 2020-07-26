@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative './dictionary/dictionary_generators'
 require_relative './dictionary/dictionary_helpers'
 
@@ -18,8 +20,8 @@ module EISCP
     end
 
     DEFAULT_ZONE = 'main'
-    @yaml_file_path = File.join(File.expand_path(File.dirname(__FILE__)), '../../eiscp-commands.yaml')
-    @commands = YAML.load(File.read(@yaml_file_path))
+    @yaml_file_path = File.join(__dir__, '../../eiscp-commands.yaml')
+    @commands = YAML.safe_load(File.read(@yaml_file_path))
     @modelsets = @commands[:modelsets]
     @commands.delete(:modelsets)
     @zones = @commands.map { |k, _| k }
@@ -44,11 +46,9 @@ module EISCP
     end
 
     @additions.each do |zone, command, value, hash|
-      begin
-        @commands[zone][command][:values].merge! hash
-      rescue
-        puts "Failed to add #{hash} to #{zone}:#{command}:#{value}"
-      end
+      @commands[zone][command][:values].merge! hash
+    rescue StandardError
+      puts "Failed to add #{hash} to #{zone}:#{command}:#{value}"
     end
   end
 end

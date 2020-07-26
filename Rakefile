@@ -1,23 +1,21 @@
+# frozen_string_literal: true
+
 require 'rake/testtask'
 require 'bundler'
 require_relative './lib/eiscp'
 
 task :build do
-  begin
-    puts 'building gem...'
-    `gem build onkyo_eiscp_ruby.gemspec`
-  rescue
-    puts 'build failed.'
-  end
+  puts 'building gem...'
+  `gem build onkyo_eiscp_ruby.gemspec`
+rescue StandardError
+  puts 'build failed.'
 end
 
 task :install do
-  begin
-    puts 'installing gem...'
-    `gem install onkyo_eiscp_ruby-#{EISCP::VERSION}.gem`
-  rescue
-    puts 'install failed.'
-  end
+  puts 'installing gem...'
+  `gem install onkyo_eiscp_ruby-#{EISCP::VERSION}.gem`
+rescue StandardError
+  puts 'install failed.'
 end
 
 task :console do
@@ -27,7 +25,7 @@ task :console do
   PRY.start
 end
 
-task :default => ['build', 'install']
+task default: %w[build install]
 
 Rake::TestTask.new do |t|
   t.libs << 'test'

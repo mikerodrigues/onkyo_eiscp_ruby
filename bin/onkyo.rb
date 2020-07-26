@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
 require 'eiscp'
 require 'optparse'
@@ -7,14 +8,13 @@ require 'ostruct'
 # This object parses ARGV and returns an @option hash
 #
 class Options
-  DEFAULT_OPTIONS = { verbose: true, all: false }
+  DEFAULT_OPTIONS = { verbose: true, all: false }.freeze
   USAGE = ' Usage: onkyo_rb [options]'
 
   def self.parse(args)
     @options = OpenStruct.new
 
     options = OptionParser.new do |opts|
-
       opts.banner = USAGE
 
       opts.on '-d', '--discover', 'Find Onkyo Receivers on the local broadcast domain' do |d|
@@ -38,17 +38,16 @@ class Options
       end
 
       opts.on '-m', '--monitor', 'Connect to the first discovered reciever and monitor updates' do |m|
-        @options.monitor = m 
+        @options.monitor = m
       end
-
     end
 
     options.parse!(args)
 
-    if @options.nil? && ARGV == [] then puts options end
+    puts options if @options.nil? && ARGV == []
 
     if @options.discover
-      EISCP::Receiver.discover.each {|rec| puts "#{rec.host}:#{rec.port} - #{rec.model} - #{rec.mac_address}"}
+      EISCP::Receiver.discover.each { |rec| puts "#{rec.host}:#{rec.port} - #{rec.model} - #{rec.mac_address}" }
       exit 0
     end
 
@@ -59,7 +58,7 @@ class Options
 
     if @options.monitor
       begin
-        rec = EISCP::Receiver.new do |reply| 
+        rec = EISCP::Receiver.new do |reply|
           puts "#{Time.now} #{rec.host} "\
                "#{reply.zone}: "\
                "#{reply.command_description || reply.command} "\
@@ -67,9 +66,9 @@ class Options
         end
         rec.thread.join
       rescue Interrupt
-        fail 'Exiting...'
+        raise 'Exiting...'
       rescue Exception => e
-        puts "bummer..."
+        puts 'bummer...'
         puts e
       end
     end
@@ -79,28 +78,25 @@ class Options
       modelsets = []
       EISCP::Receiver.discover.each do |rec|
         models << rec.model
-      end 
+      end
       models.each do |model|
         EISCP::Dictionary.modelsets.each do |modelset, list|
-          if list.select{|x| x.match model}.length > 0
-            modelsets << modelset
-          end
+          modelsets << modelset unless list.select { |x| x.match model }.empty?
         end
       end
       EISCP::Dictionary.zones.each do |zone|
         EISCP::Dictionary.commands[zone].each do |command, command_hash|
-          puts "Command - Description"
+          puts 'Command - Description'
           puts "\n"
           puts "  '#{Dictionary.command_to_name(command)}' - "\
             "#{Dictionary.description_from_command(command)}"
           puts "\n"
-          puts "    Value - Description>"
+          puts '    Value - Description>'
           puts "\n"
-          command_hash[:values].each do |value, attr_hash|
-            if  modelsets.include? attr_hash[:models]
-            puts "      '#{attr_hash[:name]}' - "\
-              " #{attr_hash[:description]}"
-            else  
+          command_hash[:values].each do |_value, attr_hash|
+            if modelsets.include? attr_hash[:models]
+              puts "      '#{attr_hash[:name]}' - "\
+                " #{attr_hash[:description]}"
             end
           end
           puts "\n"
@@ -111,14 +107,14 @@ class Options
     if @options.list_all
       EISCP::Dictionary.zones.each do |zone|
         EISCP::Dictionary.commands[zone].each do |command, command_hash|
-          puts "Command - Description"
+          puts 'Command - Description'
           puts "\n"
           puts "  '#{Dictionary.command_to_name(command)}' - "\
             "#{Dictionary.description_from_command(command)}"
           puts "\n"
-          puts "    Value - Description>"
+          puts '    Value - Description>'
           puts "\n"
-          command_hash[:values].each do |value, attr_hash| 
+          command_hash[:values].each do |_value, attr_hash|
             puts "      '#{attr_hash[:name]}' - "\
               " #{attr_hash[:description]}"
           end
@@ -143,7 +139,7 @@ receiver = EISCP::Receiver.discover[0]
 receiver.connect
 begin
   command = EISCP::Parser.parse(ARGV.join(' '))
-rescue
+rescue StandardError
   raise "Couldn't parse command"
 end
 reply = receiver.send_recv(command)

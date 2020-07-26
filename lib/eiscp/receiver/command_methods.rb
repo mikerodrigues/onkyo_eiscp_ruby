@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../parser'
 require_relative '../dictionary'
 
@@ -12,14 +14,12 @@ module EISCP
       def self.generate(&block)
         Dictionary.zones.each do |zone|
           Dictionary.commands[zone].each do |command, _values|
-            begin
-              command_name = Dictionary.command_to_name(command).to_s.gsub(/-/, '_')
-              define_method(command_name) do |v|
-                self.instance_exec Parser.parse(command_name.gsub(/_/, '-') + ' ' + v), &block
-              end
-            rescue => e
-              puts e
+            command_name = Dictionary.command_to_name(command).to_s.gsub(/-/, '_')
+            define_method(command_name) do |v|
+              instance_exec Parser.parse(command_name.gsub(/_/, '-') + ' ' + v), &block
             end
+          rescue StandardError => e
+            puts e
           end
         end
       end

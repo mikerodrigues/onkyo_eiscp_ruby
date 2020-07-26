@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EISCP
   module Dictionary
     # This module provides methods to get information from the Dictionary about
@@ -19,9 +21,9 @@ module EISCP
         command = command.upcase
         begin
           zone = zone_from_command(command)
-          return @commands[zone][command][:name]
-        rescue
-          return nil
+          @commands[zone][command][:name]
+        rescue StandardError
+          nil
         end
       end
 
@@ -34,46 +36,40 @@ module EISCP
               return command if attrs[:name] == name
             end
           end
-          return nil
+          nil
 
         else
 
           @commands[command_zone].each_pair do |command, attrs|
             return command if attrs[:name] == name
           end
-          return nil
+          nil
 
         end
       end
 
       # Return a value name from a command and a value
       def command_value_to_value_name(command, value)
-        begin
-          zone = zone_from_command(command)
-          @commands[zone][command][:values][value][:name]
-        rescue
-          nil
-        end
+        zone = zone_from_command(command)
+        @commands[zone][command][:values][value][:name]
+      rescue StandardError
+        nil
       end
 
       # Return a value from a command and value name
       def command_value_name_to_value(command, value_name)
-        begin
-          zone = zone_from_command(command)
-          @commands[zone][command][:values].each_pair do |k, v|
-            return k if v[:name] == value_name.to_s
-          end
-        rescue
-          nil
+        zone = zone_from_command(command)
+        @commands[zone][command][:values].each_pair do |k, v|
+          return k if v[:name] == value_name.to_s
         end
+      rescue StandardError
+        nil
       end
 
       # Return a command description from a command name and zone
       def description_from_command_name(name, zone)
         @commands[zone].each_pair do |command, attrs|
-          if attrs[:name] == name
-            return @commands[zone][command][:description]
-          end
+          return @commands[zone][command][:description] if attrs[:name] == name
         end
         nil
       end
@@ -105,14 +101,11 @@ module EISCP
       # Checks to see if the command is in the Dictionary
       #
       def known_command?(command)
-        begin
-          zone = zone_from_command(command)
-          @commands[zone].include? command
-        rescue
-          return nil
-        end
+        zone = zone_from_command(command)
+        @commands[zone].include? command
+      rescue StandardError
+        nil
       end
     end
-
   end
 end

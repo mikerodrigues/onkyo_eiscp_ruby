@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'socket'
 require_relative '../message'
 require_relative '../parser'
@@ -31,17 +33,14 @@ module EISCP
         sock.send(ONKYO_MAGIC, 0, '<broadcast>', discovery_port)
         data = []
         loop do
-
-          begin
-            msg, addr = sock.recvfrom_nonblock(1024)
-            data << Receiver.new(addr[2], ecn_string_to_ecn_array(msg))
-          rescue IO::WaitReadable
-            io = IO.select([sock], nil, nil, 0.5)
-            if io.nil?
-              return data
-            else
-              retry
-            end
+          msg, addr = sock.recvfrom_nonblock(1024)
+          data << Receiver.new(addr[2], ecn_string_to_ecn_array(msg))
+        rescue IO::WaitReadable
+          io = IO.select([sock], nil, nil, 0.5)
+          if io.nil?
+            return data
+          else
+            retry
           end
         end
       end

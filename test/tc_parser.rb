@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../lib/eiscp/parser'
 require_relative '../lib/eiscp/message'
 require 'minitest/autorun'
@@ -29,5 +31,4 @@ class TestParser < MiniTest::Test
   def test_return_nil_for_fake_human_readable
     assert_equal(EISCP::Parser.parse('fake-command value'), nil)
   end
-
 end

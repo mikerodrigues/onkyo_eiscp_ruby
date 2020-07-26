@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative './iscp_parser'
 
 module EISCP
@@ -30,7 +32,6 @@ module EISCP
       end
     end
 
-    class EISCPParserException < Exception; end
-
+    class EISCPParserException < RuntimeError; end
   end
 end

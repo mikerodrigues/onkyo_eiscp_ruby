@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Library for controlling Onkyo receivers over TCP/IP.
 #
 module EISCP
