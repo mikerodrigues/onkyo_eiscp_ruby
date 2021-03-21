@@ -9,15 +9,18 @@ onkyo_eiscp_ruby
 
 **The python version linked below sees much more activity.**
 
-Automatically discover receivers in the broadcast domain
 
-Send commands to receivers and parse returned messages
+Features
+---------------
+* Automatically discover receivers in the broadcast domain
 
-Open a TCP socket to receive solicited and non-solicited status updates.
+* Send commands to receivers and parse returned messages
 
-Mock reciever (currently only responds to discovery)
+* Open a TCP socket to receive solicited and non-solicited status updates.
 
-Human-readable commands
+* Mock reciever (currently only responds to discovery)
+
+* Human-readable commands
 
 **Inspired by https://github.com/miracle2k/onkyo-eiscp
 
