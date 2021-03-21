@@ -133,6 +133,9 @@ module EISCP
     # Sends an EISCP::Message object or string on the network
     #
     def send(eiscp)
+      if (@socket.nil? || @socket.closed?) then
+        connect
+      end
       if eiscp.is_a? EISCP::Message
         @socket.puts(eiscp.to_eiscp)
       elsif eiscp.is_a? String

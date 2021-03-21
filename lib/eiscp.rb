@@ -3,7 +3,7 @@
 # Library for controlling Onkyo receivers over TCP/IP.
 #
 module EISCP
-  VERSION = '2.1.2'
+  VERSION = '2.1.3'
 end
 
 require_relative './eiscp/receiver'
