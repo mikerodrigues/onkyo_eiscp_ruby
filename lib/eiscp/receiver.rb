@@ -143,7 +143,7 @@ module EISCP
     # Reads the socket and returns and EISCP::Message
     #
     def recv
-      data = ''
+      data = String.new
       data << @socket.gets until data.match(/\r\n$/)
       message = Parser.parse(data)
       message

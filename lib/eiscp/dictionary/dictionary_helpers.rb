@@ -51,7 +51,12 @@ module EISCP
       # Return a value name from a command and a value
       def command_value_to_value_name(command, value)
         zone = zone_from_command(command)
-        @commands[zone][command][:values][value][:name]
+        command_value = @commands[zone][command][:values][value][:name]
+        if command_value.class == String
+          command_value
+        elsif command_value.class == Array
+          command_value.first
+        end
       rescue StandardError
         nil
       end
