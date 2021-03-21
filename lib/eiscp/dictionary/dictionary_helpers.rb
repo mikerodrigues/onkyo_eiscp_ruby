@@ -60,8 +60,13 @@ module EISCP
       def command_value_name_to_value(command, value_name)
         zone = zone_from_command(command)
         @commands[zone][command][:values].each_pair do |k, v|
-          return k if v[:name] == value_name.to_s
+          if v[:name].class == String
+            return k if v[:name] == value_name.to_s
+          elsif v[:name].class == Array
+            return k if v[:name].first == value_name.to_s
+          end
         end
+        return nil
       rescue StandardError
         nil
       end

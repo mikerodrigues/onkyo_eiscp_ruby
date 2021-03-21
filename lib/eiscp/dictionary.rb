@@ -21,7 +21,7 @@ module EISCP
 
     DEFAULT_ZONE = 'main'
     @yaml_file_path = File.join(__dir__, '../../eiscp-commands.yaml')
-    @commands = YAML.safe_load(File.read(@yaml_file_path))
+    @commands = YAML.load(File.read(@yaml_file_path))
     @modelsets = @commands[:modelsets]
     @commands.delete(:modelsets)
     @zones = @commands.map { |k, _| k }
