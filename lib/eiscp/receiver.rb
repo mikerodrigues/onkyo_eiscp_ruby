@@ -174,7 +174,7 @@ module EISCP
     #
     def human_readable_state
       hash = {}
-      @state.each do |c, v|
+      @state.dup.each do |c, v|
         hash[Dictionary.command_to_name(c).to_s] = (Dictionary.command_value_to_value_name(c, v) || v.to_s).to_s
       end
       hash
