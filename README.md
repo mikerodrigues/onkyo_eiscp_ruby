@@ -3,7 +3,7 @@ onkyo_eiscp_ruby
 [![Gem Version](https://badge.fury.io/rb/onkyo_eiscp_ruby.png)](http://badge.fury.io/rb/onkyo_eiscp_ruby)
 [![GitHub version](https://badge.fury.io/gh/mikerodrigues%2Fonkyo_eiscp_ruby.png)](http://badge.fury.io/gh/mikerodrigues%2Fonkyo_eiscp_ruby)
 
-*A Ruby implementation of eISCP for controlling Onkyo receivers.*
+*A Ruby implementation of eISCP (ethernet Integra Serial Control Protocol) for controlling Onkyo receivers.*
 
 **I'm still sort of updating this code. Please feel free to reach out if there's something you need that it doesn't do, I may be willing to help.**
 
@@ -43,7 +43,11 @@ What's missing?
 
 Using the Library
 -----------------
-* require the library
+* Install the library
+		
+		gem install onkyo_eiscp_ruby
+
+* Require the library
 
 		require 'eiscp'
 
@@ -165,6 +169,11 @@ Using the Library
 
 		# Set the master volume to 45
 		receiver.master_volume "45"
+		
+		# Change the input to TV/CD
+		# Note: when a command value has more than one name (an array in the YAML file)
+		#       we default to using the first entry. So for `['cd', 'tv', 'cd']` you get:
+		receiver.input_selector "cd"
 ```
 
 * Parse ISCP and human readable strings:
