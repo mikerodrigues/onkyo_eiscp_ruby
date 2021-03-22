@@ -43,7 +43,11 @@ What's missing?
 
 Using the Library
 -----------------
-* require the library
+* Install the library
+		
+		gem install onkyo_eiscp_ruby
+
+* Require the library
 
 		require 'eiscp'
 
