@@ -133,12 +133,11 @@ module EISCP
     # Sends an EISCP::Message object or string on the network
     #
     def send(eiscp)
-      if (@socket.nil? || @socket.closed?) then
-        connect
-      end
-      if eiscp.is_a? EISCP::Message
+      connect if @socket.nil? || @socket.closed?
+      case eiscp
+      when EISCP::Message
         @socket.puts(eiscp.to_eiscp)
-      elsif eiscp.is_a? String
+      when String
         @socket.puts eiscp
       end
     end
@@ -148,8 +147,7 @@ module EISCP
     def recv
       data = String.new
       data << @socket.gets until data.match(/\r\n$/)
-      message = Parser.parse(data)
-      message
+      Parser.parse(data)
     end
 
     # Sends an EISCP::Message object or string on the network and returns recieved data string.
@@ -190,13 +188,7 @@ module EISCP
             info[:values].each do |value, _|
               next unless value == 'QSTN'
 
-              send(Parser.parse(command + 'QSTN'))
-              # If we send any faster we risk making the stereo drop replies.
-              # A dropped reply is not necessarily indicative of the
-              # receiver's failure to receive the command and change state
-              # accordingly. In this case, we're only making queries, so we do
-              # want to capture every reply.
-              sleep DEFAULT_TIMEOUT
+              send_recv(Parser.parse("#{command}QSTN"))
             end
           end
         end

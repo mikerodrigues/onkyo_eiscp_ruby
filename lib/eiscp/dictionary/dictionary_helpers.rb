@@ -52,9 +52,9 @@ module EISCP
       def command_value_to_value_name(command, value)
         zone = zone_from_command(command)
         command_value = @commands[zone][command][:values][value][:name]
-        if command_value.class == String
+        if command_value.instance_of?(String)
           command_value
-        elsif command_value.class == Array
+        elsif command_value.instance_of?(Array)
           command_value.first
         end
       rescue StandardError
@@ -65,13 +65,13 @@ module EISCP
       def command_value_name_to_value(command, value_name)
         zone = zone_from_command(command)
         @commands[zone][command][:values].each_pair do |k, v|
-          if v[:name].class == String
+          if v[:name].instance_of?(String)
             return k if v[:name] == value_name.to_s
-          elsif v[:name].class == Array
+          elsif v[:name].instance_of?(Array)
             return k if v[:name].first == value_name.to_s
           end
         end
-        return nil
+        nil
       rescue StandardError
         nil
       end

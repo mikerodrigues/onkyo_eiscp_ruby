@@ -17,19 +17,24 @@ module EISCP
           unit_type: msg.unit_type,
           start: msg.start
         )
-        packet.header = {
+        packet.header = create_header(array)
+        packet
+      end
+
+      def self.create_header(array)
+        {
           magic: array[0],
           header_size: array[1],
           data_size: array[2],
           version: array[3],
           reserved: array[4]
         }
-        packet
       end
 
       def self.validate(packet)
         packet.header.header_size.size == packet.command.size
       end
+        
     end
 
     class EISCPParserException < RuntimeError; end

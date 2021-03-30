@@ -15,6 +15,7 @@ module EISCP
   class Message
     # EISCP header
     attr_accessor :header
+
     # ISCP "magic" indicates the start of an eISCP message.
     MAGIC = 'ISCP'
     # eISCP header size, fixed length.

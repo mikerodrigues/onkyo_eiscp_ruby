@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative '../lib/eiscp/dictionary.rb'
+require_relative '../lib/eiscp/dictionary'
 require 'minitest/autorun'
 
 class TestDictionary < MiniTest::Test

@@ -6,7 +6,7 @@ module EISCP
     #
     module ISCPParser
       # Regexp for parsing ISCP messages
-      REGEX = /(?<start>!)?(?<unit_type>(\d|x))?(?<command>[A-Z]{3})\s?(?<value>.*?)(?<terminator>[[:cntrl:]]*$)/.freeze
+      REGEX = /(?<start>!)?(?<unit_type>(?:\d|x))?(?<command>[A-Z]{3})\s?(?<value>.*?)(?<terminator>[[:cntrl:]]*$)/
       def self.parse(string)
         match = string.match(REGEX)
 
@@ -17,9 +17,7 @@ module EISCP
         hash.delete_if { |_, v| v.nil? || v == '' }
 
         # Convert keys to symbols
-        hash = hash.each_with_object({}) do |(k, v), memo|
-          memo[k.to_sym] = v
-        end
+        hash = hash.transform_keys(&:to_sym)
 
         Message.new(**hash)
       end

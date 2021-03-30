@@ -8,7 +8,10 @@ class TestMessage <  MiniTest::Test
   DISCOVERY_STRING = DISCOVERY_PACKET.to_eiscp
 
   def test_create_discovery_iscp_message
-    assert_equal(EISCP::Message.new(command: 'ECN', value: 'QSTN', terminator: "\r\n", unit_type: 'x', start: '!').to_iscp, '!xECNQSTN')
+    assert_equal(
+      EISCP::Message.new(command: 'ECN', value: 'QSTN', terminator: "\r\n", unit_type: 'x',
+                         start: '!').to_iscp, '!xECNQSTN'
+    )
   end
 
   def test_create_messages

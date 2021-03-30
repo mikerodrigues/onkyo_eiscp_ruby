@@ -115,8 +115,8 @@ class Options
           puts '    Value - Description>'
           puts "\n"
           command_hash[:values].each do |_value, attr_hash|
-          puts "      '#{EISCP::Dictionary.command_value_to_value_name(command, _value)}' - "\
-              " #{attr_hash[:description]}"
+            puts "      '#{EISCP::Dictionary.command_value_to_value_name(command, _value)}' - "\
+                " #{attr_hash[:description]}"
           end
           puts "\n"
         end

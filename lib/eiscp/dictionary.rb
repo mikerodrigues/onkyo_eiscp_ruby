@@ -14,14 +14,12 @@ module EISCP
     extend DictionaryHelpers
 
     class << self
-      attr_reader :zones
-      attr_reader :modelsets
-      attr_reader :commands
+      attr_reader :zones, :modelsets, :commands
     end
 
     DEFAULT_ZONE = 'main'
     @yaml_file_path = File.join(__dir__, '../../eiscp-commands.yaml')
-    @commands = YAML.load(File.read(@yaml_file_path))
+    @commands = YAML.safe_load(File.read(@yaml_file_path), permitted_classes: [Symbol])
     @modelsets = @commands[:modelsets]
     @commands.delete(:modelsets)
     @zones = @commands.map { |k, _| k }
@@ -32,11 +30,12 @@ module EISCP
         command = command[0]
         @commands[zone][command][:values].each do |value|
           value = value[0]
-          if value.is_a? Array
+          case value
+          when Array
             @additions << [zone, command, value, create_range_commands(zone, command, value)]
-          elsif value.match(/^(B|T){xx}$/)
+          when /^(B|T){xx}$/
             @additions << [zone, command, value, create_treble_bass_commands(zone, command, value)]
-          elsif value.match(/^{xx}$/)
+          when /^{xx}$/
             @additions << [zone, command, value, create_balance_commands(zone, command, value)]
           else
             next

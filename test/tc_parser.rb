@@ -29,6 +29,6 @@ class TestParser < MiniTest::Test
   end
 
   def test_return_nil_for_fake_human_readable
-    assert_equal(EISCP::Parser.parse('fake-command value'), nil)
+    assert_nil(EISCP::Parser.parse('fake-command value'))
   end
 end

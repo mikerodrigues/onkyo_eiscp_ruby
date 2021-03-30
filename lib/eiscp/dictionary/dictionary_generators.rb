@@ -37,8 +37,8 @@ module EISCP
           tmp.merge!((value[0] + v.to_s) =>
             {
               name: value[0].downcase + v,
-              description: @commands[zone][command][:values][value[0] + '{xx}'][:description].gsub(/\(.*[\]|\)]$/, v),
-              models: @commands[zone][command][:values][value[0] + '{xx}'][:models]
+              description: @commands[zone][command][:values]["#{value[0]}{xx}"][:description].gsub(/\(.*[\]|)]$/, v),
+              models: @commands[zone][command][:values]["#{value[0]}{xx}"][:models]
             })
         end
         tmp
@@ -52,7 +52,7 @@ module EISCP
           tmp.merge!(v.to_s =>
             {
               name: v.downcase,
-              description: @commands[zone][command][:values]['{xx}'][:description].gsub(/\(.*[\]|\)]$/, v),
+              description: @commands[zone][command][:values]['{xx}'][:description].gsub(/\(.*[\]|)]$/, v),
               models: @commands[zone][command][:values]['{xx}'][:models]
             })
         end
