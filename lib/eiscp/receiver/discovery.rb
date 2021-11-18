@@ -37,11 +37,7 @@ module EISCP
           data << Receiver.new(addr[2], ecn_string_to_ecn_array(msg))
         rescue IO::WaitReadable
           io = IO.select([sock], nil, nil, 0.5)
-          if io.nil?
-            return data
-          else
-            retry
-          end
+          return data if io.nil?
         end
       end
     end

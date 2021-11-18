@@ -56,7 +56,7 @@ Using the Library
   `VERSION`)
 
 * You can do most everything through the `Receiver` and `Message` objects. If you
-  want to accept user input you will probably want to use the Parser module. Be
+  want to accept user input you will probably want to use the `Parser` module. Be
   sure to check out the RDocs or dig through the source code. I try to keep it
   well commented/documented, and there's more functionality to the library than
   is shown here:
@@ -82,7 +82,7 @@ Using the Library
 		EISCP::Receiver.discover
 ```
 
-* Create `Receiver` object from first discovered Receiver on the LAN
+* Create `Receiver` object from first discovered receiver on the LAN
 
 ```ruby		
 		receiver = EISCP::Receiver.new
@@ -104,8 +104,9 @@ Using the Library
 		end
 ```
 
-* Receivers created without a block will not connect automatically. You can use
-  the `connect` method to create a socket and connect to the receiver.
+* `Receivers` created without a block will not connect automatically. If you try
+  to send a command it will connect transparently, otherwise you can use the
+`connect` method to explicitly open a socket to the receiver.
 
 ```ruby
 		receiver.connect

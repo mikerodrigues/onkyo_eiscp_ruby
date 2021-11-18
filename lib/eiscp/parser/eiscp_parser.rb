@@ -34,7 +34,6 @@ module EISCP
       def self.validate(packet)
         packet.header.header_size.size == packet.command.size
       end
-        
     end
 
     class EISCPParserException < RuntimeError; end
