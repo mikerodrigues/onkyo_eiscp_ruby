@@ -146,7 +146,7 @@ module EISCP
     #
     def recv
       data = String.new
-      data << @socket.gets until data.match(/\r\n$/)
+      data << @socket.gets until data.match(/\x1A/)
       Parser.parse(data)
     end
 
@@ -156,7 +156,7 @@ module EISCP
       eiscp = Parser.parse(eiscp) if eiscp.is_a? String
       send eiscp
       sleep DEFAULT_TIMEOUT
-      Parser.parse("#{eiscp.command}#{@state[eiscp.command]}")
+      Message.new(command: eiscp.command, value: @state[eiscp.command], terminator: "\x1A\r\n")
     end
 
     # Return ECN hash with model, port, area, and MAC address
