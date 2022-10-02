@@ -33,6 +33,7 @@ module EISCP
           if addr.ipv4?
             sock = UDPSocket.new
             sock.setsockopt(Socket::SOL_SOCKET, Socket::SO_BROADCAST, true)
+            sock.setsockopt(Socket::SOL_SOCKET, Socket::SO_REUSEADDR, true)
             sock.bind(addr.ip_address, discovery_port)
             sock.send(ONKYO_MAGIC, 0, '<broadcast>', discovery_port)
             loop do
