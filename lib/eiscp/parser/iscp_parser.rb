@@ -19,6 +19,9 @@ module EISCP
         # Convert keys to symbols
         hash = hash.transform_keys(&:to_sym)
 
+        if value == nil
+          raise "Could not find a value in #{string}"
+        end
         Message.new(**hash)
       end
     end
