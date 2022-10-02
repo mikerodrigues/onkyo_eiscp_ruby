@@ -37,7 +37,7 @@ module EISCP
     attr_reader :thread
 
     # Default connection timeout value in seconds
-    DEFAULT_TIMEOUT = 0.5
+    DEFAULT_TIMEOUT = 0.75
 
     # Default Onkyo eISCP port
     ONKYO_PORT = 60_128

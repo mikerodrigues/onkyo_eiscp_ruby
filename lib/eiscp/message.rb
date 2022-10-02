@@ -54,12 +54,9 @@ module EISCP
     # @param [String] value variable length ISCP command value
     # @param [String] unit_type_character override default unit type character, optional
     # @param [String] start_character override default start character, optional
-    def initialize(command: nil, value: nil, terminator: "\r\n", unit_type: '1', start: '!')
-      unless command
-        raise 'All messages require a command'
-      end
+    def initialize(command:, value:, terminator: "\r\n", unit_type: '1', start: '!')
       unless value
-        raise "All messages require a value, command is #{command}"
+        raise "All messages require a value, command is #{command} with value: #{value.class}"
       end
       unless Dictionary.known_command?(command)
         # STDERR.puts "Unknown command #{command}"
