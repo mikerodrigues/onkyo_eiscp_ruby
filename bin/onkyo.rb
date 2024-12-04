@@ -42,7 +42,7 @@ class Options
       end
 
       opts.on '-V', '--version', 'Returns the version number of the onkyo-eiscp-ruby gem this binary belongs to.' do |v|
-        @options.monitor = v
+        @options.version = v
       end
     end
 
@@ -57,6 +57,7 @@ class Options
 
     if @options.version
       puts EISCP::VERSION
+      exit 0
     end
 
     if @options.help
