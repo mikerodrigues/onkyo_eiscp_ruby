@@ -55,7 +55,7 @@ class Options
       exit 0
     end
 
-    if options.version
+    if @options.version
       puts EISCP::VERSION
     end
 
