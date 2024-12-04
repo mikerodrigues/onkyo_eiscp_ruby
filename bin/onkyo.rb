@@ -40,6 +40,10 @@ class Options
       opts.on '-m', '--monitor', 'Connect to the first discovered reciever and monitor updates' do |m|
         @options.monitor = m
       end
+
+      opts.on '-V', '--version', 'Returns the version number of the onkyo-eiscp-ruby gem this binary belongs to.' do |v|
+        @options.monitor = v
+      end
     end
 
     options.parse!(args)
@@ -49,6 +53,10 @@ class Options
     if @options.discover
       EISCP::Receiver.discover.each { |rec| puts "#{rec.host}:#{rec.port} - #{rec.model} - #{rec.mac_address}" }
       exit 0
+    end
+
+    if options.version
+      puts EISCP::VERSION
     end
 
     if @options.help
