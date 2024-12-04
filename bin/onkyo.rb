@@ -60,9 +60,9 @@ class Options
       begin
         rec = EISCP::Receiver.new do |reply|
           puts "#{Time.now} #{rec.host} "\
-               "#{reply.zone}: "\
-               "#{reply.command_description || reply.command} "\
-               "-> #{reply.value_description || reply.value}"
+            "#{reply.zone}: "\
+            "#{reply.command_description || reply.command} "\
+            "-> #{reply.value_description || reply.value}"
         end
         rec.thread.join
       rescue Interrupt
@@ -93,9 +93,9 @@ class Options
           puts "\n"
           puts '    Value - Description>'
           puts "\n"
-          command_hash[:values].each do |_value, attr_hash|
+          command_hash[:values].each do |value, attr_hash|
             if modelsets.include? attr_hash[:models]
-              puts "      '#{EISCP::Dictionary.command_value_to_value_name(command, _value)}' - "\
+              puts "      '#{EISCP::Dictionary.command_value_to_value_name(command, value)}' - "\
                 " #{attr_hash[:description]}"
             end
           end
@@ -114,9 +114,9 @@ class Options
           puts "\n"
           puts '    Value - Description>'
           puts "\n"
-          command_hash[:values].each do |_value, attr_hash|
-            puts "      '#{EISCP::Dictionary.command_value_to_value_name(command, _value)}' - "\
-                " #{attr_hash[:description]}"
+          command_hash[:values].each do |value, attr_hash|
+            puts "      '#{EISCP::Dictionary.command_value_to_value_name(command, value)}' - "\
+              " #{attr_hash[:description]}"
           end
           puts "\n"
         end
@@ -131,8 +131,6 @@ class Options
   end
 end
 
-include EISCP
-
 @options = Options.parse(ARGV)
 
 receiver = EISCP::Receiver.discover[0]
@@ -143,4 +141,5 @@ rescue StandardError
   raise "Couldn't parse command"
 end
 reply = receiver.send_recv(command)
-puts "#{Time.now}: Response from #{receiver.host}: #{reply.zone.capitalize}   #{reply.command_description || reply.command} -> #{reply.value_description || reply.value}"
+puts "#{Time.now}: Response from #{receiver.host}: #{reply.zone.capitalize}  "\
+  "#{reply.command_description || reply.command} -> #{reply.value_description || reply.value}"

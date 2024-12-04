@@ -29,23 +29,38 @@ module EISCP
       #
       def discover(discovery_port = Receiver::ONKYO_PORT)
         data = []
-        Socket.ip_address_list.each do | addr |
-          if addr.ipv4?
-            sock = UDPSocket.new
-            sock.setsockopt(Socket::SOL_SOCKET, Socket::SO_BROADCAST, true)
-            sock.setsockopt(Socket::SOL_SOCKET, Socket::SO_REUSEADDR, true)
-            sock.bind(addr.ip_address, discovery_port)
-            sock.send(ONKYO_MAGIC, 0, '<broadcast>', discovery_port)
-            loop do
-              msg, addr = sock.recvfrom_nonblock(1024)
-              data << Receiver.new(addr[2], ecn_string_to_ecn_array(msg))
-            rescue IO::WaitReadable
-              io = IO.select([sock], nil, nil, 0.5)
-              break if io.nil?
-            end
-          end
+        Socket.ip_address_list.each do |addr|
+          next unless addr.ipv4?
+
+          sock = setup_socket(addr.ip_address, discovery_port)
+          send_broadcast(sock, discovery_port)
+          data.concat(receive_data(sock))
         end
-        return data
+        data
+      end
+
+      def setup_socket(ip_address, discovery_port)
+        sock = UDPSocket.new
+        sock.setsockopt(Socket::SOL_SOCKET, Socket::SO_BROADCAST, true)
+        sock.setsockopt(Socket::SOL_SOCKET, Socket::SO_REUSEADDR, true)
+        sock.bind(ip_address, discovery_port)
+        sock
+      end
+
+      def send_broadcast(sock, discovery_port)
+        sock.send(ONKYO_MAGIC, 0, '<broadcast>', discovery_port)
+      end
+
+      def receive_data(sock)
+        data = []
+        loop do
+          msg, addr = sock.recvfrom_nonblock(1024)
+          data << Receiver.new(addr[2], ecn_string_to_ecn_array(msg))
+        rescue IO::WaitReadable
+          io = IO.select([sock], nil, nil, 0.5)
+          break if io.nil?
+        end
+        data
       end
     end
   end

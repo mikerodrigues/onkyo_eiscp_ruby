@@ -36,14 +36,12 @@ module EISCP
               return command if attrs[:name] == name
             end
           end
-          nil
 
         else
 
           @commands[command_zone].each_pair do |command, attrs|
             return command if attrs[:name] == name
           end
-          nil
 
         end
       end
@@ -71,7 +69,6 @@ module EISCP
             return k if v[:name].first == value_name.to_s
           end
         end
-        nil
       rescue StandardError
         nil
       end
